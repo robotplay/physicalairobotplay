@@ -93,6 +93,20 @@ interface Teacher {
 }
 
 export default function Teachers() {
+    const [expandedTeachers, setExpandedTeachers] = useState<Set<number>>(new Set());
+
+    const toggleExperience = (index: number) => {
+        setExpandedTeachers((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(index)) {
+                newSet.delete(index);
+            } else {
+                newSet.add(index);
+            }
+            return newSet;
+        });
+    };
+
     const teachers: Teacher[] = [
         {
             name: '정숙형',
@@ -123,8 +137,27 @@ export default function Teachers() {
         },
         {
             name: '이은성',
-            title: '코딩 교육 전문강사',
-            specialty: '블록 코딩 및 텍스트 코딩',
+            title: '로봇코딩 교육 전문강사',
+            specialty: '로봇SW·에어로봇·창의과학 교육',
+            image: '/img/les.png',
+            skills: [
+                { name: 'Robot SW', level: 100 },
+                { name: 'Air Robot', level: 95 },
+                { name: 'Creative Science', level: 90 },
+                { name: 'Robot Coding', level: 100 },
+            ],
+            experience: [
+                '(주) NEU엔터테인먼트 [로봇SW, 에어로봇강사]',
+                '로봇플레이 로봇코딩 강사',
+                '충청남도 늘봄 창의과학 전문강사',
+                '(사) KICT기업인협회 [교육 및 컨설팅 프로]',
+                '상명대 AI로봇 스포츠 한마당 캠프 강사',
+                '항공우주 아산청소년문화센터 강사',
+                '글로벌 인재 양성을 위한 로봇코딩 강의 [천안 호서대학교 유학생대상]',
+                '경기도교육청 고교학점제 공동수업 제어비행기 강사',
+                '경기도교육청 IRO 휴머노이드 로보티즈 엔지니어MAX2강사',
+                '천안 직장 맘 센터 로봇코딩 강사',
+            ],
         },
         {
             name: '최은주',
@@ -169,6 +202,26 @@ export default function Teachers() {
             specialty: '항공 역학 및 드론 제어',
         },
         {
+            name: '유원경',
+            title: '로봇코딩 교육 전문강사',
+            specialty: '로봇SW·에어로봇·휴머노이드 로봇 교육',
+            image: '/img/ywk.png',
+            skills: [
+                { name: 'Robot SW', level: 100 },
+                { name: 'Air Robot', level: 95 },
+                { name: 'Humanoid Robot', level: 95 },
+                { name: 'Robot Coding', level: 100 },
+            ],
+            experience: [
+                '(주) NEU엔터테인먼트 [로봇SW, 에어로봇강사]',
+                '로봇플레이 로봇코딩 강사',
+                '아산청소년 문화센터 휴머노이드 로봇코딩 강사',
+                '천안 직장 맘 센터 로봇코딩 강사',
+                '상명대 AI로봇 스포츠 한마당 캠프 강사',
+                '경기도교육청 IRO 휴머노이드 로보티즈 엔지니어MAX2 강사',
+            ],
+        },
+        {
             name: '김미정',
             title: '창의과학 교육 전문강사',
             specialty: '코딩드론·항공과학·로봇SW 교육',
@@ -184,6 +237,9 @@ export default function Teachers() {
                 '충청남도 늘봄 창의과학 전문강사',
                 '(주) NEU엔터테인먼트 [로봇SW강사]',
                 '(사) KICT기업인협회 [교육 및 컨설팅 매니져]',
+                '글로벌 인재 양성을 위한 로봇코딩 강의 [천안 호서대학교 유학생대상]',
+                'AI드론 항공코딩 강사 [코딩드론 에어로봇]',
+                '로봇코딩 강사 [블록&엔트리&스크래치 코딩]',
             ],
         },
     ];
@@ -314,12 +370,32 @@ export default function Teachers() {
                                                 주요 경력
                                             </h5>
                                             <ul className="space-y-1 text-xs text-gray-300">
-                                                {teacher.experience.slice(0, 4).map((exp, i) => (
+                                                {(expandedTeachers.has(index) ? teacher.experience : teacher.experience.slice(0, 4)).map((exp, i) => (
                                                     <li key={i} className="flex items-start gap-2">
                                                         <span className="text-active-orange mt-0.5">•</span>
                                                         <span className="line-clamp-2">{exp}</span>
                                                     </li>
                                                 ))}
+                                                {teacher.experience.length > 4 && (
+                                                    <li>
+                                                        <button
+                                                            onClick={() => toggleExperience(index)}
+                                                            className="text-deep-electric-blue hover:text-active-orange text-xs font-semibold mt-2 transition-colors cursor-pointer flex items-center gap-1"
+                                                        >
+                                                            {expandedTeachers.has(index) ? (
+                                                                <>
+                                                                    <span>접기</span>
+                                                                    <span>▲</span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <span>+{teacher.experience.length - 4}개 더 보기</span>
+                                                                    <span>▼</span>
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    </li>
+                                                )}
                                             </ul>
                                         </div>
                                     )}
