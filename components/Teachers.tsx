@@ -133,8 +133,25 @@ export default function Teachers() {
         },
         {
             name: '강희정',
-            title: 'AI 교육 전문강사',
-            specialty: 'AI 비전 및 머신러닝',
+            title: '창의과학 교육 전문강사',
+            specialty: '코딩드론·항공과학·로봇SW 교육',
+            image: '/img/khj.png',
+            skills: [
+                { name: 'Coding Drone', level: 100 },
+                { name: 'Aerospace Science', level: 95 },
+                { name: 'Robot SW', level: 90 },
+                { name: 'STEAM Education', level: 95 },
+            ],
+            experience: [
+                '나로에어 코딩드론 & 항공과학 프로그램 강사',
+                '충청남도 늘봄 창의과학 전문강사',
+                '(주) NEU엔터테인먼트 [로봇SW강사]',
+                '(사) KICT기업인협회 [교육 및 컨설팅 매니져]',
+                'STEAMCUP AI 로봇대회 운영진 (재)아산시청소년재단',
+                '글로벌 인재양성을 위한 로봇코딩 운영진 [천안 호서대학교 유학생대상]',
+                '월드로보 페스타 심사위원 [천안 상명대학교]',
+                'AI드론 항공코딩 강사 [코딩드론 에어로봇]',
+            ],
         },
         {
             name: '이지은',
@@ -154,7 +171,20 @@ export default function Teachers() {
         {
             name: '김미정',
             title: '창의과학 교육 전문강사',
-            specialty: 'STEAM 교육 및 프로젝트 기반 학습',
+            specialty: '코딩드론·항공과학·로봇SW 교육',
+            image: '/img/kmj.png',
+            skills: [
+                { name: 'Coding Drone', level: 100 },
+                { name: 'Aerospace Science', level: 95 },
+                { name: 'Robot SW', level: 90 },
+                { name: 'Block/Entry/Scratch', level: 95 },
+            ],
+            experience: [
+                '나로에어 코딩드론 & 항공과학 프로그램 강사',
+                '충청남도 늘봄 창의과학 전문강사',
+                '(주) NEU엔터테인먼트 [로봇SW강사]',
+                '(사) KICT기업인협회 [교육 및 컨설팅 매니져]',
+            ],
         },
     ];
 
@@ -284,17 +314,12 @@ export default function Teachers() {
                                                 주요 경력
                                             </h5>
                                             <ul className="space-y-1 text-xs text-gray-300">
-                                                {teacher.experience.slice(0, 3).map((exp, i) => (
+                                                {teacher.experience.slice(0, 4).map((exp, i) => (
                                                     <li key={i} className="flex items-start gap-2">
                                                         <span className="text-active-orange mt-0.5">•</span>
                                                         <span className="line-clamp-2">{exp}</span>
                                                     </li>
                                                 ))}
-                                                {teacher.experience.length > 3 && (
-                                                    <li className="text-deep-electric-blue text-xs font-semibold mt-2">
-                                                        +{teacher.experience.length - 3}개 더 보기
-                                                    </li>
-                                                )}
                                             </ul>
                                         </div>
                                     )}
