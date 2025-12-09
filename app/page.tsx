@@ -1,65 +1,96 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import Hero from "@/components/Hero";
+
+// Lazy load components below the fold for better initial load
+const History = dynamic(() => import("@/components/History"), {
+  loading: () => <div className="py-20" />,
+});
+const About = dynamic(() => import("@/components/About"), {
+  loading: () => <div className="py-20" />,
+});
+const Program = dynamic(() => import("@/components/Program"), {
+  loading: () => <div className="py-20" />,
+});
+const Teachers = dynamic(() => import("@/components/Teachers"), {
+  loading: () => <div className="py-20" />,
+});
+const SuccessStories = dynamic(() => import("@/components/SuccessStories"), {
+  loading: () => <div className="py-20" />,
+});
+const OnlineCourses = dynamic(() => import("@/components/OnlineCourses"), {
+  loading: () => <div className="py-20" />,
+});
+const Showcase = dynamic(() => import("@/components/Showcase"), {
+  loading: () => <div className="py-20" />,
+});
+const Footer = dynamic(() => import("@/components/Footer"), {
+  loading: () => <div className="py-20" />,
+});
 
 export default function Home() {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Handle hash navigation after page load
+    const handleHashScroll = () => {
+      if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const scrollToElement = () => {
+          const element = document.getElementById(hash);
+          if (element) {
+            const headerOffset = 80; // Header height
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+            return true;
+          }
+          return false;
+        };
+
+        // Try immediately
+        if (!scrollToElement()) {
+          // If element not found, wait a bit longer for dynamic components to load
+          setTimeout(() => {
+            if (!scrollToElement()) {
+              // Try one more time after a longer delay
+              setTimeout(scrollToElement, 500);
+            }
+          }, 300);
+        }
+      }
+    };
+
+    // Run on mount with delay to ensure all components are rendered
+    const timer = setTimeout(() => {
+      handleHashScroll();
+    }, 100);
+    
+    window.addEventListener('hashchange', handleHashScroll);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('hashchange', handleHashScroll);
+    };
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+      <Hero />
+      <History />
+      <About />
+      <Program />
+      <Teachers />
+      <SuccessStories />
+      <OnlineCourses />
+      <Showcase />
+      <Footer />
+    </main>
   );
 }

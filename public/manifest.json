@@ -1,0 +1,17 @@
+{
+  "name": "Physical AI Robot Play",
+  "short_name": "PAR",
+  "description": "코드가 현실이 되는 곳, 피지컬 AI 로봇플레이",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0052FF",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
+
