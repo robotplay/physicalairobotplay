@@ -23,17 +23,17 @@ export default function CurriculumTabs() {
   }, [tabParam]);
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-white dark:bg-black relative overflow-hidden">
+    <section className="py-12 sm:py-16 md:py-20 bg-[#1A1A1A] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
         {/* Main Tabs */}
         <ScrollAnimation direction="fade">
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 bg-gray-100 dark:bg-gray-900 rounded-2xl p-2 max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 bg-gray-800 rounded-2xl p-2 max-w-4xl mx-auto border border-gray-700">
             <button
               onClick={() => setActiveTab('basic')}
               className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
                 activeTab === 'basic'
                   ? 'bg-active-orange text-white shadow-lg scale-105'
-                  : 'bg-transparent text-gray-600'
+                  : 'bg-transparent text-gray-300'
               } touch-manipulation`}
             >
               Basic Course
@@ -44,7 +44,7 @@ export default function CurriculumTabs() {
               className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
                 activeTab === 'advanced'
                   ? 'bg-deep-electric-blue text-white shadow-lg scale-105'
-                  : 'bg-transparent text-gray-600'
+                  : 'bg-transparent text-gray-300'
               } touch-manipulation`}
             >
               Advanced Course
@@ -55,7 +55,7 @@ export default function CurriculumTabs() {
               className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
                 activeTab === 'airrobot'
                   ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-lg scale-105'
-                  : 'bg-transparent text-gray-600'
+                  : 'bg-transparent text-gray-300'
               } touch-manipulation`}
             >
               Air Robot Course
@@ -73,7 +73,7 @@ export default function CurriculumTabs() {
                 className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
                   advancedSubTab === 'driving'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
-                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600'
+                    : 'bg-gray-700 text-gray-300'
                 } touch-manipulation`}
               >
                 🚗 자율주행 (8주)
@@ -83,7 +83,7 @@ export default function CurriculumTabs() {
                 className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
                   advancedSubTab === 'arm'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
-                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600'
+                    : 'bg-gray-700 text-gray-300'
                 } touch-manipulation`}
               >
                 🤖 물체 탐지 로봇팔 (8주)
@@ -93,7 +93,7 @@ export default function CurriculumTabs() {
                 className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
                   advancedSubTab === 'humanoid'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
-                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600'
+                    : 'bg-gray-700 text-gray-300'
                 } touch-manipulation`}
               >
                 👤 AI 휴머노이드 (12주)

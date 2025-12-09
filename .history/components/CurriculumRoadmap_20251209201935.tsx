@@ -105,7 +105,7 @@ export default function CurriculumRoadmap() {
 
                                         {/* Right: Visual */}
                                         <div className={`relative ${index % 2 === 0 ? '' : 'md:order-1'}`}>
-                                            <div className="relative h-48 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl overflow-hidden bg-gray-900 border border-gray-700">
+                                            <div className="relative h-48 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                                                 {/* Basic Course Images */}
                                                 {index === 0 ? (
                                                     <Image

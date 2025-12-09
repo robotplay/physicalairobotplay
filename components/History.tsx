@@ -32,7 +32,7 @@ export default function History() {
     ];
 
     return (
-        <section className="py-20 bg-white relative overflow-hidden">
+        <section className="py-20 bg-[#1A1A1A] relative overflow-hidden">
             {/* Animated background elements */}
             <div className="absolute inset-0 opacity-5">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-deep-electric-blue rounded-full blur-3xl animate-pulse"></div>
@@ -43,7 +43,7 @@ export default function History() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-16">
                         <h2 className="text-deep-electric-blue font-bold tracking-wider mb-2">OUR STORY</h2>
-                        <h3 className="text-4xl md:text-5xl font-bold text-gray-900">
+                        <h3 className="text-4xl md:text-5xl font-bold text-white">
                             우리가 걸어온 길,<br />그리고 아이들이 나아갈 미래
                         </h3>
                     </div>
@@ -68,16 +68,16 @@ export default function History() {
                                     <div className={`relative flex flex-col md:flex-row items-center group ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                                         {/* Content */}
                                         <div className="w-full md:w-1/2 px-4 sm:px-6 md:px-8 mb-4 md:mb-0">
-                                            <div className={`text-center md:text-${index % 2 === 0 ? 'right' : 'left'}`}>
-                                                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-gray-100 absolute -top-6 sm:-top-8 md:-top-10 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 opacity-50 z-0 select-none transition-all group-hover:opacity-70 group-hover:scale-110">
+                                            <div className={`text-center ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
+                                                <span className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-500 opacity-40 mb-3 block">
                                                     {event.year}
                                                 </span>
                                                 <div className="relative z-10 transform transition-all group-hover:scale-105">
-                                                    <div className="inline-flex items-center gap-2 mb-3 justify-center md:justify-start">
-                                                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-deep-electric-blue" />
+                                                    <div className={`flex items-center gap-2 mb-3 ${index % 2 === 0 ? 'md:justify-end' : 'md:justify-start'} justify-center`}>
+                                                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-deep-electric-blue flex-shrink-0" />
                                                         <h4 className="text-xl sm:text-2xl font-bold text-deep-electric-blue">{event.title}</h4>
                                                     </div>
-                                                    <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                                                    <p className={`text-gray-300 leading-relaxed text-sm sm:text-base ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'}`}>
                                                         {event.description}
                                                     </p>
                                                 </div>

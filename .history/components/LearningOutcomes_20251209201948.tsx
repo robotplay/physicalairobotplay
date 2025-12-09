@@ -64,10 +64,10 @@ export default function LearningOutcomes() {
                                     </div>
 
                                     {/* Content */}
-                                    <h4 className="text-xl font-bold text-white">
+                                    <h4 className="text-xl font-bold text-gray-900">
                                         {outcome.title}
                                     </h4>
-                                    <p className="text-gray-300">
+                                    <p className="text-gray-600">
                                         {outcome.description}
                                     </p>
 

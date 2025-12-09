@@ -202,3 +202,4 @@ export default function AdvancedCurriculum({ subTab }: AdvancedCurriculumProps) 
     </div>
   );
 }
+

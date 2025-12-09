@@ -74,7 +74,7 @@ export default function Showcase() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-16">
                         <h2 className="text-neon-purple font-bold tracking-wider mb-2">SHOWCASE</h2>
-                        <h3 className="heading-lg text-gray-900">
+                        <h3 className="heading-lg text-white">
                             상상이 현실이 되는 순간
                         </h3>
                     </div>
@@ -85,7 +85,7 @@ export default function Showcase() {
                     <div className="relative max-w-6xl mx-auto px-4">
                         {/* Main Slider */}
                         <div 
-                            className="relative h-[400px] sm:h-[500px] md:h-[600px] rounded-2xl md:rounded-3xl overflow-hidden bg-gray-100"
+                            className="relative h-[400px] sm:h-[500px] md:h-[600px] rounded-2xl md:rounded-3xl overflow-hidden bg-gray-900"
                             onTouchStart={onTouchStart}
                             onTouchMove={onTouchMove}
                             onTouchEnd={onTouchEnd}

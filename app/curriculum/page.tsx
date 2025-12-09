@@ -19,7 +19,7 @@ const Footer = dynamic(() => import('@/components/Footer'), {
 
 export default function CurriculumPage() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-[#1A1A1A] text-white">
       <CurriculumHero />
       <CurriculumTabs />
       <CompetitionRoadmap />

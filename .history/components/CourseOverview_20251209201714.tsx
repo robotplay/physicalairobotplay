@@ -26,11 +26,11 @@ export default function CourseOverview() {
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 bg-active-orange rounded-full animate-pulse"></div>
-                                    <span className="text-sm text-gray-400">입문 과정</span>
+                                    <span className="text-sm text-gray-500">입문 과정</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 bg-deep-electric-blue rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                                    <span className="text-sm text-gray-400">블록 코딩 기반</span>
+                                    <span className="text-sm text-gray-500">블록 코딩 기반</span>
                                 </div>
                             </div>
                         </div>

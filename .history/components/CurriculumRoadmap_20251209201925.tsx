@@ -65,7 +65,7 @@ export default function CurriculumRoadmap() {
                                 direction={index % 2 === 0 ? 'right' : 'left'}
                                 delay={index * 200}
                             >
-                                <div className={`group relative bg-gray-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-1 hover:-translate-y-2 overflow-hidden border border-gray-700
+                                <div className={`group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-1 hover:-translate-y-2 overflow-hidden border border-gray-100
                                     index === 1 ? 'md:flex-row-reverse' : ''
                                 }`}>
                                     {/* Animated background blob */}
@@ -84,10 +84,10 @@ export default function CurriculumRoadmap() {
                                                     {step.number}
                                                 </div>
                                                 <div>
-                                                    <span className="text-xs font-semibold text-gray-400">
+                                                    <span className="text-xs font-semibold text-gray-500">
                                                         {step.subtitle}
                                                     </span>
-                                                    <h4 className="text-2xl md:text-3xl font-bold text-white">
+                                                    <h4 className="text-2xl md:text-3xl font-bold text-gray-900">
                                                         {step.title}
                                                     </h4>
                                                 </div>
@@ -97,7 +97,7 @@ export default function CurriculumRoadmap() {
                                                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} opacity-20 flex items-center justify-center group-hover:opacity-30 transition-opacity`}>
                                                     <Icon className={`w-6 h-6 text-transparent bg-clip-text bg-gradient-to-br ${step.color}`} />
                                                 </div>
-                                                <p className="text-gray-300">
+                                                <p className="text-gray-600">
                                                     {step.description}
                                                 </p>
                                             </div>
@@ -105,7 +105,7 @@ export default function CurriculumRoadmap() {
 
                                         {/* Right: Visual */}
                                         <div className={`relative ${index % 2 === 0 ? '' : 'md:order-1'}`}>
-                                            <div className="relative h-48 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl overflow-hidden bg-gray-900 border border-gray-700">
+                                            <div className="relative h-48 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                                                 {/* Basic Course Images */}
                                                 {index === 0 ? (
                                                     <Image

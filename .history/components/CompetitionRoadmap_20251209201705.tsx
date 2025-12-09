@@ -54,12 +54,12 @@ export default function CompetitionRoadmap() {
             const Icon = competition.logo ? null : competition.icon;
             return (
               <ScrollAnimation key={index} direction="up" delay={index * 150}>
-                <div className="bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-700">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-200">
                   {competition.logo ? (
                     <div className={`inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-3 mb-4 border-2 shadow-lg ${
                       competition.acronym === 'IRO' 
-                        ? 'bg-yellow-50 border-yellow-300'
-                        : 'bg-blue-50 border-blue-300'
+                        ? 'bg-white dark:bg-yellow-50 border-yellow-300'
+                        : 'bg-white dark:bg-blue-50 border-blue-300'
                     }`}>
                       <Image
                         src={competition.logo}
@@ -74,20 +74,20 @@ export default function CompetitionRoadmap() {
                       {Icon && <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />}
                     </div>
                   )}
-                  <h3 className="text-xl sm:text-2xl font-bold text-white">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                     {competition.name}
                   </h3>
                   <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r bg-gradient-to-br from-deep-electric-blue to-neon-purple mb-3">
                     {competition.acronym}
                   </div>
-                  <p className="text-gray-300">
+                  <p className="text-gray-600">
                     {competition.description}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {competition.categories.map((category, i) => (
                       <span
                         key={i}
-                        className="px-3 py-1 bg-gray-700 text-gray-200 rounded-lg"
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700"
                       >
                         {category}
                       </span>

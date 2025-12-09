@@ -85,3 +85,4 @@ DELETE /api/consultations/:id - 상담 문의 삭제
 ❌ 여러 기기에서 공유 불가
 ❌ 백업 없음
 
+

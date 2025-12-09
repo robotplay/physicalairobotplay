@@ -74,20 +74,20 @@ export default function CompetitionRoadmap() {
                       {Icon && <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />}
                     </div>
                   )}
-                  <h3 className="text-xl sm:text-2xl font-bold text-white">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                     {competition.name}
                   </h3>
                   <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r bg-gradient-to-br from-deep-electric-blue to-neon-purple mb-3">
                     {competition.acronym}
                   </div>
-                  <p className="text-gray-300">
+                  <p className="text-gray-600">
                     {competition.description}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {competition.categories.map((category, i) => (
                       <span
                         key={i}
-                        className="px-3 py-1 bg-gray-700 text-gray-200 rounded-lg"
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700"
                       >
                         {category}
                       </span>

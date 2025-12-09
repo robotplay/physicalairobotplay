@@ -54,7 +54,7 @@ export default function OnlineCourses() {
     ];
 
     return (
-        <section id="courses" className="section-padding bg-white">
+        <section id="courses" className="section-padding bg-[#1A1A1A]">
             {/* Background decoration */}
             <div className="absolute inset-0 opacity-5">
                 <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-neon-purple rounded-full blur-3xl animate-pulse"></div>
@@ -68,7 +68,7 @@ export default function OnlineCourses() {
                             <Video className="w-4 h-4 sm:w-5 sm:h-5 text-neon-purple animate-pulse" aria-hidden="true" />
                             <span className="text-xs sm:text-sm text-neon-purple font-semibold">ONLINE COURSES</span>
                         </div>
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
                             언제 어디서나<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-purple via-deep-electric-blue to-active-orange">
                                 온라인으로 배우는 로봇 교육
@@ -84,7 +84,7 @@ export default function OnlineCourses() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto">
                     {courses.map((course, index) => (
                         <ScrollAnimation key={course.id} direction="up" delay={index * 150}>
-                            <div className="group relative bg-white">
+                            <div className="group relative bg-gray-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-700">
                                 {/* Thumbnail */}
                                 <div className="relative h-48 sm:h-56 overflow-hidden">
                                     <Image
@@ -121,15 +121,15 @@ export default function OnlineCourses() {
 
                                 {/* Content */}
                                 <div className="p-6 sm:p-8">
-                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 group-hover:text-deep-electric-blue transition-colors">
                                         {course.title}
                                     </h3>
-                                    <p className="text-sm sm:text-base text-gray-600">
+                                    <p className="text-sm sm:text-base text-gray-300">
                                         {course.description}
                                     </p>
 
                                     {/* Course Info */}
-                                    <div className="flex flex-wrap items-center gap-4 mb-6 text-xs sm:text-sm text-gray-500">
+                                    <div className="flex flex-wrap items-center gap-4 mb-6 text-xs sm:text-sm text-gray-400">
                                         <div className="flex items-center gap-2">
                                             <Clock className="w-4 h-4" aria-hidden="true" />
                                             <span>{course.duration}</span>

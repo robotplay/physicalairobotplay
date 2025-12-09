@@ -40,7 +40,7 @@ export default function BasicCourseCTA() {
                             </button>
                             <a 
                                 href="/curriculum?tab=basic"
-                                className="px-6 py-3 sm:px-8 sm:py-4 bg-gray-700 active:bg-gray-600 hover:bg-gray-600 text-white border border-gray-600 font-semibold rounded-lg transition-all text-center"
+                                className="px-6 py-3 sm:px-8 sm:py-4 bg-white dark:bg-gray-800 active:bg-gray-50 dark:active:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900"
                             >
                                 커리큘럼 자세히 보기
                             </a>

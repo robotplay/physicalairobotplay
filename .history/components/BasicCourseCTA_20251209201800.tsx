@@ -20,14 +20,14 @@ export default function BasicCourseCTA() {
                             <span className="text-xs sm:text-sm font-semibold text-active-orange">첫 로봇 친구를 만나는 설렘</span>
                         </div>
                         
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
                             우리 아이의 첫 AI 파트너,<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-active-orange to-deep-electric-blue">
                                 지금 만나보세요
                             </span>
                         </h2>
                         
-                        <p className="text-base sm:text-lg text-gray-300">
+                        <p className="text-base sm:text-lg text-gray-600">
                             Basic Course는 아이들이 로봇과 코딩의 세계로 들어가는 첫 번째 문입니다.
                             <br className="hidden sm:block" />
                             상담을 통해 우리 아이에게 맞는 학습 계획을 세워보세요.
@@ -40,7 +40,7 @@ export default function BasicCourseCTA() {
                             </button>
                             <a 
                                 href="/curriculum?tab=basic"
-                                className="px-6 py-3 sm:px-8 sm:py-4 bg-gray-700 active:bg-gray-600 hover:bg-gray-600 text-white border border-gray-600 font-semibold rounded-lg transition-all text-center"
+                                className="px-6 py-3 sm:px-8 sm:py-4 bg-white dark:bg-gray-800 active:bg-gray-50 dark:active:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900"
                             >
                                 커리큘럼 자세히 보기
                             </a>

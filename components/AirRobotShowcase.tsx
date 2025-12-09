@@ -42,7 +42,7 @@ export default function AirRobotShowcase() {
     ];
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-[#1A1A1A]">
             {/* Background decoration */}
             <div className="absolute inset-0 opacity-5">
                 <div className="absolute bottom-20 left-10 w-96 h-96 bg-sky-400 rounded-full blur-3xl animate-pulse"></div>
@@ -52,7 +52,7 @@ export default function AirRobotShowcase() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-16">
                         <h2 className="text-sky-500 font-bold tracking-wider mb-2">CREATIVE SHOWCASE</h2>
-                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900">
+                        <h3 className="text-3xl md:text-4xl font-bold text-white">
                             상상하는 모든 것이 드론이 됩니다
                         </h3>
                         <p className="text-gray-600">
@@ -77,8 +77,8 @@ export default function AirRobotShowcase() {
                                             </div>
                                         )}
                                     </div>
-                                    <h4 className="text-lg font-bold text-gray-900">{item.stage}</h4>
-                                    <p className="text-sm text-gray-600">{item.description}</p>
+                                    <h4 className="text-lg font-bold text-white">{item.stage}</h4>
+                                    <p className="text-sm text-gray-300">{item.description}</p>
                                 </div>
                             ))}
                         </div>
@@ -140,14 +140,14 @@ export default function AirRobotShowcase() {
                                 <div className="p-4 sm:p-6">
                                     <div className="flex items-center gap-2 mb-2">
                                         <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-sky-500" />
-                                        <span className="text-xs text-gray-500">Project #{index + 1}</span>
+                                        <span className="text-xs text-gray-400">Project #{index + 1}</span>
                                     </div>
                                     
-                                    <h4 className="text-lg sm:text-xl font-bold text-gray-900">
+                                    <h4 className="text-lg sm:text-xl font-bold text-white">
                                         {project.title}
                                     </h4>
                                     
-                                    <p className="text-gray-600">
+                                    <p className="text-gray-300">
                                         {project.description}
                                     </p>
                                 </div>
