@@ -1,9 +1,13 @@
 'use client';
 
 import { ArrowRight, Plane, Zap } from 'lucide-react';
+import { useState } from 'react';
 import ScrollAnimation from './ScrollAnimation';
+import ConsultationModal from './ConsultationModal';
 
 export default function AirRobotCTA() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
         <section className="py-20 bg-gradient-to-br from-sky-400 via-blue-600 to-[#0A1931] relative overflow-hidden">
             {/* Sky effects */}
@@ -34,14 +38,19 @@ export default function AirRobotCTA() {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-                            <button className="group px-6 py-3 sm:px-8 sm:py-4 bg-white active:bg-blue-50 hover:bg-blue-50 text-sky-600 text-sm sm:text-base font-bold rounded-lg transition-all transform active:scale-95 hover:scale-110 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 touch-manipulation">
+                            <button 
+                                onClick={() => setIsModalOpen(true)}
+                                className="group px-6 py-3 sm:px-8 sm:py-4 bg-white active:bg-blue-50 hover:bg-blue-50 text-sky-600 text-sm sm:text-base font-bold rounded-lg transition-all transform active:scale-95 hover:scale-110 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 touch-manipulation cursor-pointer"
+                                aria-label="AirRobot 과정 상담 신청하기"
+                                type="button"
+                            >
                                 <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
                                 AirRobot 과정 상담 신청하기
                                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                             </button>
                             <a 
                                 href="/curriculum?tab=airrobot"
-                                className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 active:bg-white/20 hover:bg-white/20 backdrop-blur-md text-white text-sm sm:text-base border-2 border-white/30 font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 touch-manipulation inline-block text-center"
+                                className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 active:bg-white/20 hover:bg-white/20 backdrop-blur-md text-white text-sm sm:text-base border-2 border-white/30 font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 touch-manipulation inline-block text-center cursor-pointer"
                             >
                                 커리큘럼 자세히 보기
                             </a>
@@ -49,6 +58,9 @@ export default function AirRobotCTA() {
                     </div>
                 </ScrollAnimation>
             </div>
+
+            {/* Consultation Modal */}
+            <ConsultationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </section>
     );
 }

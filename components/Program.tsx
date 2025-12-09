@@ -27,7 +27,7 @@ export default function Program() {
                     <ScrollAnimation direction="right" delay={100}>
                         <Link
                             href="/basic-course"
-                            className="group relative bg-gray-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-2 hover:-translate-y-4 overflow-hidden border border-gray-700 active:border-active-orange/50 hover:border-active-orange/50 block touch-manipulation"
+                            className="group relative bg-gray-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-2 hover:-translate-y-4 overflow-hidden border border-gray-700 active:border-active-orange/50 hover:border-active-orange/50 block touch-manipulation cursor-pointer"
                         >
                             {/* Animated background blob */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-active-orange/10 rounded-bl-full -mr-8 -mt-8 transition-all duration-700 group-hover:scale-150 group-hover:bg-active-orange/20"></div>
@@ -65,7 +65,7 @@ export default function Program() {
                 <ScrollAnimation direction="left" delay={200}>
                     <Link
                         href="/advanced-course"
-                        className="group relative bg-deep-electric-blue rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-2 hover:-translate-y-4 overflow-hidden text-white active:scale-[1.01] hover:scale-[1.02] block touch-manipulation"
+                        className="group relative bg-deep-electric-blue rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-2 hover:-translate-y-4 overflow-hidden text-white active:scale-[1.01] hover:scale-[1.02] block touch-manipulation cursor-pointer"
                     >
                             {/* Animated background blob */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-bl-full -mr-8 -mt-8 transition-all duration-700 group-hover:scale-150 group-hover:bg-white/20"></div>
@@ -103,7 +103,7 @@ export default function Program() {
                     <ScrollAnimation direction="right" delay={300}>
                         <Link
                             href="/airrobot-course"
-                            className="group relative bg-gradient-to-br from-sky-400 via-blue-600 to-[#0A1931] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-2 hover:-translate-y-4 overflow-hidden text-white active:scale-[1.01] hover:scale-[1.02] block touch-manipulation"
+                            className="group relative bg-gradient-to-br from-sky-400 via-blue-600 to-[#0A1931] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-2 hover:-translate-y-4 overflow-hidden text-white active:scale-[1.01] hover:scale-[1.02] block touch-manipulation cursor-pointer"
                         >
                             {/* Animated background blob */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-bl-full -mr-8 -mt-8 transition-all duration-700 group-hover:scale-150 group-hover:bg-white/20"></div>

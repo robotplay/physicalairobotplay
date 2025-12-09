@@ -74,7 +74,7 @@ export default function OnlineCourses() {
                                 온라인으로 배우는 로봇 교육
                             </span>
                         </h2>
-                        <p className="text-base sm:text-lg text-gray-600">
+                        <p className="text-base sm:text-lg text-gray-300">
                             체계적인 커리큘럼과 실전 프로젝트로 실력을 키워보세요
                         </p>
                     </div>
@@ -147,7 +147,7 @@ export default function OnlineCourses() {
                                     {/* CTA Button */}
                                     <Link
                                         href={`/curriculum?tab=${course.category.toLowerCase().replace(' course', '')}`}
-                                        className="w-full px-6 py-3 bg-gradient-to-r from-deep-electric-blue to-active-orange hover:from-blue-700 hover:to-orange-600 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 group/btn touch-manipulation"
+                                        className="w-full px-6 py-3 bg-gradient-to-r from-deep-electric-blue to-active-orange hover:from-blue-700 hover:to-orange-600 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 group/btn touch-manipulation cursor-pointer"
                                     >
                                         강의 보기
                                         <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" aria-hidden="true" />
@@ -163,15 +163,15 @@ export default function OnlineCourses() {
                     <div className="mt-12 sm:mt-16 text-center">
                         <div className="inline-block bg-gradient-to-r from-deep-electric-blue/10 via-active-orange/10 to-neon-purple/10 rounded-2xl sm:rounded-3xl p-8 sm:p-12 border border-deep-electric-blue/20">
                             <Award className="w-12 h-12 sm:w-16 sm:h-16 text-deep-electric-blue mx-auto mb-4 sm:mb-6" aria-hidden="true" />
-                            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                            <h3 className="text-2xl sm:text-3xl font-bold text-white">
                                 더 많은 강의가 궁금하신가요?
                             </h3>
-                            <p className="text-base sm:text-lg text-gray-600">
+                            <p className="text-base sm:text-lg text-gray-300">
                                 전체 커리큘럼을 확인하고 맞는 과정을 선택해보세요
                             </p>
                             <Link
                                 href="/curriculum"
-                                className="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-deep-electric-blue hover:bg-blue-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 touch-manipulation"
+                                className="inline-flex items-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-deep-electric-blue hover:bg-blue-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 touch-manipulation cursor-pointer"
                             >
                                 전체 커리큘럼 보기
                                 <ArrowRight className="w-5 h-5" aria-hidden="true" />

@@ -55,7 +55,7 @@ export default function AirRobotShowcase() {
                         <h3 className="text-3xl md:text-4xl font-bold text-white">
                             상상하는 모든 것이 드론이 됩니다
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-400">
                             Before & After - Evolution 스타일로 보여주는 창작 과정
                         </p>
                     </div>
@@ -68,7 +68,7 @@ export default function AirRobotShowcase() {
                             {evolution.map((item, index) => (
                                 <div key={index} className="flex-1 text-center group">
                                     <div className="relative mb-6">
-                                        <div className="w-32 h-32 mx-auto bg-gradient-to-br from-sky-100 to-blue-100">
+                                        <div className="w-32 h-32 mx-auto bg-gray-800 rounded-2xl flex items-center justify-center text-6xl border border-gray-700">
                                             {item.image}
                                         </div>
                                         {index < evolution.length - 1 && (
@@ -93,9 +93,9 @@ export default function AirRobotShowcase() {
                             direction="up"
                             delay={index * 150}
                         >
-                            <div className="group relative bg-gradient-to-br from-sky-50 to-blue-50">
+                            <div className="group relative bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-sky-500/50 transition-all duration-300 hover:shadow-2xl">
                                 {/* Project visual */}
-                                <div className="relative h-48 bg-gradient-to-br from-sky-200 via-blue-200 to-indigo-200">
+                                <div className="relative h-48 bg-gray-900">
                                     {index === 0 ? (
                                         <Image
                                             src="/img/drone02.png"
@@ -130,24 +130,24 @@ export default function AirRobotShowcase() {
                                     
                                     {/* Type badge */}
                                     <div className="absolute top-4 right-4 z-10">
-                                        <span className="px-3 py-1 bg-sky-500 text-white text-xs font-bold rounded-full">
+                                        <span className="px-3 py-1 bg-sky-500/90 backdrop-blur-sm text-white text-xs font-bold rounded-full border border-sky-400/50">
                                             {project.type}
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Content */}
-                                <div className="p-4 sm:p-6">
+                                <div className="p-4 sm:p-6 bg-gray-800">
                                     <div className="flex items-center gap-2 mb-2">
                                         <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-sky-500" />
                                         <span className="text-xs text-gray-400">Project #{index + 1}</span>
                                     </div>
                                     
-                                    <h4 className="text-lg sm:text-xl font-bold text-white">
+                                    <h4 className="text-lg sm:text-xl font-bold text-white mb-2">
                                         {project.title}
                                     </h4>
                                     
-                                    <p className="text-gray-300">
+                                    <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
                                         {project.description}
                                     </p>
                                 </div>

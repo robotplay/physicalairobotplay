@@ -29,6 +29,19 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Cursor pointer for interactive elements */
+button,
+a,
+[role="button"],
+[onclick] {
+    cursor: pointer;
+}
+
+button:disabled,
+button[disabled] {
+    cursor: not-allowed;
+}
+
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
     *,

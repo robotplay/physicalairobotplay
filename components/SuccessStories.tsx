@@ -122,7 +122,7 @@ export default function SuccessStories() {
                             <Users className="w-4 h-4 sm:w-5 sm:h-5 text-deep-electric-blue" aria-hidden="true" />
                             <span className="text-xs sm:text-sm text-deep-electric-blue font-semibold">STUDENT TESTIMONIALS</span>
                         </div>
-                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                             학생들의 생생한 후기
                         </h3>
                     </div>

@@ -1,20 +1,24 @@
 'use client';
 
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 import ScrollAnimation from './ScrollAnimation';
+import ConsultationModal from './ConsultationModal';
 
 export default function BasicCourseCTA() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
-        <section className="py-20 bg-gradient-to-br from-active-orange/10 via-orange-50 to-deep-electric-blue/10">
+        <section className="py-20 bg-[#1A1A1A] relative overflow-hidden">
             {/* Animated background */}
-            <div className="absolute inset-0 opacity-20">
+            <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-active-orange rounded-full blur-3xl animate-pulse"></div>
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-deep-electric-blue rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
             </div>
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
                 <ScrollAnimation direction="fade" delay={100}>
-                    <div className="text-center bg-gray-800 rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl border border-gray-700">
+                    <div className="text-center bg-gray-800/90 backdrop-blur-md rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl border border-gray-700">
                         <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-active-orange/10 rounded-full mb-4 sm:mb-6">
                             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-active-orange" />
                             <span className="text-xs sm:text-sm font-semibold text-active-orange">첫 로봇 친구를 만나는 설렘</span>
@@ -27,20 +31,25 @@ export default function BasicCourseCTA() {
                             </span>
                         </h2>
                         
-                        <p className="text-base sm:text-lg text-gray-300">
+                        <p className="text-base sm:text-lg text-gray-300 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed">
                             Basic Course는 아이들이 로봇과 코딩의 세계로 들어가는 첫 번째 문입니다.
                             <br className="hidden sm:block" />
                             상담을 통해 우리 아이에게 맞는 학습 계획을 세워보세요.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-                            <button className="group px-6 py-3 sm:px-8 sm:py-4 bg-active-orange active:bg-orange-600 hover:bg-orange-600 text-white text-sm sm:text-base font-bold rounded-full transition-all transform active:scale-95 hover:scale-110 shadow-[0_0_30px_rgba(255,107,0,0.5)] hover:shadow-[0_0_40px_rgba(255,107,0,0.7)] flex items-center justify-center gap-2 touch-manipulation">
+                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center px-4">
+                            <button 
+                                onClick={() => setIsModalOpen(true)}
+                                className="group px-6 py-3 sm:px-8 sm:py-4 bg-active-orange active:bg-orange-600 hover:bg-orange-600 text-white text-sm sm:text-base font-bold rounded-full transition-all transform active:scale-95 hover:scale-110 shadow-[0_0_30px_rgba(255,107,0,0.5)] hover:shadow-[0_0_40px_rgba(255,107,0,0.7)] flex items-center justify-center gap-2 touch-manipulation cursor-pointer"
+                                aria-label="수강 상담 신청하기"
+                                type="button"
+                            >
                                 수강 상담 신청하기
                                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                             </button>
                             <a 
                                 href="/curriculum?tab=basic"
-                                className="px-6 py-3 sm:px-8 sm:py-4 bg-gray-700 active:bg-gray-600 hover:bg-gray-600 text-white border border-gray-600 font-semibold rounded-lg transition-all text-center"
+                                className="px-6 py-3 sm:px-8 sm:py-4 bg-gray-800/80 active:bg-gray-700 hover:bg-gray-700 text-white text-sm sm:text-base border-2 border-gray-700 active:border-active-orange/50 hover:border-active-orange/50 font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 touch-manipulation inline-block text-center cursor-pointer"
                             >
                                 커리큘럼 자세히 보기
                             </a>
@@ -48,6 +57,9 @@ export default function BasicCourseCTA() {
                     </div>
                 </ScrollAnimation>
             </div>
+
+            {/* Consultation Modal */}
+            <ConsultationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </section>
     );
 }

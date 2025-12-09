@@ -30,7 +30,7 @@ export default function CurriculumTabs() {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-12 bg-gray-800 rounded-2xl p-2 max-w-4xl mx-auto border border-gray-700">
             <button
               onClick={() => setActiveTab('basic')}
-              className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
+              className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform cursor-pointer ${
                 activeTab === 'basic'
                   ? 'bg-active-orange text-white shadow-lg scale-105'
                   : 'bg-transparent text-gray-300'
@@ -41,7 +41,7 @@ export default function CurriculumTabs() {
             </button>
             <button
               onClick={() => setActiveTab('advanced')}
-              className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
+              className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform cursor-pointer ${
                 activeTab === 'advanced'
                   ? 'bg-deep-electric-blue text-white shadow-lg scale-105'
                   : 'bg-transparent text-gray-300'
@@ -52,7 +52,7 @@ export default function CurriculumTabs() {
             </button>
             <button
               onClick={() => setActiveTab('airrobot')}
-              className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
+              className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform cursor-pointer ${
                 activeTab === 'airrobot'
                   ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-lg scale-105'
                   : 'bg-transparent text-gray-300'
@@ -70,7 +70,7 @@ export default function CurriculumTabs() {
             <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mb-8 sm:mb-12 max-w-3xl mx-auto">
               <button
                 onMouseEnter={() => setAdvancedSubTab('driving')}
-                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
+                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform cursor-pointer ${
                   advancedSubTab === 'driving'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
                     : 'bg-gray-700 text-gray-300'
@@ -80,7 +80,7 @@ export default function CurriculumTabs() {
               </button>
               <button
                 onMouseEnter={() => setAdvancedSubTab('arm')}
-                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
+                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform cursor-pointer ${
                   advancedSubTab === 'arm'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
                     : 'bg-gray-700 text-gray-300'
@@ -90,7 +90,7 @@ export default function CurriculumTabs() {
               </button>
               <button
                 onMouseEnter={() => setAdvancedSubTab('humanoid')}
-                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
+                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform cursor-pointer ${
                   advancedSubTab === 'humanoid'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
                     : 'bg-gray-700 text-gray-300'

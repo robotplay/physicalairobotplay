@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { Code2, Eye, Zap } from 'lucide-react';
+import ConsultationModal from './ConsultationModal';
 
 export default function AdvancedCourseHero() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [codeLines, setCodeLines] = useState<string[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         setIsLoaded(true);
@@ -98,13 +100,18 @@ export default function AdvancedCourseHero() {
                     상상을 현실로 구현하는 엔지니어링의 시작, <span className="text-neon-purple font-semibold">Advanced Course</span>
                 </p>
                 
-                <p className="text-sm sm:text-base md:text-lg text-gray-400 mb-6 sm:mb-10 max-w-3xl mx-auto px-4">
+                <p className="text-sm sm:text-base md:text-lg text-gray-400 mb-8 sm:mb-12 max-w-3xl mx-auto px-4">
                     블록을 넘어 실제 개발 언어(Python/C++)로. AI 비전과 자율주행 기술을 통해<br className="hidden sm:block" />
                     스스로 생각하고 판단하는 로봇을 설계합니다.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-                    <button className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-neon-purple to-deep-electric-blue active:from-purple-600 active:to-blue-600 hover:from-purple-600 hover:to-blue-600 text-white text-sm sm:text-base font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 shadow-[0_0_30px_rgba(157,0,255,0.5)] hover:shadow-[0_0_40px_rgba(157,0,255,0.7)] flex items-center justify-center gap-2 touch-manipulation">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center px-4 mt-6 mb-24 sm:mb-32">
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-neon-purple to-deep-electric-blue active:from-purple-600 active:to-blue-600 hover:from-purple-600 hover:to-blue-600 text-white text-sm sm:text-base font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 shadow-[0_0_30px_rgba(157,0,255,0.5)] hover:shadow-[0_0_40px_rgba(157,0,255,0.7)] flex items-center justify-center gap-2 touch-manipulation cursor-pointer"
+                        aria-label="심화 과정 상담 신청하기"
+                        type="button"
+                    >
                         <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
                         심화 과정 상담 신청하기
                     </button>
@@ -112,11 +119,14 @@ export default function AdvancedCourseHero() {
             </div>
 
             {/* Scroll Indicator */}
-            <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+            <div className="absolute bottom-12 sm:bottom-16 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
                 <div className="w-6 h-10 border-2 border-neon-purple/50 rounded-full flex justify-center pt-2 backdrop-blur-sm bg-black/20">
                     <div className="w-1 h-2 bg-neon-purple rounded-full animate-scroll-indicator"></div>
                 </div>
             </div>
+
+            {/* Consultation Modal */}
+            <ConsultationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </section>
     );
 }

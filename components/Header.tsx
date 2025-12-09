@@ -130,7 +130,7 @@ export default function Header() {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className={`font-medium transition-colors text-xs xl:text-sm ${
+                                    className={`font-medium transition-colors text-xs xl:text-sm cursor-pointer ${
                                         isScrolled
                                             ? 'text-gray-300 active:text-deep-electric-blue hover:text-deep-electric-blue'
                                             : 'text-white active:text-deep-electric-blue hover:text-deep-electric-blue'
@@ -166,19 +166,19 @@ export default function Header() {
                             ))}
                             <Link
                                 href="/basic-course"
-                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-active-orange active:bg-orange-600 hover:bg-orange-600 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation"
+                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-active-orange active:bg-orange-600 hover:bg-orange-600 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation cursor-pointer"
                             >
                                 Basic Course
                             </Link>
                             <Link
                                 href="/advanced-course"
-                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-deep-electric-blue active:bg-blue-700 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation"
+                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-deep-electric-blue active:bg-blue-700 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation cursor-pointer"
                             >
                                 Advanced Course
                             </Link>
                             <Link
                                 href="/airrobot-course"
-                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-gradient-to-r from-sky-400 to-blue-600 active:from-sky-500 active:to-blue-700 hover:from-sky-500 hover:to-blue-700 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation"
+                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-gradient-to-r from-sky-400 to-blue-600 active:from-sky-500 active:to-blue-700 hover:from-sky-500 hover:to-blue-700 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation cursor-pointer"
                             >
                                 AirRobot Course
                             </Link>
@@ -186,7 +186,7 @@ export default function Header() {
 
                     {/* Mobile Menu Button */}
                     <button
-                        className={`lg:hidden transition-colors touch-manipulation p-2 ${
+                        className={`lg:hidden transition-colors touch-manipulation p-2 cursor-pointer ${
                             isScrolled
                                 ? 'text-gray-300 active:text-deep-electric-blue hover:text-deep-electric-blue'
                                 : 'text-white active:text-deep-electric-blue hover:text-deep-electric-blue'
@@ -211,7 +211,7 @@ export default function Header() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className={`block py-3 transition-colors px-4 ${
+                                className={`block py-3 transition-colors px-4 cursor-pointer ${
                                     isScrolled
                                         ? 'text-gray-300 hover:text-deep-electric-blue'
                                         : 'text-white hover:text-deep-electric-blue'
@@ -253,21 +253,21 @@ export default function Header() {
                         }`}>
                             <Link
                                 href="/basic-course"
-                                className="block w-full px-4 py-2 bg-active-orange hover:bg-orange-600 text-white font-semibold rounded-lg transition-all text-center"
+                                className="block w-full px-4 py-2 bg-active-orange hover:bg-orange-600 text-white font-semibold rounded-lg transition-all text-center cursor-pointer"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 Basic Course
                             </Link>
                             <Link
                                 href="/advanced-course"
-                                className="block w-full px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition-all text-center"
+                                className="block w-full px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition-all text-center cursor-pointer"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 Advanced Course
                             </Link>
                             <Link
                                 href="/airrobot-course"
-                                className="block w-full px-4 py-2 bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-500 hover:to-blue-700 text-white font-semibold rounded-lg transition-all text-center"
+                                className="block w-full px-4 py-2 bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-500 hover:to-blue-700 text-white font-semibold rounded-lg transition-all text-center cursor-pointer"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 AirRobot Course

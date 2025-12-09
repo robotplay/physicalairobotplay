@@ -1,9 +1,13 @@
 'use client';
 
 import { ArrowRight, Zap, CircuitBoard } from 'lucide-react';
+import { useState } from 'react';
 import ScrollAnimation from './ScrollAnimation';
+import ConsultationModal from './ConsultationModal';
 
 export default function AdvancedCourseCTA() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
         <section className="py-20 bg-black relative overflow-hidden">
             {/* Circuit board background */}
@@ -43,14 +47,19 @@ export default function AdvancedCourseCTA() {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-                            <button className="group px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-neon-purple to-deep-electric-blue active:from-purple-600 active:to-blue-600 hover:from-purple-600 hover:to-blue-600 text-white text-sm sm:text-base font-bold rounded-lg transition-all transform active:scale-95 hover:scale-110 shadow-[0_0_30px_rgba(157,0,255,0.5)] hover:shadow-[0_0_40px_rgba(157,0,255,0.7)] flex items-center justify-center gap-2 touch-manipulation">
+                            <button 
+                                onClick={() => setIsModalOpen(true)}
+                                className="group px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-neon-purple to-deep-electric-blue active:from-purple-600 active:to-blue-600 hover:from-purple-600 hover:to-blue-600 text-white text-sm sm:text-base font-bold rounded-lg transition-all transform active:scale-95 hover:scale-110 shadow-[0_0_30px_rgba(157,0,255,0.5)] hover:shadow-[0_0_40px_rgba(157,0,255,0.7)] flex items-center justify-center gap-2 touch-manipulation cursor-pointer"
+                                aria-label="심화 과정 상담 신청하기"
+                                type="button"
+                            >
                                 <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
                                 심화 과정 상담 신청하기
                                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                             </button>
                             <a 
                                 href="/curriculum?tab=advanced"
-                                className="px-6 py-3 sm:px-8 sm:py-4 bg-black active:bg-gray-900 hover:bg-gray-900 text-white text-sm sm:text-base border-2 border-gray-800 active:border-neon-purple/50 hover:border-neon-purple/50 font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 touch-manipulation inline-block text-center"
+                                className="px-6 py-3 sm:px-8 sm:py-4 bg-black active:bg-gray-900 hover:bg-gray-900 text-white text-sm sm:text-base border-2 border-gray-800 active:border-neon-purple/50 hover:border-neon-purple/50 font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 touch-manipulation inline-block text-center cursor-pointer"
                             >
                                 커리큘럼 자세히 보기
                             </a>
@@ -58,6 +67,9 @@ export default function AdvancedCourseCTA() {
                     </div>
                 </ScrollAnimation>
             </div>
+
+            {/* Consultation Modal */}
+            <ConsultationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </section>
     );
 }

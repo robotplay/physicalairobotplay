@@ -107,15 +107,15 @@ export default function Hero() {
                     <span className="block mt-1 md:mt-2">만드는 피지컬 AI 교육</span>
                 </h1>
                 
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-6 md:mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in-delay px-4">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-delay px-4">
                     코드가 화면 밖으로 나와 로봇이 되어 움직이는 순간,<br className="hidden sm:block" />
                     아이들의 호기심은 혁신이 됩니다.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-delay-2 px-4">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center animate-fade-in-delay-2 px-4 mt-6 mb-24 sm:mb-32">
                     <Link 
                         href="/curriculum"
-                        className="group px-6 py-3 sm:px-8 sm:py-4 bg-deep-electric-blue active:bg-blue-700 hover:bg-blue-700 text-white text-sm sm:text-base font-bold rounded-full transition-all transform active:scale-95 hover:scale-110 shadow-[0_0_30px_rgba(0,82,255,0.6)] hover:shadow-[0_0_40px_rgba(0,82,255,0.8)] flex items-center justify-center gap-2 touch-manipulation"
+                        className="group px-6 py-3 sm:px-8 sm:py-4 bg-deep-electric-blue active:bg-blue-700 hover:bg-blue-700 text-white text-sm sm:text-base font-bold rounded-full transition-all transform active:scale-95 hover:scale-110 shadow-[0_0_30px_rgba(0,82,255,0.6)] hover:shadow-[0_0_40px_rgba(0,82,255,0.8)] flex items-center justify-center gap-2 touch-manipulation cursor-pointer"
                         aria-label="교육 과정 보기"
                     >
                         교육 과정 보기
@@ -123,7 +123,7 @@ export default function Hero() {
                     </Link>
                     <button 
                         onClick={() => setIsModalOpen(true)}
-                        className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 active:bg-white/20 hover:bg-white/20 backdrop-blur-md text-white text-sm sm:text-base border border-white/30 font-bold rounded-full transition-all transform active:scale-95 hover:scale-105 hover:border-white/50 touch-manipulation"
+                        className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 active:bg-white/20 hover:bg-white/20 backdrop-blur-md text-white text-sm sm:text-base border border-white/30 font-bold rounded-full transition-all transform active:scale-95 hover:scale-105 hover:border-white/50 touch-manipulation cursor-pointer"
                         aria-label="상담 문의하기"
                         type="button"
                     >
@@ -133,7 +133,7 @@ export default function Hero() {
             </div>
 
             {/* Enhanced Scroll Indicator */}
-            <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+            <div className="absolute bottom-12 sm:bottom-16 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
                 <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center pt-2 backdrop-blur-sm bg-white/5">
                     <div className="w-1 h-2 bg-white rounded-full animate-scroll-indicator"></div>
                 </div>

@@ -150,7 +150,7 @@ export default function AdminPage() {
                                     sessionStorage.removeItem('admin-login-time');
                                     router.push('/admin/login');
                                 }}
-                                className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700"
+                                className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 cursor-pointer"
                             >
                                 <LogOut className="w-4 h-4" />
                                 로그아웃
@@ -206,7 +206,7 @@ export default function AdminPage() {
                                                 e.stopPropagation();
                                                 deleteConsultation(consultation.id);
                                             }}
-                                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0"
+                                            className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
                                             aria-label="삭제"
                                         >
                                             <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
@@ -248,7 +248,7 @@ export default function AdminPage() {
                                         </h2>
                                         <button
                                             onClick={() => setSelectedConsultation(null)}
-                                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
+                                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
                                             aria-label="닫기"
                                         >
                                             <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
@@ -276,7 +276,7 @@ export default function AdminPage() {
                                                 <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-deep-electric-blue flex-shrink-0" />
                                                 <a
                                                     href={`tel:${selectedConsultation.phone}`}
-                                                    className="text-sm sm:text-base text-gray-900"
+                                                    className="text-sm sm:text-base text-gray-900 cursor-pointer hover:text-deep-electric-blue transition-colors"
                                                 >
                                                     {selectedConsultation.phone}
                                                 </a>
@@ -292,7 +292,7 @@ export default function AdminPage() {
                                                     <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-deep-electric-blue flex-shrink-0" />
                                                     <a
                                                         href={`mailto:${selectedConsultation.email}`}
-                                                        className="text-sm sm:text-base text-gray-900"
+                                                        className="text-sm sm:text-base text-gray-900 cursor-pointer hover:text-deep-electric-blue transition-colors"
                                                     >
                                                         {selectedConsultation.email}
                                                     </a>
@@ -337,14 +337,14 @@ export default function AdminPage() {
                                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t border-gray-200">
                                             <a
                                                 href={`tel:${selectedConsultation.phone}`}
-                                                className="flex-1 px-3 sm:px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white text-sm sm:text-base font-semibold rounded-lg transition-all text-center touch-manipulation"
+                                                className="flex-1 px-3 sm:px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white text-sm sm:text-base font-semibold rounded-lg transition-all text-center touch-manipulation cursor-pointer"
                                             >
                                                 전화하기
                                             </a>
                                             {selectedConsultation.email && (
                                                 <a
                                                     href={`mailto:${selectedConsultation.email}`}
-                                                    className="flex-1 px-3 sm:px-4 py-2 bg-active-orange hover:bg-orange-600 text-white text-sm sm:text-base font-semibold rounded-lg transition-all text-center touch-manipulation"
+                                                    className="flex-1 px-3 sm:px-4 py-2 bg-active-orange hover:bg-orange-600 text-white text-sm sm:text-base font-semibold rounded-lg transition-all text-center touch-manipulation cursor-pointer"
                                                 >
                                                     이메일
                                                 </a>

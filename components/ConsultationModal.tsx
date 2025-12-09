@@ -82,34 +82,36 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
 
     return (
         <div 
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in"
             onClick={onClose}
         >
             <div 
-                className="relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all"
+                className="relative bg-[#1A1A1A] rounded-2xl sm:rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all border border-gray-700"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-all z-10 group"
+                    className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-all z-10 group border border-gray-700 cursor-pointer"
                     aria-label="모달 닫기"
                 >
-                    <X className="w-5 h-5 text-gray-600" />
+                    <X className="w-5 h-5 text-gray-300 group-hover:text-white" />
                 </button>
 
                 {/* Header */}
-                <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200">
+                <div className="sticky top-0 bg-[#1A1A1A] border-b border-gray-700 backdrop-blur-md z-20 px-6 sm:px-8 pt-6 pb-4">
                     <ScrollAnimation direction="fade">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-deep-electric-blue to-active-orange flex items-center justify-center">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 rounded-xl bg-active-orange flex items-center justify-center shadow-lg">
                                 <MessageSquare className="w-6 h-6 text-white" />
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                                상담 문의하기
-                            </h2>
+                            <div className="flex-1">
+                                <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                                    상담 문의하기
+                                </h2>
+                            </div>
                         </div>
-                        <p className="text-sm sm:text-base text-gray-600">
+                        <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
                             궁금한 점이 있으시면 언제든지 문의해주세요. 빠르게 답변드리겠습니다.
                         </p>
                     </ScrollAnimation>
@@ -119,13 +121,13 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                 <form onSubmit={handleSubmit} className="px-6 sm:px-8 py-6 space-y-6">
                     {submitStatus === 'success' ? (
                         <div className="text-center py-12">
-                            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                <Send className="w-10 h-10 text-green-600" />
+                            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/30">
+                                <Send className="w-10 h-10 text-green-400" />
                             </div>
-                            <h3 className="text-2xl font-bold text-gray-900">
+                            <h3 className="text-2xl font-bold text-white mb-2">
                                 문의가 접수되었습니다!
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-300">
                                 빠른 시일 내에 연락드리겠습니다.
                             </p>
                         </div>
@@ -133,8 +135,8 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                         <>
                             {/* Name */}
                             <div>
-                                <label htmlFor="name" className="block text-sm font-semibold text-gray-700">
-                                    <User className="w-4 h-4 inline mr-2" />
+                                <label htmlFor="name" className="block text-sm font-semibold text-white mb-2">
+                                    <User className="w-4 h-4 inline mr-2 text-gray-300" />
                                     이름 *
                                 </label>
                                 <input
@@ -144,15 +146,15 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                                     required
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-800/50 text-white placeholder:text-gray-500 focus:outline-none focus:border-active-orange focus:ring-2 focus:ring-active-orange/20 transition-all"
                                     placeholder="이름을 입력해주세요"
                                 />
                             </div>
 
                             {/* Phone */}
                             <div>
-                                <label htmlFor="phone" className="block text-sm font-semibold text-gray-700">
-                                    <Phone className="w-4 h-4 inline mr-2" />
+                                <label htmlFor="phone" className="block text-sm font-semibold text-white mb-2">
+                                    <Phone className="w-4 h-4 inline mr-2 text-gray-300" />
                                     연락처 *
                                 </label>
                                 <input
@@ -162,15 +164,15 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                                     required
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-800/50 text-white placeholder:text-gray-500 focus:outline-none focus:border-active-orange focus:ring-2 focus:ring-active-orange/20 transition-all"
                                     placeholder="010-1234-5678"
                                 />
                             </div>
 
                             {/* Email */}
                             <div>
-                                <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                                    <Mail className="w-4 h-4 inline mr-2" />
+                                <label htmlFor="email" className="block text-sm font-semibold text-white mb-2">
+                                    <Mail className="w-4 h-4 inline mr-2 text-gray-300" />
                                     이메일
                                 </label>
                                 <input
@@ -179,14 +181,14 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-800/50 text-white placeholder:text-gray-500 focus:outline-none focus:border-active-orange focus:ring-2 focus:ring-active-orange/20 transition-all"
                                     placeholder="email@example.com"
                                 />
                             </div>
 
                             {/* Course Selection */}
                             <div>
-                                <label htmlFor="course" className="block text-sm font-semibold text-gray-700">
+                                <label htmlFor="course" className="block text-sm font-semibold text-white mb-2">
                                     관심 과정
                                 </label>
                                 <select
@@ -194,19 +196,19 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                                     name="course"
                                     value={formData.course}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-800/50 text-white focus:outline-none focus:border-active-orange focus:ring-2 focus:ring-active-orange/20 transition-all appearance-none cursor-pointer"
                                 >
-                                    <option value="">과정을 선택해주세요</option>
-                                    <option value="basic">Basic Course</option>
-                                    <option value="advanced">Advanced Course</option>
-                                    <option value="airrobot">AirRobot Course</option>
-                                    <option value="all">전체 과정</option>
+                                    <option value="" className="bg-gray-800 text-gray-300">과정을 선택해주세요</option>
+                                    <option value="basic" className="bg-gray-800 text-white">Basic Course</option>
+                                    <option value="advanced" className="bg-gray-800 text-white">Advanced Course</option>
+                                    <option value="airrobot" className="bg-gray-800 text-white">AirRobot Course</option>
+                                    <option value="all" className="bg-gray-800 text-white">전체 과정</option>
                                 </select>
                             </div>
 
                             {/* Message */}
                             <div>
-                                <label htmlFor="message" className="block text-sm font-semibold text-gray-700">
+                                <label htmlFor="message" className="block text-sm font-semibold text-white mb-2">
                                     문의 내용 *
                                 </label>
                                 <textarea
@@ -216,7 +218,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                                     rows={5}
                                     value={formData.message}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-800/50 text-white placeholder:text-gray-500 focus:outline-none focus:border-active-orange focus:ring-2 focus:ring-active-orange/20 transition-all resize-none"
                                     placeholder="문의하실 내용을 입력해주세요"
                                 />
                             </div>
@@ -226,7 +228,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="flex-1 px-6 py-4 bg-gradient-to-r from-deep-electric-blue to-active-orange hover:from-blue-700 hover:to-orange-600 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
+                                    className="flex-1 px-6 py-4 bg-gradient-to-r from-deep-electric-blue to-active-orange hover:from-blue-700 hover:to-orange-600 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation shadow-lg hover:shadow-xl cursor-pointer"
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -243,7 +245,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="px-6 py-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700"
+                                    className="px-6 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl transition-all border border-gray-700 hover:border-gray-600 touch-manipulation cursor-pointer"
                                 >
                                     취소
                                 </button>

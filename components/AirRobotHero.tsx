@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { Plane, Zap } from 'lucide-react';
+import ConsultationModal from './ConsultationModal';
 
 export default function AirRobotHero() {
     const [isLoaded, setIsLoaded] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         setIsLoaded(true);
@@ -65,19 +67,24 @@ export default function AirRobotHero() {
                     Code the Sky, Control the Wind
                 </p>
                 
-                <p className="text-sm sm:text-base md:text-lg text-blue-200 mb-6 sm:mb-10 max-w-3xl mx-auto px-4">
+                <p className="text-sm sm:text-base md:text-lg text-blue-200 mb-8 sm:mb-12 max-w-3xl mx-auto px-4">
                     Physical AI의 날개를 달다.<br className="hidden sm:block" />
                     당신의 코드가 현실의 하늘을 지배하는 순간.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-                    <button className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-sky-400 to-blue-600 active:from-sky-500 active:to-blue-700 hover:from-sky-500 hover:to-blue-700 text-white text-sm sm:text-base font-bold rounded-lg transition-all transform active:scale-95 hover:scale-110 shadow-[0_0_30px_rgba(135,206,235,0.5)] hover:shadow-[0_0_40px_rgba(135,206,235,0.7)] flex items-center justify-center gap-2 touch-manipulation">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center px-4 mt-6 mb-24 sm:mb-32">
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-sky-400 to-blue-600 active:from-sky-500 active:to-blue-700 hover:from-sky-500 hover:to-blue-700 text-white text-sm sm:text-base font-bold rounded-lg transition-all transform active:scale-95 hover:scale-110 shadow-[0_0_30px_rgba(135,206,235,0.5)] hover:shadow-[0_0_40px_rgba(135,206,235,0.7)] flex items-center justify-center gap-2 touch-manipulation cursor-pointer"
+                        aria-label="AirRobot 과정 상담 신청하기"
+                        type="button"
+                    >
                         <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
                         AirRobot 과정 상담 신청하기
                     </button>
                     <a 
                         href="/curriculum?tab=airrobot"
-                        className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 active:bg-white/20 hover:bg-white/20 backdrop-blur-md text-white text-sm sm:text-base border border-white/30 font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 touch-manipulation inline-block text-center"
+                        className="px-6 py-3 sm:px-8 sm:py-4 bg-white/10 active:bg-white/20 hover:bg-white/20 backdrop-blur-md text-white text-sm sm:text-base border border-white/30 font-bold rounded-lg transition-all transform active:scale-95 hover:scale-105 touch-manipulation inline-block text-center cursor-pointer"
                     >
                         커리큘럼 자세히 보기
                     </a>
@@ -85,11 +92,14 @@ export default function AirRobotHero() {
             </div>
 
             {/* Scroll Indicator */}
-            <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+            <div className="absolute bottom-12 sm:bottom-16 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
                 <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center pt-2 backdrop-blur-sm bg-white/5">
                     <div className="w-1 h-2 bg-white rounded-full animate-scroll-indicator"></div>
                 </div>
             </div>
+
+            {/* Consultation Modal */}
+            <ConsultationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </section>
     );
 }

@@ -52,7 +52,7 @@ function SkillBars({ skills }: SkillBarsProps) {
 
     return (
         <div ref={ref} className="mb-4 sm:mb-6 space-y-2">
-            <h5 className="text-xs font-semibold text-gray-700">
+            <h5 className="text-xs font-semibold text-gray-300">
                 <Code className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue" />
                 기술 숙련도
             </h5>
@@ -64,7 +64,7 @@ function SkillBars({ skills }: SkillBarsProps) {
                             {animatedLevels[i]}%
                         </span>
                     </div>
-                    <div className="w-full bg-gray-200">
+                    <div className="w-full bg-gray-700 rounded-full overflow-hidden">
                         <div
                             className="bg-gradient-to-r from-deep-electric-blue to-active-orange h-2 rounded-full transition-all duration-1000 ease-out"
                             style={{ 

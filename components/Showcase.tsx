@@ -116,14 +116,14 @@ export default function Showcase() {
                             {/* Navigation Buttons - Hidden on mobile, visible on tablet+ */}
                             <button
                                 onClick={prevSlide}
-                                className="hidden sm:flex absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-white/20 active:bg-white/30 hover:bg-white/30 backdrop-blur-md rounded-full items-center justify-center border border-white/30 transition-all active:scale-95 hover:scale-110 group touch-manipulation"
+                                className="hidden sm:flex absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-white/20 active:bg-white/30 hover:bg-white/30 backdrop-blur-md rounded-full items-center justify-center border border-white/30 transition-all active:scale-95 hover:scale-110 group touch-manipulation cursor-pointer"
                                 aria-label="이전 이미지"
                             >
                                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-white group-active:scale-110 transition-transform" />
                             </button>
                             <button
                                 onClick={nextSlide}
-                                className="hidden sm:flex absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-white/20 active:bg-white/30 hover:bg-white/30 backdrop-blur-md rounded-full items-center justify-center border border-white/30 transition-all active:scale-95 hover:scale-110 group touch-manipulation"
+                                className="hidden sm:flex absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 bg-white/20 active:bg-white/30 hover:bg-white/30 backdrop-blur-md rounded-full items-center justify-center border border-white/30 transition-all active:scale-95 hover:scale-110 group touch-manipulation cursor-pointer"
                                 aria-label="다음 이미지"
                             >
                                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-white group-active:scale-110 transition-transform" />
@@ -135,7 +135,7 @@ export default function Showcase() {
                                     <button
                                         key={index}
                                         onClick={() => goToSlide(index)}
-                                        className={`h-2 md:h-2 rounded-full transition-all touch-manipulation ${
+                                        className={`h-2 md:h-2 rounded-full transition-all touch-manipulation cursor-pointer ${
                                             index === currentSlide
                                                 ? 'bg-white w-8 md:w-8'
                                                 : 'bg-white/50 active:bg-white/75 hover:bg-white/75 w-2'
@@ -161,7 +161,7 @@ export default function Showcase() {
                             href="https://www.instagram.com/pysical_ai_robotplay/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-deep-electric-blue font-bold hover:text-neon-purple transition-all group hover:scale-105"
+                            className="inline-flex items-center gap-2 text-deep-electric-blue font-bold hover:text-neon-purple transition-all group hover:scale-105 cursor-pointer"
                         >
                             <Instagram className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                             인스타그램에서 더 보기
