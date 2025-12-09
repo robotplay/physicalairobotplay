@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function Program() {
     return (
-        <section id="program-airrobot" className="section-padding bg-humanoid-white dark:bg-[#111] relative overflow-hidden">
+        <section id="program-airrobot" className="section-padding bg-humanoid-white relative overflow-hidden">
             {/* Animated background gradient */}
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-deep-electric-blue via-active-orange to-neon-purple animate-gradient-slow"></div>
@@ -16,7 +16,7 @@ export default function Program() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-16">
                         <h2 className="text-deep-electric-blue font-bold tracking-wider mb-2">CURRICULUM</h2>
-                        <h3 className="heading-lg text-gray-900 dark:text-white">
+                        <h3 className="heading-lg text-gray-900">
                             미래를 준비하는<br />단계별 로봇 교육
                         </h3>
                     </div>
@@ -27,7 +27,7 @@ export default function Program() {
                     <ScrollAnimation direction="right" delay={100}>
                         <Link
                             href="/basic-course"
-                            className="group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-2 hover:-translate-y-4 overflow-hidden border border-gray-100 dark:border-gray-800 active:border-active-orange/50 hover:border-active-orange/50 block touch-manipulation"
+                            className="group relative bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-2 hover:-translate-y-4 overflow-hidden border border-gray-100 active:border-active-orange/50 hover:border-active-orange/50 block touch-manipulation"
                         >
                             {/* Animated background blob */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-active-orange/10 rounded-bl-full -mr-8 -mt-8 transition-all duration-700 group-hover:scale-150 group-hover:bg-active-orange/20"></div>
@@ -41,11 +41,11 @@ export default function Program() {
                                 <div className="w-14 h-14 bg-active-orange/20 rounded-2xl flex items-center justify-center mb-6 text-active-orange group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
                                     <Zap size={32} className="group-hover:animate-pulse" />
                                 </div>
-                                <h4 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-active-orange transition-colors">Basic Course</h4>
-                                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                                <h4 className="text-2xl font-bold mb-4 text-gray-900 group-hover:text-active-orange transition-colors">Basic Course</h4>
+                                <p className="text-gray-600 mb-6">
                                     로봇의 구조를 이해하고 기초 코딩을 통해 논리적 사고력을 키우는 입문 과정입니다.
                                 </p>
-                                <ul className="space-y-3 mb-8 text-gray-600 dark:text-gray-400">
+                                <ul className="space-y-3 mb-8 text-gray-600">
                                     {['블록 코딩 기초', '로봇 조립 및 구조 이해', '기초 센서 활용'].map((item, i) => (
                                         <li key={i} className="flex items-center gap-2 group-hover:translate-x-2 transition-transform" style={{ transitionDelay: `${i * 50}ms` }}>
                                             <span className="w-2 h-2 bg-active-orange rounded-full group-hover:scale-150 transition-transform"></span>

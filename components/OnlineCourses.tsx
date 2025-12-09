@@ -54,7 +54,7 @@ export default function OnlineCourses() {
     ];
 
     return (
-        <section id="courses" className="section-padding bg-white dark:bg-black relative overflow-hidden">
+        <section id="courses" className="section-padding bg-white">
             {/* Background decoration */}
             <div className="absolute inset-0 opacity-5">
                 <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-neon-purple rounded-full blur-3xl animate-pulse"></div>
@@ -68,13 +68,13 @@ export default function OnlineCourses() {
                             <Video className="w-4 h-4 sm:w-5 sm:h-5 text-neon-purple animate-pulse" aria-hidden="true" />
                             <span className="text-xs sm:text-sm text-neon-purple font-semibold">ONLINE COURSES</span>
                         </div>
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
                             언제 어디서나<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-purple via-deep-electric-blue to-active-orange">
                                 온라인으로 배우는 로봇 교육
                             </span>
                         </h2>
-                        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <p className="text-base sm:text-lg text-gray-600">
                             체계적인 커리큘럼과 실전 프로젝트로 실력을 키워보세요
                         </p>
                     </div>
@@ -84,7 +84,7 @@ export default function OnlineCourses() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto">
                     {courses.map((course, index) => (
                         <ScrollAnimation key={course.id} direction="up" delay={index * 150}>
-                            <div className="group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 dark:border-gray-800">
+                            <div className="group relative bg-white">
                                 {/* Thumbnail */}
                                 <div className="relative h-48 sm:h-56 overflow-hidden">
                                     <Image
@@ -121,15 +121,15 @@ export default function OnlineCourses() {
 
                                 {/* Content */}
                                 <div className="p-6 sm:p-8">
-                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-deep-electric-blue transition-colors">
+                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                                         {course.title}
                                     </h3>
-                                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                                    <p className="text-sm sm:text-base text-gray-600">
                                         {course.description}
                                     </p>
 
                                     {/* Course Info */}
-                                    <div className="flex flex-wrap items-center gap-4 mb-6 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                                    <div className="flex flex-wrap items-center gap-4 mb-6 text-xs sm:text-sm text-gray-500">
                                         <div className="flex items-center gap-2">
                                             <Clock className="w-4 h-4" aria-hidden="true" />
                                             <span>{course.duration}</span>
@@ -163,10 +163,10 @@ export default function OnlineCourses() {
                     <div className="mt-12 sm:mt-16 text-center">
                         <div className="inline-block bg-gradient-to-r from-deep-electric-blue/10 via-active-orange/10 to-neon-purple/10 rounded-2xl sm:rounded-3xl p-8 sm:p-12 border border-deep-electric-blue/20">
                             <Award className="w-12 h-12 sm:w-16 sm:h-16 text-deep-electric-blue mx-auto mb-4 sm:mb-6" aria-hidden="true" />
-                            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">
                                 더 많은 강의가 궁금하신가요?
                             </h3>
-                            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
+                            <p className="text-base sm:text-lg text-gray-600">
                                 전체 커리큘럼을 확인하고 맞는 과정을 선택해보세요
                             </p>
                             <Link

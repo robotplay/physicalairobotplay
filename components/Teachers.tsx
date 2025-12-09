@@ -52,19 +52,19 @@ function SkillBars({ skills }: SkillBarsProps) {
 
     return (
         <div ref={ref} className="mb-4 sm:mb-6 space-y-2">
-            <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+            <h5 className="text-xs font-semibold text-gray-700">
                 <Code className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue" />
                 기술 숙련도
             </h5>
             {skills.map((skill, i) => (
                 <div key={i} className="space-y-1">
-                    <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                    <div className="flex justify-between text-xs text-gray-600">
                         <span>{skill.name}</span>
                         <span className="font-semibold text-deep-electric-blue transition-all duration-1000">
                             {animatedLevels[i]}%
                         </span>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-gray-200">
                         <div
                             className="bg-gradient-to-r from-deep-electric-blue to-active-orange h-2 rounded-full transition-all duration-1000 ease-out"
                             style={{ 
@@ -98,6 +98,7 @@ export default function Teachers() {
             name: '정숙형',
             title: '창의과학 교육 전문강사',
             specialty: '과학적 사고를 키우는 드론·코딩',
+            image: '/img/jsp.png',
             skills: [
                 { name: 'Scratch Coding', level: 95 },
                 { name: 'AI Drone Coding', level: 100 },
@@ -158,7 +159,7 @@ export default function Teachers() {
     ];
 
     return (
-        <section id="teachers" className="py-12 sm:py-16 md:py-20 bg-white dark:bg-black relative overflow-hidden">
+        <section id="teachers" className="py-12 sm:py-16 md:py-20 bg-white">
             {/* Background decoration */}
             <div className="absolute inset-0 opacity-5">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-deep-electric-blue rounded-full blur-3xl animate-pulse"></div>
@@ -169,11 +170,11 @@ export default function Teachers() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-10 sm:mb-16">
                         <h2 className="text-deep-electric-blue font-bold tracking-wider mb-2 text-sm sm:text-base">OUR TEACHERS</h2>
-                        <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
                             아이들의 꿈을 현실로 만드는<br />
                             전문 강사진
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
+                        <p className="text-gray-600">
                             경험과 열정으로 아이들의 미래를 만들어가는 전문 교육진입니다
                         </p>
                     </div>
@@ -187,7 +188,7 @@ export default function Teachers() {
                             direction="up"
                             delay={index * 100}
                         >
-                            <div className="group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden border border-gray-100 dark:border-gray-800 hover:border-deep-electric-blue/50">
+                            <div className="group relative bg-white">
                                 {/* Animated background blob */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-deep-electric-blue/10 rounded-bl-full -mr-8 -mt-8 transition-all duration-700 group-hover:scale-150 group-hover:bg-deep-electric-blue/20"></div>
                                 
@@ -197,20 +198,33 @@ export default function Teachers() {
                                 </div>
 
                                 <div className="relative z-10">
-                                    {/* Profile Image Placeholder */}
-                                    <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 sm:mb-6 rounded-full bg-gradient-to-br from-deep-electric-blue to-active-orange flex items-center justify-center text-white text-3xl sm:text-4xl font-bold shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
-                                        {teacher.name.charAt(0)}
-                                    </div>
+                                    {/* Profile Image */}
+                                    {teacher.image ? (
+                                        <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 sm:mb-6 rounded-full overflow-hidden shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 border-4 border-white">
+                                            <Image
+                                                src={teacher.image}
+                                                alt={teacher.name}
+                                                width={112}
+                                                height={112}
+                                                className="w-full h-full object-cover"
+                                                priority={index === 0}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 sm:mb-6 rounded-full bg-gradient-to-br from-deep-electric-blue to-active-orange flex items-center justify-center text-white text-3xl sm:text-4xl font-bold shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+                                            {teacher.name.charAt(0)}
+                                        </div>
+                                    )}
 
                                     {/* Teacher Info */}
                                     <div className="text-center mb-4 sm:mb-6">
-                                        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-deep-electric-blue transition-colors">
+                                        <h4 className="text-xl sm:text-2xl font-bold text-gray-900">
                                             {teacher.name}
                                         </h4>
                                         <p className="text-sm sm:text-base text-deep-electric-blue font-semibold mb-2">
                                             {teacher.title}
                                         </p>
-                                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                        <p className="text-xs sm:text-sm text-gray-600">
                                             {teacher.specialty}
                                         </p>
                                     </div>
@@ -219,19 +233,19 @@ export default function Teachers() {
                                     {(teacher.phone || teacher.email || teacher.address) && (
                                         <div className="space-y-2 mb-4 sm:mb-6 text-xs sm:text-sm">
                                             {teacher.phone && (
-                                                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                                <div className="flex items-center gap-2 text-gray-600">
                                                     <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue flex-shrink-0" />
                                                     <span className="truncate">{teacher.phone}</span>
                                                 </div>
                                             )}
                                             {teacher.email && (
-                                                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                                <div className="flex items-center gap-2 text-gray-600">
                                                     <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue flex-shrink-0" />
                                                     <span className="truncate">{teacher.email}</span>
                                                 </div>
                                             )}
                                             {teacher.address && (
-                                                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                                <div className="flex items-center gap-2 text-gray-600">
                                                     <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue flex-shrink-0" />
                                                     <span className="truncate text-xs">{teacher.address}</span>
                                                 </div>
@@ -247,11 +261,11 @@ export default function Teachers() {
                                     {/* Qualifications */}
                                     {teacher.qualifications && teacher.qualifications.length > 0 && (
                                         <div className="mb-4 sm:mb-6">
-                                            <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                            <h5 className="text-xs font-semibold text-gray-700">
                                                 <Award className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue" />
                                                 자격증
                                             </h5>
-                                            <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+                                            <ul className="space-y-1 text-xs text-gray-600">
                                                 {teacher.qualifications.map((qual, i) => (
                                                     <li key={i} className="flex items-start gap-2">
                                                         <span className="text-deep-electric-blue mt-0.5">•</span>
@@ -264,12 +278,12 @@ export default function Teachers() {
 
                                     {/* Experience Preview */}
                                     {teacher.experience && teacher.experience.length > 0 && (
-                                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                            <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                        <div className="border-t border-gray-200">
+                                            <h5 className="text-xs font-semibold text-gray-700">
                                                 <GraduationCap className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue" />
                                                 주요 경력
                                             </h5>
-                                            <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+                                            <ul className="space-y-1 text-xs text-gray-600">
                                                 {teacher.experience.slice(0, 3).map((exp, i) => (
                                                     <li key={i} className="flex items-start gap-2">
                                                         <span className="text-active-orange mt-0.5">•</span>

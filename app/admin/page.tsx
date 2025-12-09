@@ -123,7 +123,7 @@ export default function AdminPage() {
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-deep-electric-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600 dark:text-gray-400">인증 확인 중...</p>
+                    <p className="text-gray-600">인증 확인 중...</p>
                 </div>
             </div>
         );
@@ -137,10 +137,10 @@ export default function AdminPage() {
                     <div className="mb-8 sm:mb-12">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3 sm:mb-4">
                             <div>
-                                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
                                     상담 문의 관리
                                 </h1>
-                                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                                <p className="text-sm sm:text-base text-gray-600">
                                     총 <span className="font-bold text-deep-electric-blue">{consultations.length}건</span>의 문의가 접수되었습니다
                                 </p>
                             </div>
@@ -150,7 +150,7 @@ export default function AdminPage() {
                                     sessionStorage.removeItem('admin-login-time');
                                     router.push('/admin/login');
                                 }}
-                                className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition-colors self-start sm:self-auto"
+                                className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-700"
                             >
                                 <LogOut className="w-4 h-4" />
                                 로그아웃
@@ -163,10 +163,10 @@ export default function AdminPage() {
                     <ScrollAnimation direction="fade">
                         <div className="text-center py-16 sm:py-20 bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl shadow-lg px-4">
                             <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                                 아직 접수된 문의가 없습니다
                             </h3>
-                            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                            <p className="text-sm sm:text-base text-gray-600">
                                 새로운 상담 문의가 접수되면 여기에 표시됩니다
                             </p>
                         </div>
@@ -181,7 +181,7 @@ export default function AdminPage() {
                                     className={`bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all cursor-pointer border-2 ${
                                         selectedConsultation?.id === consultation.id
                                             ? 'border-deep-electric-blue'
-                                            : 'border-gray-200 dark:border-gray-800'
+                                            : 'border-gray-200'
                                     }`}
                                     onClick={() => setSelectedConsultation(consultation)}
                                 >
@@ -192,10 +192,10 @@ export default function AdminPage() {
                                                     <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white truncate">
+                                                    <h3 className="font-bold text-base sm:text-lg text-gray-900">
                                                         {consultation.name}
                                                     </h3>
-                                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                                                    <p className="text-xs sm:text-sm text-gray-500">
                                                         {formatDate(consultation.timestamp)}
                                                     </p>
                                                 </div>
@@ -214,12 +214,12 @@ export default function AdminPage() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                                             <Phone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                                             <span className="truncate">{consultation.phone}</span>
                                         </div>
                                         {consultation.email && (
-                                            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                                                 <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                                                 <span className="truncate">{consultation.email}</span>
                                             </div>
@@ -230,7 +230,7 @@ export default function AdminPage() {
                                     </div>
 
                                     {consultation.message && (
-                                        <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2 break-words">
+                                        <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600">
                                             {consultation.message}
                                         </p>
                                     )}
@@ -241,9 +241,9 @@ export default function AdminPage() {
                         {/* Detail View */}
                         <div className="lg:col-span-1">
                             {selectedConsultation ? (
-                                <div className="sticky top-4 sm:top-8 bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-xl border-2 border-gray-200 dark:border-gray-800 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                                <div className="sticky top-4 sm:top-8 bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-xl border-2 border-gray-200">
                                     <div className="flex items-center justify-between mb-4 sm:mb-6">
-                                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                                        <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                                             문의 상세
                                         </h2>
                                         <button
@@ -251,32 +251,32 @@ export default function AdminPage() {
                                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
                                             aria-label="닫기"
                                         >
-                                            <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
+                                            <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                                         </button>
                                     </div>
 
                                     <div className="space-y-4 sm:space-y-6">
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
+                                            <label className="block text-xs font-semibold text-gray-500">
                                                 이름
                                             </label>
                                             <div className="flex items-center gap-2 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                                 <User className="w-4 h-4 sm:w-5 sm:h-5 text-deep-electric-blue flex-shrink-0" />
-                                                <span className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white break-words">
+                                                <span className="font-semibold text-sm sm:text-base text-gray-900">
                                                     {selectedConsultation.name}
                                                 </span>
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
+                                            <label className="block text-xs font-semibold text-gray-500">
                                                 연락처
                                             </label>
                                             <div className="flex items-center gap-2 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                                 <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-deep-electric-blue flex-shrink-0" />
                                                 <a
                                                     href={`tel:${selectedConsultation.phone}`}
-                                                    className="text-sm sm:text-base text-gray-900 dark:text-white hover:text-deep-electric-blue transition-colors break-all"
+                                                    className="text-sm sm:text-base text-gray-900"
                                                 >
                                                     {selectedConsultation.phone}
                                                 </a>
@@ -285,14 +285,14 @@ export default function AdminPage() {
 
                                         {selectedConsultation.email && (
                                             <div>
-                                                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
+                                                <label className="block text-xs font-semibold text-gray-500">
                                                     이메일
                                                 </label>
                                                 <div className="flex items-center gap-2 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                                     <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-deep-electric-blue flex-shrink-0" />
                                                     <a
                                                         href={`mailto:${selectedConsultation.email}`}
-                                                        className="text-sm sm:text-base text-gray-900 dark:text-white hover:text-deep-electric-blue transition-colors break-all"
+                                                        className="text-sm sm:text-base text-gray-900"
                                                     >
                                                         {selectedConsultation.email}
                                                     </a>
@@ -301,7 +301,7 @@ export default function AdminPage() {
                                         )}
 
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
+                                            <label className="block text-xs font-semibold text-gray-500">
                                                 관심 과정
                                             </label>
                                             <div className="p-2 sm:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -312,29 +312,29 @@ export default function AdminPage() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
+                                            <label className="block text-xs font-semibold text-gray-500">
                                                 문의 내용
                                             </label>
                                             <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
+                                                <p className="text-xs sm:text-sm text-gray-700">
                                                     {selectedConsultation.message}
                                                 </p>
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">
+                                            <label className="block text-xs font-semibold text-gray-500">
                                                 접수 시간
                                             </label>
                                             <div className="flex items-center gap-2 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-deep-electric-blue flex-shrink-0" />
-                                                <span className="text-xs sm:text-sm text-gray-900 dark:text-white">
+                                                <span className="text-xs sm:text-sm text-gray-900">
                                                     {formatDate(selectedConsultation.timestamp)}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t border-gray-200">
                                             <a
                                                 href={`tel:${selectedConsultation.phone}`}
                                                 className="flex-1 px-3 sm:px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white text-sm sm:text-base font-semibold rounded-lg transition-all text-center touch-manipulation"
@@ -353,9 +353,9 @@ export default function AdminPage() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="sticky top-4 sm:top-8 bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl p-6 sm:p-8 shadow-lg border-2 border-gray-200 dark:border-gray-800 text-center">
+                                <div className="sticky top-4 sm:top-8 bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl p-6 sm:p-8 shadow-lg border-2 border-gray-200">
                                     <Eye className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
-                                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                                    <p className="text-sm sm:text-base text-gray-600">
                                         왼쪽에서 문의를 선택하면<br className="hidden sm:block" />상세 내용을 볼 수 있습니다
                                     </p>
                                 </div>

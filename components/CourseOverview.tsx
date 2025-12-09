@@ -16,21 +16,21 @@ export default function CourseOverview() {
                     {/* Left: Text Content */}
                     <ScrollAnimation direction="right" delay={100}>
                         <div>
-                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                 내 손끝에서 시작되는<br />
                                 <span className="text-active-orange">로봇의 첫 움직임</span>
                             </h2>
-                            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                            <p className="text-lg text-gray-600">
                                 Basic Course는 코딩이 처음인 친구들을 위한 입문 과정입니다. 복잡한 텍스트 코딩 대신 직관적인 블록 코딩을 통해 논리적 사고력을 키우고, 화면 속이 아닌 현실 세계에서 작동하는 <strong className="text-active-orange">'피지컬 AI'</strong>의 기초를 다집니다.
                             </p>
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 bg-active-orange rounded-full animate-pulse"></div>
-                                    <span className="text-sm text-gray-500 dark:text-gray-400">입문 과정</span>
+                                    <span className="text-sm text-gray-500">입문 과정</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 bg-deep-electric-blue rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                                    <span className="text-sm text-gray-500 dark:text-gray-400">블록 코딩 기반</span>
+                                    <span className="text-sm text-gray-500">블록 코딩 기반</span>
                                 </div>
                             </div>
                         </div>

@@ -42,7 +42,7 @@ export default function AirRobotShowcase() {
     ];
 
     return (
-        <section className="py-20 bg-white dark:bg-[#0A1931] relative overflow-hidden">
+        <section className="py-20 bg-white">
             {/* Background decoration */}
             <div className="absolute inset-0 opacity-5">
                 <div className="absolute bottom-20 left-10 w-96 h-96 bg-sky-400 rounded-full blur-3xl animate-pulse"></div>
@@ -52,10 +52,10 @@ export default function AirRobotShowcase() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-16">
                         <h2 className="text-sky-500 font-bold tracking-wider mb-2">CREATIVE SHOWCASE</h2>
-                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900">
                             상상하는 모든 것이 드론이 됩니다
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        <p className="text-gray-600">
                             Before & After - Evolution 스타일로 보여주는 창작 과정
                         </p>
                     </div>
@@ -68,7 +68,7 @@ export default function AirRobotShowcase() {
                             {evolution.map((item, index) => (
                                 <div key={index} className="flex-1 text-center group">
                                     <div className="relative mb-6">
-                                        <div className="w-32 h-32 mx-auto bg-gradient-to-br from-sky-100 to-blue-100 dark:from-gray-800 dark:to-gray-700 rounded-full flex items-center justify-center text-6xl group-hover:scale-110 transition-transform shadow-lg">
+                                        <div className="w-32 h-32 mx-auto bg-gradient-to-br from-sky-100 to-blue-100">
                                             {item.image}
                                         </div>
                                         {index < evolution.length - 1 && (
@@ -77,8 +77,8 @@ export default function AirRobotShowcase() {
                                             </div>
                                         )}
                                     </div>
-                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{item.stage}</h4>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+                                    <h4 className="text-lg font-bold text-gray-900">{item.stage}</h4>
+                                    <p className="text-sm text-gray-600">{item.description}</p>
                                 </div>
                             ))}
                         </div>
@@ -93,9 +93,9 @@ export default function AirRobotShowcase() {
                             direction="up"
                             delay={index * 150}
                         >
-                            <div className="group relative bg-gradient-to-br from-sky-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-sky-400/50 transition-all duration-300 hover:-translate-y-2 shadow-lg hover:shadow-xl">
+                            <div className="group relative bg-gradient-to-br from-sky-50 to-blue-50">
                                 {/* Project visual */}
-                                <div className="relative h-48 bg-gradient-to-br from-sky-200 via-blue-200 to-indigo-200 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
+                                <div className="relative h-48 bg-gradient-to-br from-sky-200 via-blue-200 to-indigo-200">
                                     {index === 0 ? (
                                         <Image
                                             src="/img/drone02.png"
@@ -140,14 +140,14 @@ export default function AirRobotShowcase() {
                                 <div className="p-4 sm:p-6">
                                     <div className="flex items-center gap-2 mb-2">
                                         <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-sky-500" />
-                                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Project #{index + 1}</span>
+                                        <span className="text-xs text-gray-500">Project #{index + 1}</span>
                                     </div>
                                     
-                                    <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 group-active:text-sky-600 dark:group-active:text-sky-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                                    <h4 className="text-lg sm:text-xl font-bold text-gray-900">
                                         {project.title}
                                     </h4>
                                     
-                                    <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed">
+                                    <p className="text-gray-600">
                                         {project.description}
                                     </p>
                                 </div>

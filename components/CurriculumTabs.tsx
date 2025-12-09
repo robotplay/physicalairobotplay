@@ -33,7 +33,7 @@ export default function CurriculumTabs() {
               className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
                 activeTab === 'basic'
                   ? 'bg-active-orange text-white shadow-lg scale-105'
-                  : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-active-orange active:scale-95'
+                  : 'bg-transparent text-gray-600'
               } touch-manipulation`}
             >
               Basic Course
@@ -44,7 +44,7 @@ export default function CurriculumTabs() {
               className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
                 activeTab === 'advanced'
                   ? 'bg-deep-electric-blue text-white shadow-lg scale-105'
-                  : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-deep-electric-blue active:scale-95'
+                  : 'bg-transparent text-gray-600'
               } touch-manipulation`}
             >
               Advanced Course
@@ -55,7 +55,7 @@ export default function CurriculumTabs() {
               className={`flex-1 px-4 py-3 sm:px-6 sm:py-4 rounded-xl font-bold text-sm sm:text-base transition-all transform ${
                 activeTab === 'airrobot'
                   ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-lg scale-105'
-                  : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-sky-500 active:scale-95'
+                  : 'bg-transparent text-gray-600'
               } touch-manipulation`}
             >
               Air Robot Course
@@ -73,7 +73,7 @@ export default function CurriculumTabs() {
                 className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
                   advancedSubTab === 'driving'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
-                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 active:scale-95'
+                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600'
                 } touch-manipulation`}
               >
                 🚗 자율주행 (8주)
@@ -83,7 +83,7 @@ export default function CurriculumTabs() {
                 className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
                   advancedSubTab === 'arm'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
-                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 active:scale-95'
+                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600'
                 } touch-manipulation`}
               >
                 🤖 물체 탐지 로봇팔 (8주)
@@ -93,7 +93,7 @@ export default function CurriculumTabs() {
                 className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all transform ${
                   advancedSubTab === 'humanoid'
                     ? 'bg-deep-electric-blue text-white shadow-md scale-105'
-                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 active:scale-95'
+                    : 'bg-gray-200 dark:bg-gray-800 text-gray-600'
                 } touch-manipulation`}
               >
                 👤 AI 휴머노이드 (12주)

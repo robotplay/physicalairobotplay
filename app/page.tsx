@@ -81,7 +81,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <main className="min-h-screen bg-white">
       <Hero />
       <History />
       <About />

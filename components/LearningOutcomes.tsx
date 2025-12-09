@@ -33,11 +33,11 @@ export default function LearningOutcomes() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-10 sm:mb-12 md:mb-16">
                         <h2 className="text-deep-electric-blue font-bold tracking-wider mb-2 text-sm sm:text-base">LEARNING OUTCOMES</h2>
-                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
                             Basic Course를 통해<br />
                             얻을 수 있는 것들
                         </h3>
-                        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
+                        <p className="text-sm sm:text-base text-gray-600">
                             놀이처럼 재미있지만, 그 안에는 탄탄한 논리적 사고 교육이 담겨 있습니다.
                         </p>
                     </div>
@@ -52,7 +52,7 @@ export default function LearningOutcomes() {
                                 direction="up"
                                 delay={index * 150}
                             >
-                                <div className="group relative bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-lg active:shadow-xl hover:shadow-xl transition-all duration-300 active:-translate-y-1 hover:-translate-y-2 border border-gray-100 dark:border-gray-800 active:border-active-orange/50 hover:border-active-orange/50">
+                                <div className="group relative bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-lg active:shadow-xl hover:shadow-xl transition-all duration-300 active:-translate-y-1 hover:-translate-y-2 border border-gray-100">
                                     {/* Check icon */}
                                     <div className="absolute top-4 right-4">
                                         <CheckCircle className="w-6 h-6 text-active-orange opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -64,10 +64,10 @@ export default function LearningOutcomes() {
                                     </div>
 
                                     {/* Content */}
-                                    <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-active-orange transition-colors">
+                                    <h4 className="text-xl font-bold text-gray-900">
                                         {outcome.title}
                                     </h4>
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                    <p className="text-gray-600">
                                         {outcome.description}
                                     </p>
 

@@ -28,7 +28,7 @@ export default function CurriculumHero() {
         </div>
         
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 px-2">
-          <span className="block text-gray-900 dark:text-white mb-1 sm:mb-2">
+          <span className="block text-gray-900">
             단계별 성장의 로드맵,
           </span>
           <span className="block text-transparent bg-clip-text bg-gradient-to-r from-deep-electric-blue via-active-orange to-neon-purple animate-gradient">
@@ -36,7 +36,7 @@ export default function CurriculumHero() {
           </span>
         </h1>
         
-        <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-4">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600">
           IRO·FIRA 세계 대회 출전을 목표로 하는<br className="hidden sm:block" />
           체계적인 피지컬 AI 로봇 교육 과정
         </p>

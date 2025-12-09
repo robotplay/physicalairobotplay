@@ -46,11 +46,11 @@ export default function CurriculumRoadmap() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-16">
                         <h2 className="text-active-orange font-bold tracking-wider mb-2">CURRICULUM ROADMAP</h2>
-                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900">
                             3단계로 완성하는<br />
                             로봇 코딩의 기초
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        <p className="text-gray-600">
                             단계별로 차근차근 배워가는 체계적인 커리큘럼
                         </p>
                     </div>
@@ -65,7 +65,7 @@ export default function CurriculumRoadmap() {
                                 direction={index % 2 === 0 ? 'right' : 'left'}
                                 delay={index * 200}
                             >
-                                <div className={`group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-1 hover:-translate-y-2 overflow-hidden border border-gray-100 dark:border-gray-800 ${
+                                <div className={`group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-1 hover:-translate-y-2 overflow-hidden border border-gray-100
                                     index === 1 ? 'md:flex-row-reverse' : ''
                                 }`}>
                                     {/* Animated background blob */}
@@ -84,10 +84,10 @@ export default function CurriculumRoadmap() {
                                                     {step.number}
                                                 </div>
                                                 <div>
-                                                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    <span className="text-xs font-semibold text-gray-500">
                                                         {step.subtitle}
                                                     </span>
-                                                    <h4 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white group-hover:text-active-orange transition-colors">
+                                                    <h4 className="text-2xl md:text-3xl font-bold text-gray-900">
                                                         {step.title}
                                                     </h4>
                                                 </div>
@@ -97,7 +97,7 @@ export default function CurriculumRoadmap() {
                                                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} opacity-20 flex items-center justify-center group-hover:opacity-30 transition-opacity`}>
                                                     <Icon className={`w-6 h-6 text-transparent bg-clip-text bg-gradient-to-br ${step.color}`} />
                                                 </div>
-                                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed flex-1">
+                                                <p className="text-gray-600">
                                                     {step.description}
                                                 </p>
                                             </div>
@@ -105,7 +105,7 @@ export default function CurriculumRoadmap() {
 
                                         {/* Right: Visual */}
                                         <div className={`relative ${index % 2 === 0 ? '' : 'md:order-1'}`}>
-                                            <div className="relative h-48 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 group-active:scale-105 hover:scale-105 transition-transform duration-500">
+                                            <div className="relative h-48 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                                                 {/* Basic Course Images */}
                                                 {index === 0 ? (
                                                     <Image

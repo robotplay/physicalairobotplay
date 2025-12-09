@@ -36,11 +36,11 @@ function LogoWithFallback() {
         // Text fallback
         return (
             <div className="flex items-center gap-2">
-                <div className="text-2xl sm:text-3xl font-black text-deep-electric-blue dark:text-blue-400 tracking-tight">
+                <div className="text-2xl sm:text-3xl font-black text-deep-electric-blue">
                     PAR
                 </div>
                 <div className="hidden sm:block text-xs leading-tight">
-                    <div className="text-deep-electric-blue dark:text-white font-semibold">Physical AI Robot</div>
+                    <div className="text-deep-electric-blue">Physical AI Robot</div>
                     <div className="text-active-orange font-semibold">Play</div>
                 </div>
             </div>
@@ -66,11 +66,11 @@ function LogoWithFallback() {
             />
             {!imageLoaded && (
                 <div className="absolute inset-0 flex items-center gap-2 animate-pulse">
-                    <div className="text-2xl sm:text-3xl font-black text-deep-electric-blue dark:text-blue-400 tracking-tight">
+                    <div className="text-2xl sm:text-3xl font-black text-deep-electric-blue">
                         PAR
                     </div>
                     <div className="hidden sm:block text-xs leading-tight">
-                        <div className="text-deep-electric-blue dark:text-white font-semibold">Physical AI Robot</div>
+                        <div className="text-deep-electric-blue">Physical AI Robot</div>
                         <div className="text-active-orange font-semibold">Play</div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@ export default function Header() {
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
                 isScrolled
-                    ? 'bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-800'
+                    ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200'
                     : 'bg-transparent'
             }`}
         >
@@ -130,7 +130,7 @@ export default function Header() {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className="text-gray-700 dark:text-gray-300 active:text-deep-electric-blue dark:active:text-active-orange hover:text-deep-electric-blue dark:hover:text-active-orange font-medium transition-colors text-xs xl:text-sm"
+                                    className="text-gray-700"
                                     onClick={(e) => {
                                         // If we're not on the home page, handle navigation and scroll
                                         if (pathname !== '/') {
@@ -182,7 +182,7 @@ export default function Header() {
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="lg:hidden text-gray-700 dark:text-gray-300 active:text-deep-electric-blue dark:active:text-active-orange hover:text-deep-electric-blue dark:hover:text-active-orange transition-colors touch-manipulation p-2"
+                        className="lg:hidden text-gray-700"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         aria-label="메뉴 열기"
                     >
@@ -196,12 +196,12 @@ export default function Header() {
 
                     {/* Mobile Menu */}
                     {isMobileMenuOpen && (
-                        <div className="lg:hidden py-4 border-t border-gray-200 dark:border-gray-800 animate-fade-in">
+                        <div className="lg:hidden py-4 border-t border-gray-200">
                         {navItems.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="block py-3 text-gray-700 dark:text-gray-300 hover:text-deep-electric-blue dark:hover:text-active-orange transition-colors"
+                                className="block py-3 text-gray-700"
                                 onClick={(e) => {
                                     setIsMobileMenuOpen(false);
                                     // If we're not on the home page, handle navigation and scroll
@@ -234,7 +234,7 @@ export default function Header() {
                                 {item.name}
                             </Link>
                         ))}
-                        <div className="pt-4 space-y-2 border-t border-gray-200 dark:border-gray-800 mt-4">
+                        <div className="pt-4 space-y-2 border-t border-gray-200">
                             <Link
                                 href="/basic-course"
                                 className="block w-full px-4 py-2 bg-active-orange hover:bg-orange-600 text-white font-semibold rounded-lg transition-all text-center"

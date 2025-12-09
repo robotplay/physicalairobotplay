@@ -41,17 +41,17 @@ export default function AdminLogin() {
                         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-deep-electric-blue to-active-orange flex items-center justify-center">
                             <Lock className="w-8 h-8 text-white" />
                         </div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                             관리자 로그인
                         </h1>
-                        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                        <p className="text-sm sm:text-base text-gray-600">
                             상담 문의 관리 페이지에 접근하려면<br />비밀번호를 입력해주세요
                         </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
                                 비밀번호
                             </label>
                             <div className="relative">
@@ -60,7 +60,7 @@ export default function AdminLogin() {
                                     id="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-deep-electric-blue focus:ring-2 focus:ring-deep-electric-blue/20 transition-all"
+                                    className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-gray-200"
                                     placeholder="비밀번호를 입력하세요"
                                     required
                                     autoFocus
@@ -68,7 +68,7 @@ export default function AdminLogin() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                                     aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
                                 >
                                     {showPassword ? (
@@ -81,8 +81,8 @@ export default function AdminLogin() {
                         </div>
 
                         {error && (
-                            <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-                                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                            <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200">
+                                <p className="text-sm text-red-600">{error}</p>
                             </div>
                         )}
 
@@ -105,8 +105,8 @@ export default function AdminLogin() {
                         </button>
                     </form>
 
-                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
-                        <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                        <p className="text-xs text-center text-gray-500">
                             💡 비밀번호는 .env.local 파일에서 관리됩니다
                         </p>
                     </div>

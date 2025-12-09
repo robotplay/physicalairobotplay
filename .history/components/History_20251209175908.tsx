@@ -77,7 +77,7 @@ export default function History() {
                                                         <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-deep-electric-blue" />
                                                         <h4 className="text-xl sm:text-2xl font-bold text-deep-electric-blue">{event.title}</h4>
                                                     </div>
-                                                    <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm sm:text-base">
                                                         {event.description}
                                                     </p>
                                                 </div>

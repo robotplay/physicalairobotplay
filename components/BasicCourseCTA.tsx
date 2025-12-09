@@ -5,7 +5,7 @@ import ScrollAnimation from './ScrollAnimation';
 
 export default function BasicCourseCTA() {
     return (
-        <section className="py-20 bg-gradient-to-br from-active-orange/10 via-orange-50 to-deep-electric-blue/10 dark:from-gray-900 dark:via-gray-800 relative overflow-hidden">
+        <section className="py-20 bg-gradient-to-br from-active-orange/10 via-orange-50 to-deep-electric-blue/10">
             {/* Animated background */}
             <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-active-orange rounded-full blur-3xl animate-pulse"></div>
@@ -14,20 +14,20 @@ export default function BasicCourseCTA() {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
                 <ScrollAnimation direction="fade" delay={100}>
-                    <div className="text-center bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl border border-gray-100 dark:border-gray-800">
+                    <div className="text-center bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl border border-gray-100">
                         <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-active-orange/10 rounded-full mb-4 sm:mb-6">
                             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-active-orange" />
                             <span className="text-xs sm:text-sm font-semibold text-active-orange">첫 로봇 친구를 만나는 설렘</span>
                         </div>
                         
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 px-4">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
                             우리 아이의 첫 AI 파트너,<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-active-orange to-deep-electric-blue">
                                 지금 만나보세요
                             </span>
                         </h2>
                         
-                        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4">
+                        <p className="text-base sm:text-lg text-gray-600">
                             Basic Course는 아이들이 로봇과 코딩의 세계로 들어가는 첫 번째 문입니다.
                             <br className="hidden sm:block" />
                             상담을 통해 우리 아이에게 맞는 학습 계획을 세워보세요.
@@ -40,7 +40,7 @@ export default function BasicCourseCTA() {
                             </button>
                             <a 
                                 href="/curriculum?tab=basic"
-                                className="px-6 py-3 sm:px-8 sm:py-4 bg-white dark:bg-gray-800 active:bg-gray-50 dark:active:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base border-2 border-gray-200 dark:border-gray-700 font-bold rounded-full transition-all transform active:scale-95 hover:scale-105 touch-manipulation inline-block text-center"
+                                className="px-6 py-3 sm:px-8 sm:py-4 bg-white dark:bg-gray-800 active:bg-gray-50 dark:active:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900"
                             >
                                 커리큘럼 자세히 보기
                             </a>

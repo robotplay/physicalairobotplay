@@ -17,7 +17,7 @@ export default function BasicCourseHero() {
             <div className="absolute inset-0 z-0">
                 <div className="absolute inset-0 bg-gradient-to-br from-active-orange/20 via-transparent to-deep-electric-blue/20"></div>
                 {/* Placeholder for hero image - replace with actual image */}
-                <div className="w-full h-full bg-gradient-to-br from-orange-100 via-orange-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"></div>
+                <div className="w-full h-full bg-gradient-to-br from-orange-100 via-orange-50 to-blue-50"></div>
             </div>
 
             {/* Floating particles - Reduced for performance */}
@@ -46,7 +46,7 @@ export default function BasicCourseHero() {
                 </div>
                 
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 px-2">
-                    <span className="block text-gray-900 dark:text-white mb-1 sm:mb-2">
+                    <span className="block text-gray-900">
                         상상이 현실로 움직이는 시작,
                     </span>
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-active-orange via-orange-500 to-deep-electric-blue animate-gradient">
@@ -54,7 +54,7 @@ export default function BasicCourseHero() {
                     </span>
                 </h1>
                 
-                <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in-delay px-4">
+                <p className="text-base sm:text-lg md:text-xl text-gray-600">
                     로봇의 구조를 이해하고, 내가 짠 코드로 로봇을 직접 움직여보세요.
                 </p>
 

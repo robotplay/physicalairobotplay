@@ -34,7 +34,7 @@ const Footer = dynamic(() => import('@/components/Footer'), {
 
 export default function AirRobotCoursePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-sky-50 via-blue-50 to-[#0A1931] text-white">
+    <main className="min-h-screen bg-gradient-to-b from-sky-50 via-blue-50 to-[#0A1931]">
       <AirRobotHero />
       <AirRobotOverview />
       <AirRobotCurriculum />

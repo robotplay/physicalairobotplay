@@ -40,10 +40,10 @@ export default function CompetitionRoadmap() {
               <Award className="w-4 h-4" aria-hidden="true" />
               <span className="text-sm font-bold">IRO/FIRA 대회 준비반</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
               당신의 코드가 세계 무대로
             </h2>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-600">
               모든 커리큘럼은 국제 대회 출전을 목표로 설계되었습니다
             </p>
           </div>
@@ -54,12 +54,12 @@ export default function CompetitionRoadmap() {
             const Icon = competition.logo ? null : competition.icon;
             return (
               <ScrollAnimation key={index} direction="up" delay={index * 150}>
-                <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-200 dark:border-gray-800 hover:border-deep-electric-blue/50 transition-all hover:-translate-y-2">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-200">
                   {competition.logo ? (
                     <div className={`inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-3 mb-4 border-2 shadow-lg ${
                       competition.acronym === 'IRO' 
-                        ? 'bg-white dark:bg-yellow-50 border-yellow-300 dark:border-yellow-200'
-                        : 'bg-white dark:bg-blue-50 border-blue-300 dark:border-blue-200'
+                        ? 'bg-white dark:bg-yellow-50 border-yellow-300'
+                        : 'bg-white dark:bg-blue-50 border-blue-300'
                     }`}>
                       <Image
                         src={competition.logo}
@@ -74,20 +74,20 @@ export default function CompetitionRoadmap() {
                       {Icon && <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />}
                     </div>
                   )}
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                     {competition.name}
                   </h3>
                   <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r bg-gradient-to-br from-deep-electric-blue to-neon-purple mb-3">
                     {competition.acronym}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm sm:text-base">
+                  <p className="text-gray-600">
                     {competition.description}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {competition.categories.map((category, i) => (
                       <span
                         key={i}
-                        className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded-full border border-gray-200 dark:border-gray-700"
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700"
                       >
                         {category}
                       </span>

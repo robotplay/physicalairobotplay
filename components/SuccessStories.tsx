@@ -61,7 +61,7 @@ export default function SuccessStories() {
     ];
 
     return (
-        <section id="success" className="section-padding bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0a0a] dark:via-black dark:to-[#0a0a0a] relative overflow-hidden">
+        <section id="success" className="section-padding bg-gradient-to-br from-gray-50 via-white to-gray-50">
             {/* Background decoration */}
             <div className="absolute inset-0 opacity-5">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-deep-electric-blue rounded-full blur-3xl animate-pulse"></div>
@@ -75,13 +75,13 @@ export default function SuccessStories() {
                             <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-active-orange animate-pulse" aria-hidden="true" />
                             <span className="text-xs sm:text-sm text-active-orange font-semibold">SUCCESS STORIES</span>
                         </div>
-                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
                             아이들의 성공이<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-deep-electric-blue via-active-orange to-neon-purple">
                                 우리의 자랑입니다
                             </span>
                         </h2>
-                        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <p className="text-base sm:text-lg text-gray-600">
                             세계 무대에서 인정받은 우리 학생들의 성과를 소개합니다
                         </p>
                     </div>
@@ -95,15 +95,15 @@ export default function SuccessStories() {
                             return (
                                 <div
                                     key={index}
-                                    className="group relative bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 dark:border-gray-800 hover:border-deep-electric-blue/50"
+                                    className="group relative bg-white"
                                 >
                                     <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br ${achievement.color} flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300`}>
                                         <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-white" aria-hidden="true" />
                                     </div>
-                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-deep-electric-blue transition-colors">
+                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                                         {achievement.title}
                                     </h3>
-                                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-2">
+                                    <p className="text-sm sm:text-base text-gray-600">
                                         {achievement.description}
                                     </p>
                                     <p className="text-xs sm:text-sm font-semibold text-active-orange">
@@ -122,7 +122,7 @@ export default function SuccessStories() {
                             <Users className="w-4 h-4 sm:w-5 sm:h-5 text-deep-electric-blue" aria-hidden="true" />
                             <span className="text-xs sm:text-sm text-deep-electric-blue font-semibold">STUDENT TESTIMONIALS</span>
                         </div>
-                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
                             학생들의 생생한 후기
                         </h3>
                     </div>
@@ -131,7 +131,7 @@ export default function SuccessStories() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                     {studentStories.map((story, index) => (
                         <ScrollAnimation key={index} direction="up" delay={index * 150}>
-                            <div className="group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 dark:border-gray-800">
+                            <div className="group relative bg-white">
                                 {/* Image */}
                                 <div className="relative h-48 sm:h-56 overflow-hidden">
                                     <Image
@@ -154,14 +154,14 @@ export default function SuccessStories() {
                                 {/* Content */}
                                 <div className="p-6 sm:p-8">
                                     <div className="mb-4">
-                                        <h4 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                                        <h4 className="text-xl sm:text-2xl font-bold text-gray-900">
                                             {story.name}
                                         </h4>
                                         <p className="text-sm sm:text-base text-deep-electric-blue font-semibold">
                                             {story.course}
                                         </p>
                                     </div>
-                                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                                    <p className="text-sm sm:text-base text-gray-600">
                                         "{story.story}"
                                     </p>
                                 </div>

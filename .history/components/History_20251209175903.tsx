@@ -43,7 +43,7 @@ export default function History() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-16">
                         <h2 className="text-deep-electric-blue font-bold tracking-wider mb-2">OUR STORY</h2>
-                        <h3 className="text-4xl md:text-5xl font-bold text-gray-900">
+                        <h3 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
                             우리가 걸어온 길,<br />그리고 아이들이 나아갈 미래
                         </h3>
                     </div>
@@ -69,7 +69,7 @@ export default function History() {
                                         {/* Content */}
                                         <div className="w-full md:w-1/2 px-4 sm:px-6 md:px-8 mb-4 md:mb-0">
                                             <div className={`text-center md:text-${index % 2 === 0 ? 'right' : 'left'}`}>
-                                                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-gray-100 absolute -top-6 sm:-top-8 md:-top-10 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 opacity-50 z-0 select-none transition-all group-hover:opacity-70 group-hover:scale-110">
+                                                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-gray-100 dark:text-gray-800 absolute -top-6 sm:-top-8 md:-top-10 left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 opacity-50 z-0 select-none transition-all group-hover:opacity-70 group-hover:scale-110">
                                                     {event.year}
                                                 </span>
                                                 <div className="relative z-10 transform transition-all group-hover:scale-105">
@@ -77,7 +77,7 @@ export default function History() {
                                                         <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-deep-electric-blue" />
                                                         <h4 className="text-xl sm:text-2xl font-bold text-deep-electric-blue">{event.title}</h4>
                                                     </div>
-                                                    <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm sm:text-base">
                                                         {event.description}
                                                     </p>
                                                 </div>

@@ -66,7 +66,7 @@ export default function AirRobotCurriculum() {
     ];
 
     return (
-        <section className="py-20 bg-gradient-to-b from-blue-50 via-indigo-50 to-[#0A1931] dark:from-[#0A1931] dark:via-[#0F1B3A] dark:to-[#0A1931] relative overflow-hidden">
+        <section className="py-20 bg-gradient-to-b from-blue-50 via-indigo-50 to-[#0A1931]">
             {/* Sky gradient background */}
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute inset-0" style={{
@@ -81,11 +81,11 @@ export default function AirRobotCurriculum() {
                 <ScrollAnimation direction="fade">
                     <div className="text-center mb-16">
                         <h2 className="text-sky-500 font-bold tracking-wider mb-2">CURRICULUM ROADMAP</h2>
-                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900">
                             4단계로 완성하는<br />
                             항공 AI 마스터 과정
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        <p className="text-gray-600">
                             항공 역학과 알고리즘이 결합된 최상위 마스터 과정
                         </p>
                     </div>
@@ -94,29 +94,29 @@ export default function AirRobotCurriculum() {
                 {/* Tech Stack Tabs */}
                 <ScrollAnimation direction="fade" delay={100}>
                     <div className="max-w-4xl mx-auto mb-16">
-                        <div className="bg-white dark:bg-gray-900 rounded-xl p-1.5 sm:p-2 border border-gray-200 dark:border-gray-800 flex gap-1.5 sm:gap-2">
+                        <div className="bg-white dark:bg-gray-900 rounded-xl p-1.5 sm:p-2 border border-gray-200">
                             <div
                                 onMouseEnter={() => setActiveTab('blocks')}
                                 onTouchStart={() => setActiveTab('blocks')}
-                                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 cursor-pointer text-gray-600 dark:text-gray-400 active:bg-gradient-to-r active:from-sky-400 active:to-blue-500 active:text-white active:shadow-lg hover:bg-gradient-to-r hover:from-sky-400 hover:to-blue-500 hover:text-white hover:shadow-lg touch-manipulation"
+                                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 cursor-pointer text-gray-600"
                             >
                                 MBlocks (블록코딩)
                             </div>
                             <div
                                 onMouseEnter={() => setActiveTab('arduino')}
                                 onTouchStart={() => setActiveTab('arduino')}
-                                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 cursor-pointer text-gray-600 dark:text-gray-400 active:bg-gradient-to-r active:from-sky-400 active:to-blue-500 active:text-white active:shadow-lg hover:bg-gradient-to-r hover:from-sky-400 hover:to-blue-500 hover:text-white hover:shadow-lg touch-manipulation"
+                                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 cursor-pointer text-gray-600"
                             >
                                 Arduino C++ (텍스트코딩)
                             </div>
                         </div>
                         <div className="mt-4 text-center min-h-[2rem]">
                             {activeTab === 'blocks' ? (
-                                <p className="text-gray-600 dark:text-gray-400 transition-opacity duration-300">
+                                <p className="text-gray-600">
                                     마우스 클릭으로 비행 원리를 직관적으로 이해합니다.
                                 </p>
                             ) : (
-                                <p className="text-gray-600 dark:text-gray-400 transition-opacity duration-300">
+                                <p className="text-gray-600">
                                     전문가 수준의 정밀한 센서 제어와 알고리즘을 작성합니다.
                                 </p>
                             )}
@@ -134,7 +134,7 @@ export default function AirRobotCurriculum() {
                                 direction={index % 2 === 0 ? 'right' : 'left'}
                                 delay={index * 200}
                             >
-                                <div className="group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-1 hover:-translate-y-2 overflow-hidden border border-gray-200 dark:border-gray-800">
+                                <div className="group relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 shadow-xl active:shadow-2xl hover:shadow-2xl transition-all duration-500 active:-translate-y-1 hover:-translate-y-2 overflow-hidden border border-gray-200">
                                     {/* Background gradient */}
                                     <div className={`absolute inset-0 bg-gradient-to-br ${step.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                                     
@@ -146,7 +146,7 @@ export default function AirRobotCurriculum() {
                                                     <div className={`w-24 h-24 mx-auto mb-4 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all shadow-lg`}>
                                                         <Icon className="w-12 h-12 text-white" />
                                                     </div>
-                                                    <div className="text-6xl font-black text-gray-800 dark:text-gray-700 group-hover:text-gray-600 dark:group-hover:text-gray-500 transition-colors">
+                                                    <div className="text-6xl font-black text-gray-800">
                                                         {step.number}
                                                     </div>
                                                 </div>
@@ -156,15 +156,15 @@ export default function AirRobotCurriculum() {
                                         {/* Right: Content */}
                                         <div>
                                             <div className="mb-4">
-                                                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                <span className="text-xs font-semibold text-gray-500">
                                                     {step.subtitle}
                                                 </span>
-                                                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sky-500 group-hover:to-blue-600 transition-all">
+                                                <h4 className="text-2xl md:text-3xl font-bold text-gray-900">
                                                     {step.title}
                                                 </h4>
                                             </div>
                                             
-                                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                                            <p className="text-gray-600">
                                                 {step.description}
                                             </p>
 
@@ -173,7 +173,7 @@ export default function AirRobotCurriculum() {
                                                 {step.activities.map((activity, i) => (
                                                     <div key={i} className="flex items-start gap-3">
                                                         <div className={`w-2 h-2 rounded-full bg-gradient-to-br ${step.color} mt-2 flex-shrink-0`}></div>
-                                                        <span className="text-sm text-gray-600 dark:text-gray-400">{activity}</span>
+                                                        <span className="text-sm text-gray-600">{activity}</span>
                                                     </div>
                                                 ))}
                                             </div>
