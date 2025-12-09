@@ -133,7 +133,26 @@ export default function Teachers() {
         {
             name: '하성산',
             title: '로봇 교육 전문강사',
-            specialty: '피지컬 AI 로봇 프로그래밍',
+            specialty: '휴머노이드 로봇·드론 제어·프로그래밍',
+            image: '/img/hss.png',
+            skills: [
+                { name: 'Humanoid Robot', level: 100 },
+                { name: 'Python/C/R+Task', level: 99 },
+                { name: 'R+Motion', level: 100 },
+                { name: 'Drone Control', level: 98 },
+            ],
+            experience: [
+                '기계공학부 시스템설계제조전공(한기대)',
+                '로봇플레이 교육원 전문강사',
+                '천안여고, 오성고, 복자여고 외 휴머노이드 강사',
+                '아산 청소년문화교육원 휴머노이드 강사',
+                'Python, C, Rtask, R모션 프로그램 강사',
+                '드론 제어비행기 전문강사',
+                '지능휴머노이드 대회 대통령상 수상',
+                '일본 로보원 대회 참가 한중일 친선경기 우승',
+                '대한민국로봇대전 휴머노이드 부문 연구상',
+                'EBS 로봇파워 휴머노이드 격투 부문 우승',
+            ],
         },
         {
             name: '이은성',
