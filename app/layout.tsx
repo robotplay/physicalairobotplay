@@ -61,18 +61,12 @@ export const metadata: Metadata = {
     description: "코드가 현실이 되는 곳, 피지컬 AI 로봇플레이. 하광진 선생님의 교육 철학과 미래 기술이 만나는 새로운 교육 공간입니다.",
     images: [
       {
-        url: `${siteUrl}/opengraph-image`,
-        width: 1200,
-        height: 630,
-        alt: "Physical AI Robot Play - 천안 코딩 로봇 교육",
-        type: "image/png",
-      },
-      {
         url: `${siteUrl}/img/logo11.png`,
         width: 1200,
         height: 630,
         alt: "Physical AI Robot Play - 천안 코딩 로봇 교육",
         type: "image/png",
+        secureUrl: `${siteUrl}/img/logo11.png`,
       },
     ],
   },
