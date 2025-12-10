@@ -21,11 +21,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://physicalairobotplay
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: {
-    default: "Physical AI Robot Play | 천안 코딩 로봇 교육",
-    template: "%s | Physical AI Robot Play"
-  },
-  description: "코드가 현실이 되는 곳, 피지컬 AI 로봇플레이. 하광진 선생님의 교육 철학과 미래 기술이 만나는 새로운 교육 공간입니다. Basic Course, Advanced Course, AirRobot Course를 통한 단계별 로봇 교육.",
+  title: "피지컬 AI 로봇플레이",
+  description: "상상을 현실로 만드는 코딩 교육, 피지컬 AI 로봇플레이입니다.",
   keywords: [
     "천안 코딩 교육",
     "로봇 교육",
@@ -53,28 +50,25 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    type: "website",
-    locale: "ko_KR",
+    title: "피지컬 AI 로봇플레이",
+    description: "상상을 현실로 만드는 코딩 교육. Basic부터 Advanced, 드론 과정까지.",
     url: siteUrl,
-    siteName: "Physical AI Robot Play",
-    title: "Physical AI Robot Play | 천안 코딩 로봇 교육",
-    description: "코드가 현실이 되는 곳, 피지컬 AI 로봇플레이. 하광진 선생님의 교육 철학과 미래 기술이 만나는 새로운 교육 공간입니다.",
+    siteName: "피지컬 AI 로봇플레이",
     images: [
       {
-        url: `${siteUrl}/img/logo11.png`,
+        url: `${siteUrl}/og-image.jpeg`,
         width: 1200,
         height: 630,
-        alt: "Physical AI Robot Play - 천안 코딩 로봇 교육",
-        type: "image/png",
-        secureUrl: `${siteUrl}/img/logo11.png`,
       },
     ],
+    locale: "ko_KR",
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Physical AI Robot Play | 천안 코딩 로봇 교육",
-    description: "코드가 현실이 되는 곳, 피지컬 AI 로봇플레이",
-    images: [`${siteUrl}/img/logo11.png`],
+    title: "피지컬 AI 로봇플레이",
+    description: "상상을 현실로 만드는 코딩 교육. Basic부터 Advanced, 드론 과정까지.",
+    images: [`${siteUrl}/og-image.jpeg`],
   },
   robots: {
     index: true,
