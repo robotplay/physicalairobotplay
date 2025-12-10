@@ -337,6 +337,11 @@ export default function Teachers() {
                 'Biped soccer 3:3 금상',
             ],
         },
+        {
+            name: '최성희',
+            title: '로봇 교육 전문강사',
+            specialty: '로봇 코딩 및 프로그래밍 교육',
+        },
     ];
 
     return (
