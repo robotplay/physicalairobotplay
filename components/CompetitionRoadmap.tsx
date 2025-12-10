@@ -2,14 +2,12 @@
 
 import ScrollAnimation from './ScrollAnimation';
 import { Globe, Award } from 'lucide-react';
-import Image from 'next/image';
 
 export default function CompetitionRoadmap() {
   const competitions = [
     {
       name: '국제로봇올림피아드',
       acronym: 'IRO',
-      logo: '/img/iroc.png',
       color: 'from-yellow-500 to-orange-500',
       description: '창의적 미션 수행과 AI 휴머노이드 AI 자율주행 대회 출전을 목표로 하는 과정',
       categories: ['미션형 창작', 'AI 자율주행', 'AI 휴봇','Air Robot'],
@@ -18,7 +16,6 @@ export default function CompetitionRoadmap() {
       name: 'FIRA RoboWorld Cup',
       acronym: 'FIRA',
       icon: Globe,
-      logo: '/img/FIRA.png',
       color: 'from-blue-500 to-cyan-500',
       description: '자율주행 자동차, 자율드론 휴머노이드 스포츠 등 고난이도 AI 미션 로봇대회',
       categories: ['FIRA Youth', 'FIRA Sports', 'FIRA Challenges','FIRA Air'],
@@ -27,7 +24,6 @@ export default function CompetitionRoadmap() {
 
   return (
     <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-deep-electric-blue/5 via-active-orange/5 to-neon-purple/5 relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 right-10 w-96 h-96 bg-deep-electric-blue rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-active-orange rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
@@ -51,33 +47,23 @@ export default function CompetitionRoadmap() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto">
           {competitions.map((competition, index) => {
-            const Icon = competition.logo ? null : competition.icon;
+            const Icon = competition.icon;
             return (
               <ScrollAnimation key={index} direction="up" delay={index * 150}>
                 <div className="bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-700">
-                  {competition.logo ? (
-                    <div className={`inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-3 mb-4 border-2 shadow-lg ${
-                      competition.acronym === 'IRO' 
-                        ? 'bg-yellow-50 border-yellow-300'
-                        : 'bg-blue-50 border-blue-300'
-                    }`}>
-                      <Image
-                        src={competition.logo}
-                        alt={`${competition.name} 로고`}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  ) : (
-                    <div className={`inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${competition.color} mb-4`}>
-                      {Icon && <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />}
-                    </div>
-                  )}
-                  <h3 className="text-xl sm:text-2xl font-bold text-white">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${competition.color} mb-4 shadow-lg`}>
+                    {Icon ? (
+                      <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    ) : (
+                      <span className="text-2xl sm:text-3xl font-black text-white">
+                        {competition.acronym}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                     {competition.name}
                   </h3>
-                  <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r bg-gradient-to-br from-deep-electric-blue to-neon-purple mb-3">
+                  <div className="text-2xl sm:text-3xl font-black text-white mb-3">
                     {competition.acronym}
                   </div>
                   <p className="text-gray-300">

@@ -70,8 +70,8 @@ export default function Footer() {
                             <ul className="space-y-4">
                                 {[
                                     { icon: MapPin, text: '충청남도 천안시 서북구 불당동 불당34길 3-15 202호 불당동 탑프라자', href: 'https://www.google.com/maps/search/?api=1&query=충청남도+천안시+서북구+불당동+불당34길+3-15+202호+불당동+탑프라자' },
-                                    { icon: Phone, text: '010-1234-5678', href: 'tel:010-1234-5678' },
-                                    { icon: Mail, text: 'contact@robotplay.com', href: 'mailto:contact@robotplay.com' },
+                                    { icon: Phone, text: '041-566-5345', href: 'tel:041-566-5345' },
+                                    { icon: Mail, text: 'hkjtop@naver.com', href: 'mailto:hkjtop@naver.com' },
                                 ].map((item, index) => {
                                     const Icon = item.icon;
                                     return (

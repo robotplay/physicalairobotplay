@@ -2,6 +2,7 @@
 
 import ScrollAnimation from './ScrollAnimation';
 import { Trophy, Globe, Award, Target } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AirRobotCompetition() {
     const achievements = [
@@ -72,11 +73,15 @@ export default function AirRobotCompetition() {
                                         </span>
                                     </div>
 
-                                    {achievement.acronym ? (
-                                        <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all shadow-lg">
-                                            <span className="text-2xl font-black text-white">
-                                                {achievement.acronym}
-                                            </span>
+                                    {achievement.logo ? (
+                                        <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mb-6 p-3 group-hover:scale-110 transition-all border-2 border-yellow-300 shadow-lg">
+                                            <Image
+                                                src={achievement.logo}
+                                                alt={`${achievement.title} 로고`}
+                                                width={48}
+                                                height={48}
+                                                className="w-full h-full object-contain"
+                                            />
                                         </div>
                                     ) : (
                                         <div className="w-16 h-16 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all">
