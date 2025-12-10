@@ -17,8 +17,10 @@ const geistMono = Geist_Mono({
   preload: false,
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://physicalairobotplay.vercel.app';
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://physical-ai-robot-play.com'),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Physical AI Robot Play | 천안 코딩 로봇 교육",
     template: "%s | Physical AI Robot Play"
@@ -37,7 +39,7 @@ export const metadata: Metadata = {
     "FIRA",
     "로봇 올림피아드"
   ],
-  authors: [{ name: "하광진", url: "https://physical-ai-robot-play.com" }],
+  authors: [{ name: "하광진", url: siteUrl }],
   creator: "Physical AI Robot Play",
   publisher: "Physical AI Robot Play",
   formatDetection: {
@@ -53,16 +55,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://physical-ai-robot-play.com",
+    url: siteUrl,
     siteName: "Physical AI Robot Play",
     title: "Physical AI Robot Play | 천안 코딩 로봇 교육",
     description: "코드가 현실이 되는 곳, 피지컬 AI 로봇플레이. 하광진 선생님의 교육 철학과 미래 기술이 만나는 새로운 교육 공간입니다.",
     images: [
       {
-        url: "/img/logo11.png",
+        url: `${siteUrl}/img/logo11.png`,
         width: 1200,
         height: 630,
         alt: "Physical AI Robot Play",
+        type: "image/png",
       },
     ],
   },
@@ -70,7 +73,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Physical AI Robot Play | 천안 코딩 로봇 교육",
     description: "코드가 현실이 되는 곳, 피지컬 AI 로봇플레이",
-    images: ["/img/logo11.png"],
+    images: [`${siteUrl}/img/logo11.png`],
   },
   robots: {
     index: true,
