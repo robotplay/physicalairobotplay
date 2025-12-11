@@ -352,21 +352,8 @@ export default function Teachers() {
         },
         {
             name: '최성희',
-            title: '로봇코딩 교육 전문강사',
-            specialty: '로봇SW·에어로봇·창의과학 교육',
-            image: '/img/chs.png',
-            skills: [
-                { name: 'Robot SW', level: 100 },
-                { name: 'Air Robot', level: 95 },
-                { name: 'Creative Science', level: 90 },
-                { name: 'Robot Coding', level: 100 },
-            ],
-            experience: [
-                '(주) NEU엔터테인먼트 [로봇SW, 에어로봇강사]',
-                '로봇플레이 로봇코딩 강사',
-                '충청남도 늘봄 창의과학 전문강사',
-                '(사) KICT기업인협회 [교육 및 컨설팅 프로]',
-            ],
+            title: '로봇 교육 전문강사',
+            specialty: '로봇 코딩 및 프로그래밍 교육',
         },
     ];
 
