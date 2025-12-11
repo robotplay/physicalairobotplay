@@ -244,24 +244,6 @@ export default function Header() {
                                                 }
                                             }, 500);
                                         }
-                                    } else {
-                                        // If we're on the home page, just scroll smoothly
-                                        const hash = item.href.split('#')[1];
-                                        if (hash && typeof window !== 'undefined') {
-                                            setTimeout(() => {
-                                                const element = document.getElementById(hash);
-                                                if (element) {
-                                                    const headerOffset = 80;
-                                                    const elementPosition = element.getBoundingClientRect().top;
-                                                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                                                    
-                                                    window.scrollTo({
-                                                        top: offsetPosition,
-                                                        behavior: 'smooth'
-                                                    });
-                                                }
-                                            }, 100);
-                                        }
                                     }
                                 }}
                             >
@@ -274,45 +256,21 @@ export default function Header() {
                             <Link
                                 href="/basic-course"
                                 className="block w-full px-4 py-2 bg-active-orange hover:bg-orange-600 text-white font-semibold rounded-lg transition-all text-center cursor-pointer"
-                                onClick={() => {
-                                    setIsMobileMenuOpen(false);
-                                    // Ensure smooth navigation
-                                    if (typeof window !== 'undefined') {
-                                        setTimeout(() => {
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }, 100);
-                                    }
-                                }}
+                                onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 Basic Course
                             </Link>
                             <Link
                                 href="/advanced-course"
                                 className="block w-full px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition-all text-center cursor-pointer"
-                                onClick={() => {
-                                    setIsMobileMenuOpen(false);
-                                    // Ensure smooth navigation
-                                    if (typeof window !== 'undefined') {
-                                        setTimeout(() => {
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }, 100);
-                                    }
-                                }}
+                                onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 Advanced Course
                             </Link>
                             <Link
                                 href="/airrobot-course"
                                 className="block w-full px-4 py-2 bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-500 hover:to-blue-700 text-white font-semibold rounded-lg transition-all text-center cursor-pointer"
-                                onClick={() => {
-                                    setIsMobileMenuOpen(false);
-                                    // Ensure smooth navigation
-                                    if (typeof window !== 'undefined') {
-                                        setTimeout(() => {
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }, 100);
-                                    }
-                                }}
+                                onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 AirRobot Course
                             </Link>

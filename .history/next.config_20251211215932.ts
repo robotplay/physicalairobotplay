@@ -15,9 +15,11 @@ const nextConfig: NextConfig = {
     localPatterns: [
       {
         pathname: '/img/**',
+        search: '**',
       },
       {
         pathname: '/logo.png',
+        search: '**',
       },
     ],
     minimumCacheTTL: 60,
