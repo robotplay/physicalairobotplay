@@ -1,45 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import ScrollAnimation from './ScrollAnimation';
-import { Plane, Brain, Target, Play, X } from 'lucide-react';
+import { Plane, Brain, Target, Play } from 'lucide-react';
 import Image from 'next/image';
 
 export default function AirRobotOverview() {
     const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-    const iframeRef = useRef<HTMLIFrameElement>(null);
     const youtubeVideoId = 'kRnx9DsMkXo';
-    
-    useEffect(() => {
-        if (!isVideoPlaying) return;
-
-        // YouTube iframe API 로드
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-
-        // YouTube API 준비 후 이벤트 리스너 설정
-        const checkYouTubeAPI = setInterval(() => {
-            if ((window as any).YT && (window as any).YT.Player) {
-                clearInterval(checkYouTubeAPI);
-                const player = new (window as any).YT.Player(iframeRef.current, {
-                    events: {
-                        onStateChange: (event: any) => {
-                            // 동영상이 끝났을 때 (ENDED = 0)
-                            if (event.data === 0) {
-                                setIsVideoPlaying(false);
-                            }
-                        },
-                    },
-                });
-            }
-        }, 100);
-
-        return () => {
-            clearInterval(checkYouTubeAPI);
-        };
-    }, [isVideoPlaying]);
     const concepts = [
         {
             icon: Plane,
@@ -124,9 +92,9 @@ export default function AirRobotOverview() {
                     {/* Right: Visual */}
                     <ScrollAnimation direction="left" delay={200}>
                         <div className="relative">
-                            <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden bg-gray-800 group border border-gray-700 shadow-xl">
+                            <div className="relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden bg-gray-800 group border border-gray-700 shadow-xl cursor-pointer" onClick={() => setIsVideoPlaying(true)}>
                                 {!isVideoPlaying ? (
-                                    <div className="cursor-pointer" onClick={() => setIsVideoPlaying(true)}>
+                                    <>
                                         {/* Thumbnail Image */}
                                         <Image
                                             src="/img/drone01.png"
@@ -151,32 +119,17 @@ export default function AirRobotOverview() {
                                         {/* Glowing effect */}
                                         <div className="absolute top-4 right-4 w-20 h-20 bg-sky-400/30 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
                                         <div className="absolute bottom-4 left-4 w-16 h-16 bg-blue-500/30 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
-                                    </div>
+                                    </>
                                 ) : (
-                                    <div className="relative w-full h-full">
-                                        {/* Close Button */}
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setIsVideoPlaying(false);
-                                            }}
-                                            className="absolute top-3 right-3 z-20 w-10 h-10 bg-black/70 hover:bg-black/90 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
-                                            aria-label="동영상 닫기"
-                                        >
-                                            <X className="w-6 h-6 text-white" />
-                                        </button>
-                                        
-                                        {/* YouTube Video Embed */}
-                                        <iframe
-                                            ref={iframeRef}
-                                            className="w-full h-full"
-                                            src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&enablejsapi=1`}
-                                            title="비행 로봇 드론 - Physical AI AirRobot Course"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                            style={{ border: 'none' }}
-                                        />
-                                    </div>
+                                    /* YouTube Video Embed */
+                                    <iframe
+                                        className="w-full h-full"
+                                        src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0`}
+                                        title="비행 로봇 드론 - Physical AI AirRobot Course"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        style={{ border: 'none' }}
+                                    />
                                 )}
                             </div>
                         </div>

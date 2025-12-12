@@ -152,18 +152,6 @@ export default function AirRobotCurriculum() {
                                                     style={{ border: 'none' }}
                                                 />
                                             </div>
-                                        ) : index === 3 ? (
-                                            /* YouTube Shorts Video for fourth step */
-                                            <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden bg-gray-900 border border-gray-700">
-                                                <iframe
-                                                    className="w-full h-full"
-                                                    src="https://www.youtube.com/embed/OmkCiIgKHpE?autoplay=1&rel=0"
-                                                    title="대회 및 실전 프로젝트 - Competition & Pro"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                    allowFullScreen
-                                                    style={{ border: 'none' }}
-                                                />
-                                            </div>
                                         ) : (
                                             <div className={`relative h-64 md:h-auto bg-gradient-to-br ${step.bgColor} rounded-2xl overflow-hidden`}>
                                                 <div className="w-full h-full flex items-center justify-center p-8">
