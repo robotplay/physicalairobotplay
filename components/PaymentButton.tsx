@@ -27,9 +27,14 @@ export default function PaymentButton({
     const [isLoading, setIsLoading] = useState(false);
     const [portone, setPortone] = useState<any>(null);
     const [envChecked, setEnvChecked] = useState(false);
+    const [envVars, setEnvVars] = useState<{
+        storeId: string | null;
+        channelKey: string | null;
+        siteUrl: string | null;
+    } | null>(null);
 
     useEffect(() => {
-        // 환경 변수 확인
+        // 환경 변수 확인 및 가져오기
         const checkEnv = async () => {
             try {
                 const response = await fetch('/api/payment/check-env');
@@ -37,8 +42,8 @@ export default function PaymentButton({
                 
                 if (!data.success) {
                     console.error('환경 변수 확인 실패:', data);
-                    // 에러는 표시하지만 SDK 로드는 계속 시도
-                    setEnvChecked(true); // SDK 로드는 시도
+                    onError?.(`결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${data.missingVars?.join(', ') || '알 수 없음'}. Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`);
+                    setEnvChecked(true); // SDK 로드는 시도하지만 결제는 실패할 것
                     return;
                 }
                 
@@ -47,11 +52,18 @@ export default function PaymentButton({
                     channelKeyExists: data.channelKeyExists,
                     siteUrlExists: data.siteUrlExists,
                 });
+
+                // 서버에서 받은 환경 변수 저장
+                setEnvVars({
+                    storeId: data.storeId || null,
+                    channelKey: data.channelKey || null,
+                    siteUrl: data.siteUrl || null,
+                });
                 
                 setEnvChecked(true);
             } catch (error) {
                 console.error('환경 변수 확인 중 오류:', error);
-                // 환경 변수 확인 실패해도 SDK 로드는 시도
+                onError?.('환경 변수를 확인하는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
                 setEnvChecked(true);
             }
         };
@@ -115,47 +127,49 @@ export default function PaymentButton({
         setIsLoading(true);
 
         try {
-            // 서버에서 환경 변수 확인 (런타임 확인)
-            const envCheckResponse = await fetch('/api/payment/check-env');
-            const envData = await envCheckResponse.json();
+            // 환경 변수 확인 (서버에서 받은 값 우선 사용)
+            let storeId: string | null = null;
+            let channelKey: string | null = null;
+            let siteUrl: string | null = null;
 
-            if (!envData.success) {
-                throw new Error(
-                    `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${envData.missingVars.join(', ')}. ` +
-                    `Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`
-                );
+            // 1. 서버에서 받은 환경 변수 사용 (런타임 값)
+            if (envVars?.storeId && envVars?.channelKey) {
+                storeId = envVars.storeId;
+                channelKey = envVars.channelKey;
+                siteUrl = envVars.siteUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+                console.log('서버에서 받은 환경 변수 사용:', {
+                    storeIdPrefix: storeId.substring(0, 10) + '...',
+                    channelKeyPrefix: channelKey.substring(0, 10) + '...',
+                });
+            } else {
+                // 2. 클라이언트 빌드 타임 환경 변수 확인 (fallback)
+                storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID?.trim() || null;
+                channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY?.trim() || null;
+                siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+                
+                // 클라이언트에도 없으면 서버 API 재확인
+                if (!storeId || !channelKey) {
+                    const envCheckResponse = await fetch('/api/payment/check-env');
+                    const envData = await envCheckResponse.json();
+                    
+                    if (envData.success && envData.storeId && envData.channelKey) {
+                        storeId = envData.storeId;
+                        channelKey = envData.channelKey;
+                        siteUrl = envData.siteUrl || siteUrl;
+                        console.log('서버 API 재확인으로 환경 변수 획득');
+                    } else {
+                        throw new Error(
+                            `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${envData.missingVars?.join(', ') || 'NEXT_PUBLIC_PORTONE_STORE_ID, NEXT_PUBLIC_PORTONE_CHANNEL_KEY'}. ` +
+                            `Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`
+                        );
+                    }
+                }
             }
 
-            // 클라이언트에서도 환경 변수 확인 (빌드 타임 변수)
-            const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID?.trim();
-            const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY?.trim();
-
-            // 환경 변수 확인 및 상세 에러 메시지
+            // 최종 확인
             if (!storeId || !channelKey) {
-                const missingVars = [];
-                if (!storeId) missingVars.push('NEXT_PUBLIC_PORTONE_STORE_ID');
-                if (!channelKey) missingVars.push('NEXT_PUBLIC_PORTONE_CHANNEL_KEY');
-                
-                console.error('결제 시스템 환경 변수 누락 (클라이언트):', {
-                    missing: missingVars,
-                    storeIdExists: !!storeId,
-                    channelKeyExists: !!channelKey,
-                    nodeEnv: process.env.NODE_ENV,
-                    serverCheck: envData,
-                });
-
-                // 서버에서 확인한 값 사용 (서버에는 있지만 클라이언트에 없는 경우)
-                if (envData.storeIdExists && envData.channelKeyExists) {
-                    // 서버 API를 통해 결제 요청 (대안)
-                    throw new Error(
-                        '환경 변수가 서버에는 설정되어 있지만 클라이언트에 로드되지 않았습니다. ' +
-                        'Vercel에서 배포를 재시작해주세요. (Redeploy 필요)'
-                    );
-                }
-
                 throw new Error(
-                    `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${missingVars.join(', ')}. ` +
-                    `Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`
+                    '결제 시스템 설정이 완료되지 않았습니다. 환경 변수를 확인할 수 없습니다.'
                 );
             }
 
@@ -164,6 +178,7 @@ export default function PaymentButton({
                 storeId: storeId ? `${storeId.substring(0, 10)}...` : '없음',
                 channelKeyLength: channelKey?.length || 0,
                 channelKeyPrefix: channelKey ? channelKey.substring(0, 10) + '...' : '없음',
+                siteUrl: siteUrl,
                 nodeEnv: process.env.NODE_ENV,
             });
 
@@ -171,7 +186,7 @@ export default function PaymentButton({
             const paymentId = `payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
             // 포트원 SDK v2 requestPayment 호출
-            // pgProvider를 제거하여 Channel 설정에 맡김 (KSNET Channel이 올바르게 설정되어 있다면 자동으로 사용됨)
+            // pgProvider를 제거하여 Channel 설정에 맡김 (Toss Payments Channel이 올바르게 설정되어 있다면 자동으로 사용됨)
             const response = await portone.requestPayment({
                 storeId: storeId,
                 channelKey: channelKey,
@@ -187,8 +202,8 @@ export default function PaymentButton({
                     phoneNumber: customerPhone,
                 },
                 customData: registrationData ? JSON.stringify(registrationData) : undefined,
-                noticeUrl: `${process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')}/api/payment/webhook`,
-                confirmUrl: `${process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')}/api/payment/confirm`,
+                noticeUrl: `${siteUrl}/api/payment/webhook`,
+                confirmUrl: `${siteUrl}/api/payment/confirm`,
             });
 
             // 결제 성공 처리
@@ -234,8 +249,8 @@ export default function PaymentButton({
     };
 
     // 버튼 상태 확인
-    const isButtonDisabled = isLoading || (!portone && envChecked);
-    const isReady = portone && envChecked;
+    const isButtonDisabled = isLoading || (!portone && envChecked) || !envVars?.storeId || !envVars?.channelKey;
+    const isReady = portone && envChecked && envVars?.storeId && envVars?.channelKey;
 
     return (
         <button
