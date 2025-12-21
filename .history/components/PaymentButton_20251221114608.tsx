@@ -26,44 +26,8 @@ export default function PaymentButton({
 }: PaymentButtonProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [portone, setPortone] = useState<any>(null);
-    const [envChecked, setEnvChecked] = useState(false);
 
     useEffect(() => {
-        // 환경 변수 확인
-        const checkEnv = async () => {
-            try {
-                const response = await fetch('/api/payment/check-env');
-                const data = await response.json();
-                
-                if (!data.success) {
-                    console.error('환경 변수 확인 실패:', data);
-                    onError?.(
-                        `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${data.missingVars.join(', ')}. ` +
-                        `Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`
-                    );
-                    return;
-                }
-                
-                console.log('환경 변수 확인 성공:', {
-                    storeIdExists: data.storeIdExists,
-                    channelKeyExists: data.channelKeyExists,
-                    siteUrlExists: data.siteUrlExists,
-                });
-                
-                setEnvChecked(true);
-            } catch (error) {
-                console.error('환경 변수 확인 중 오류:', error);
-                // 환경 변수 확인 실패해도 계속 진행 (클라이언트에서 재확인)
-            }
-        };
-
-        checkEnv();
-    }, [onError]);
-
-    useEffect(() => {
-        // 환경 변수 확인 후 포트원 SDK 로드
-        if (!envChecked) return;
-
         // 포트원 SDK 동적 로드
         const loadPortone = async () => {
             try {
@@ -81,14 +45,9 @@ export default function PaymentButton({
         };
 
         loadPortone();
-    }, [envChecked, onError]);
+    }, [onError]);
 
     const handlePayment = async () => {
-        if (!envChecked) {
-            onError?.('환경 변수를 확인하는 중입니다. 잠시 후 다시 시도해주세요.');
-            return;
-        }
-
         if (!portone) {
             onError?.('결제 시스템이 준비되지 않았습니다.');
             return;
@@ -97,18 +56,7 @@ export default function PaymentButton({
         setIsLoading(true);
 
         try {
-            // 서버에서 환경 변수 확인 (런타임 확인)
-            const envCheckResponse = await fetch('/api/payment/check-env');
-            const envData = await envCheckResponse.json();
-
-            if (!envData.success) {
-                throw new Error(
-                    `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${envData.missingVars.join(', ')}. ` +
-                    `Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`
-                );
-            }
-
-            // 클라이언트에서도 환경 변수 확인 (빌드 타임 변수)
+            // 환경 변수 확인 (프로덕션에서도 디버깅)
             const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID?.trim();
             const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY?.trim();
 
@@ -118,22 +66,12 @@ export default function PaymentButton({
                 if (!storeId) missingVars.push('NEXT_PUBLIC_PORTONE_STORE_ID');
                 if (!channelKey) missingVars.push('NEXT_PUBLIC_PORTONE_CHANNEL_KEY');
                 
-                console.error('결제 시스템 환경 변수 누락 (클라이언트):', {
+                console.error('결제 시스템 환경 변수 누락:', {
                     missing: missingVars,
                     storeIdExists: !!storeId,
                     channelKeyExists: !!channelKey,
                     nodeEnv: process.env.NODE_ENV,
-                    serverCheck: envData,
                 });
-
-                // 서버에서 확인한 값 사용 (서버에는 있지만 클라이언트에 없는 경우)
-                if (envData.storeIdExists && envData.channelKeyExists) {
-                    // 서버 API를 통해 결제 요청 (대안)
-                    throw new Error(
-                        '환경 변수가 서버에는 설정되어 있지만 클라이언트에 로드되지 않았습니다. ' +
-                        'Vercel에서 배포를 재시작해주세요. (Redeploy 필요)'
-                    );
-                }
 
                 throw new Error(
                     `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${missingVars.join(', ')}. ` +
