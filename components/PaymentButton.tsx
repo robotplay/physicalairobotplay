@@ -56,21 +56,36 @@ export default function PaymentButton({
         setIsLoading(true);
 
         try {
+            // 환경 변수 확인 (프로덕션에서도 디버깅)
             const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID?.trim();
             const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY?.trim();
 
+            // 환경 변수 확인 및 상세 에러 메시지
             if (!storeId || !channelKey) {
-                throw new Error('결제 시스템 설정이 완료되지 않았습니다.');
+                const missingVars = [];
+                if (!storeId) missingVars.push('NEXT_PUBLIC_PORTONE_STORE_ID');
+                if (!channelKey) missingVars.push('NEXT_PUBLIC_PORTONE_CHANNEL_KEY');
+                
+                console.error('결제 시스템 환경 변수 누락:', {
+                    missing: missingVars,
+                    storeIdExists: !!storeId,
+                    channelKeyExists: !!channelKey,
+                    nodeEnv: process.env.NODE_ENV,
+                });
+
+                throw new Error(
+                    `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${missingVars.join(', ')}. ` +
+                    `Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`
+                );
             }
 
-            // 디버깅용 로그 (개발 환경에서만)
-            if (process.env.NODE_ENV === 'development') {
-                console.log('포트원 결제 요청:', {
-                    storeId: storeId,
-                    channelKeyLength: channelKey.length,
-                    channelKeyPrefix: channelKey.substring(0, 10) + '...',
-                });
-            }
+            // 디버깅용 로그 (프로덕션에서도 확인 가능하도록)
+            console.log('포트원 결제 요청:', {
+                storeId: storeId ? `${storeId.substring(0, 10)}...` : '없음',
+                channelKeyLength: channelKey?.length || 0,
+                channelKeyPrefix: channelKey ? channelKey.substring(0, 10) + '...' : '없음',
+                nodeEnv: process.env.NODE_ENV,
+            });
 
             // 결제 ID 생성
             const paymentId = `payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
