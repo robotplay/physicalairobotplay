@@ -92,8 +92,8 @@ export default function PaymentButton({
                     phoneNumber: customerPhone,
                 },
                 customData: registrationData ? JSON.stringify(registrationData) : undefined,
-                noticeUrl: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/payment/webhook`,
-                confirmUrl: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/payment/confirm`,
+                noticeUrl: `${process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')}/api/payment/webhook`,
+                confirmUrl: `${process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')}/api/payment/confirm`,
             });
 
             // 결제 성공 처리
