@@ -42,7 +42,7 @@ export default function PaymentButton({
                 
                 if (!data.success) {
                     console.error('환경 변수 확인 실패:', data);
-                    const missingVars = data.missingVars || [];
+                    const missingVars: string[] = Array.isArray(data.missingVars) ? data.missingVars : [];
                     let errorMessage = '결제 시스템 설정이 완료되지 않았습니다.\n\n';
                     
                     if (missingVars.length > 0) {
