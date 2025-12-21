@@ -42,7 +42,33 @@ export default function PaymentButton({
                 
                 if (!data.success) {
                     console.error('환경 변수 확인 실패:', data);
-                    onError?.(`결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${data.missingVars?.join(', ') || '알 수 없음'}. Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`);
+                    const missingVars = data.missingVars || [];
+                    let errorMessage = '결제 시스템 설정이 완료되지 않았습니다.\n\n';
+                    
+                    if (missingVars.length > 0) {
+                        errorMessage += `누락된 환경 변수:\n${missingVars.map(v => `- ${v}`).join('\n')}\n\n`;
+                    }
+                    
+                    errorMessage += 'Vercel 대시보드에서 환경 변수를 설정해주세요:\n';
+                    errorMessage += '1. https://vercel.com 접속\n';
+                    errorMessage += '2. 프로젝트 선택 → Settings → Environment Variables\n';
+                    errorMessage += '3. 다음 변수 추가:\n';
+                    
+                    if (missingVars.includes('NEXT_PUBLIC_PORTONE_CHANNEL_KEY')) {
+                        errorMessage += '   - Key: NEXT_PUBLIC_PORTONE_CHANNEL_KEY\n';
+                        errorMessage += '   - Value: channel-key-1372947c-7180-4339-ba93-0e78fb28c2d3\n';
+                        errorMessage += '   - Environment: ✅ Production (체크 필수!)\n';
+                    }
+                    
+                    if (missingVars.includes('NEXT_PUBLIC_SITE_URL')) {
+                        errorMessage += '   - Key: NEXT_PUBLIC_SITE_URL\n';
+                        errorMessage += '   - Value: https://parplay.co.kr\n';
+                        errorMessage += '   - Environment: ✅ Production (체크 필수!)\n';
+                    }
+                    
+                    errorMessage += '\n4. 저장 후 배포가 자동으로 재시작됩니다.';
+                    
+                    onError?.(errorMessage);
                     setEnvChecked(true); // SDK 로드는 시도하지만 결제는 실패할 것
                     return;
                 }
@@ -152,16 +178,17 @@ export default function PaymentButton({
                     const envCheckResponse = await fetch('/api/payment/check-env');
                     const envData = await envCheckResponse.json();
                     
-                    if (envData.success && envData.storeId && envData.channelKey) {
+                    if (envData.storeId && envData.channelKey) {
                         storeId = envData.storeId;
                         channelKey = envData.channelKey;
                         siteUrl = envData.siteUrl || siteUrl;
                         console.log('서버 API 재확인으로 환경 변수 획득');
                     } else {
-                        throw new Error(
-                            `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${envData.missingVars?.join(', ') || 'NEXT_PUBLIC_PORTONE_STORE_ID, NEXT_PUBLIC_PORTONE_CHANNEL_KEY'}. ` +
-                            `Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`
-                        );
+                        const missingVars = envData.missingVars || [];
+                        let errorMsg = '결제 시스템 설정이 완료되지 않았습니다.\n\n';
+                        errorMsg += `누락된 환경 변수: ${missingVars.join(', ')}\n\n`;
+                        errorMsg += 'Vercel 대시보드에서 환경 변수를 설정해주세요.';
+                        throw new Error(errorMsg);
                     }
                 }
             }
@@ -249,8 +276,10 @@ export default function PaymentButton({
     };
 
     // 버튼 상태 확인
-    const isButtonDisabled = isLoading || (!portone && envChecked) || !envVars?.storeId || !envVars?.channelKey;
-    const isReady = portone && envChecked && envVars?.storeId && envVars?.channelKey;
+    // envVars가 없거나 channelKey가 없으면 버튼 비활성화
+    const hasRequiredEnvVars = envVars?.storeId && envVars?.channelKey;
+    const isButtonDisabled = isLoading || (!portone && envChecked) || (envChecked && !hasRequiredEnvVars);
+    const isReady = portone && envChecked && hasRequiredEnvVars;
 
     return (
         <button
@@ -267,7 +296,7 @@ export default function PaymentButton({
             ) : !isReady ? (
                 <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    결제 시스템 준비 중...
+                    {envChecked && !hasRequiredEnvVars ? '환경 변수 설정 필요' : '결제 시스템 준비 중...'}
                 </>
             ) : (
                 <>

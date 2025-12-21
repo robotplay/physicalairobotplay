@@ -11,7 +11,8 @@ export async function GET() {
         const missingVars = [];
         if (!storeId) missingVars.push('NEXT_PUBLIC_PORTONE_STORE_ID');
         if (!channelKey) missingVars.push('NEXT_PUBLIC_PORTONE_CHANNEL_KEY');
-        if (!siteUrl) missingVars.push('NEXT_PUBLIC_SITE_URL');
+        // siteUrl은 선택사항 (동적으로 생성 가능)
+        // if (!siteUrl) missingVars.push('NEXT_PUBLIC_SITE_URL');
 
         return NextResponse.json({
             success: missingVars.length === 0,
