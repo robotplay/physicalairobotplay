@@ -51,7 +51,11 @@ export async function GET(request: NextRequest) {
             }
             
             // 에러 타입별 상세 정보
-            let errorDetails = {
+            let errorDetails: {
+                type: string;
+                message: string;
+                suggestions: string[];
+            } = {
                 type: '알 수 없는 오류',
                 message: connectError.message,
                 suggestions: []
