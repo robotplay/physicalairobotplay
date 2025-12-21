@@ -114,3 +114,17 @@ async function sendSMS(phone: string, message: string) {
 ### 개발 환경에서 테스트
 - 현재는 콘솔에만 출력되므로 실제 문자 전송 없이 테스트 가능
 - 프로덕션 배포 전에 실제 서비스 연동 필요
+
+
+
+
+
+
+
+
+
+
+
+
+
+
