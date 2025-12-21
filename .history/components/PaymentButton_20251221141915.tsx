@@ -46,7 +46,7 @@ export default function PaymentButton({
                     let errorMessage = '결제 시스템 설정이 완료되지 않았습니다.\n\n';
                     
                     if (missingVars.length > 0) {
-                        errorMessage += `누락된 환경 변수:\n${missingVars.map((v: string) => `- ${v}`).join('\n')}\n\n`;
+                        errorMessage += `누락된 환경 변수:\n${missingVars.map(v => `- ${v}`).join('\n')}\n\n`;
                     }
                     
                     errorMessage += 'Vercel 대시보드에서 환경 변수를 설정해주세요:\n';
