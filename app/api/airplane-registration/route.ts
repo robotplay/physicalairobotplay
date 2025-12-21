@@ -89,10 +89,36 @@ ${email ? `이메일: ${email}\n` : ''}${message ? `문의: ${message.substring(
         // 문자 전송
         await sendSMS(phone, smsMessage);
 
+        // 이메일 발송 (이메일이 있는 경우에만)
+        if (email) {
+            try {
+                const emailTemplate = createRegistrationEmailTemplate({
+                    studentName,
+                    grade,
+                    parentName,
+                    phone,
+                    email,
+                    message: message || undefined,
+                    programName: programName || '제어 비행기 4주 특강',
+                });
+                
+                await sendEmail({
+                    to: email,
+                    subject: emailTemplate.subject,
+                    html: emailTemplate.html,
+                });
+                
+                console.log('📧 특강신청 확인 이메일 발송 성공:', email);
+            } catch (emailError) {
+                console.error('📧 이메일 발송 실패 (특강신청):', emailError);
+                // 이메일 발송 실패해도 전체 프로세스는 계속 진행
+            }
+        }
+
         return NextResponse.json({
             success: true,
             data: registrationData,
-            message: '신청서가 접수되었고 문자 알림이 전송되었습니다.'
+            message: '신청서가 접수되었고 문자 알림이 전송되었습니다.' + (email ? ' 확인 이메일도 발송되었습니다.' : '')
         });
     } catch (error) {
         console.error('신청서 처리 오류:', error);

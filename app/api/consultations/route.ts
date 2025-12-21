@@ -101,10 +101,34 @@ ${email ? `이메일: ${email}\n` : ''}관심 과정: ${courseName}
         // 문자 전송
         await sendSMS(phone, smsMessage);
 
+        // 이메일 발송 (이메일이 있는 경우에만)
+        if (email) {
+            try {
+                const emailTemplate = createConsultationEmailTemplate({
+                    name,
+                    phone,
+                    email,
+                    course,
+                    message,
+                });
+                
+                await sendEmail({
+                    to: email,
+                    subject: emailTemplate.subject,
+                    html: emailTemplate.html,
+                });
+                
+                console.log('📧 상담문의 확인 이메일 발송 성공:', email);
+            } catch (emailError) {
+                console.error('📧 이메일 발송 실패 (상담문의):', emailError);
+                // 이메일 발송 실패해도 전체 프로세스는 계속 진행
+            }
+        }
+
         return NextResponse.json({
             success: true,
             data: consultationData,
-            message: '상담 문의가 접수되었고 문자 알림이 전송되었습니다.'
+            message: '상담 문의가 접수되었고 문자 알림이 전송되었습니다.' + (email ? ' 확인 이메일도 발송되었습니다.' : '')
         });
     } catch (error) {
         console.error('상담 문의 처리 오류:', error);
