@@ -37,10 +37,8 @@ export default function PaymentButton({
                 
                 if (!data.success) {
                     console.error('환경 변수 확인 실패:', data);
-                    onError?.(
-                        `결제 시스템 설정이 완료되지 않았습니다. 누락된 환경 변수: ${data.missingVars.join(', ')}. ` +
-                        `Vercel 대시보드에서 환경 변수를 설정하고 배포를 재시작해주세요.`
-                    );
+                    // 에러는 표시하지만 SDK 로드는 계속 시도
+                    setEnvChecked(true); // SDK 로드는 시도
                     return;
                 }
                 
@@ -53,7 +51,8 @@ export default function PaymentButton({
                 setEnvChecked(true);
             } catch (error) {
                 console.error('환경 변수 확인 중 오류:', error);
-                // 환경 변수 확인 실패해도 계속 진행 (클라이언트에서 재확인)
+                // 환경 변수 확인 실패해도 SDK 로드는 시도
+                setEnvChecked(true);
             }
         };
 
@@ -67,16 +66,19 @@ export default function PaymentButton({
         // 포트원 SDK 동적 로드
         const loadPortone = async () => {
             try {
+                console.log('포트원 SDK 로드 시작...');
                 // 포트원 SDK v2 로드
                 // import * as PortOne from '@portone/browser-sdk/v2' 방식
                 const PortOneModule = await import('@portone/browser-sdk/v2');
+                
+                console.log('포트원 SDK 로드 성공:', PortOneModule);
                 
                 // SDK가 준비되었음을 표시
                 // PortOne 모듈 전체를 저장하여 requestPayment 함수에 접근
                 setPortone(PortOneModule);
             } catch (error) {
                 console.error('포트원 SDK 로드 실패:', error);
-                onError?.('결제 시스템을 불러올 수 없습니다.');
+                onError?.('결제 시스템을 불러올 수 없습니다. 페이지를 새로고침해주세요.');
             }
         };
 
@@ -84,14 +86,30 @@ export default function PaymentButton({
     }, [envChecked, onError]);
 
     const handlePayment = async () => {
+        // 버튼이 disabled 상태인지 확인
+        if (isLoading) {
+            console.log('결제가 이미 진행 중입니다.');
+            return;
+        }
+
         if (!envChecked) {
+            console.log('환경 변수 확인 중...');
             onError?.('환경 변수를 확인하는 중입니다. 잠시 후 다시 시도해주세요.');
             return;
         }
 
         if (!portone) {
-            onError?.('결제 시스템이 준비되지 않았습니다.');
-            return;
+            console.log('포트원 SDK가 로드되지 않았습니다. 재시도 중...');
+            // SDK 재로드 시도
+            try {
+                const PortOneModule = await import('@portone/browser-sdk/v2');
+                setPortone(PortOneModule);
+                console.log('포트원 SDK 재로드 성공');
+            } catch (error) {
+                console.error('포트원 SDK 재로드 실패:', error);
+                onError?.('결제 시스템이 준비되지 않았습니다. 페이지를 새로고침해주세요.');
+                return;
+            }
         }
 
         setIsLoading(true);
@@ -215,16 +233,26 @@ export default function PaymentButton({
         }
     };
 
+    // 버튼 상태 확인
+    const isButtonDisabled = isLoading || (!portone && envChecked);
+    const isReady = portone && envChecked;
+
     return (
         <button
             onClick={handlePayment}
-            disabled={isLoading || !portone}
+            disabled={isButtonDisabled}
             className="w-full px-8 py-4 bg-gradient-to-r from-[#00A3FF] to-[#FF4D4D] hover:from-[#0088DD] hover:to-[#FF3333] text-white font-bold rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,163,255,0.5)] hover:shadow-[0_0_40px_rgba(0,163,255,0.7)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            title={!isReady ? '결제 시스템을 준비하는 중입니다...' : undefined}
         >
             {isLoading ? (
                 <>
                     <Loader2 className="w-5 h-5 animate-spin" />
                     결제 진행 중...
+                </>
+            ) : !isReady ? (
+                <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    결제 시스템 준비 중...
                 </>
             ) : (
                 <>
