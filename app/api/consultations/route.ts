@@ -152,3 +152,6 @@ ${email ? `이메일: ${email}\n` : ''}관심 과정: ${courseName}
 
 
 
+
+
+

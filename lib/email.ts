@@ -257,3 +257,6 @@ export function createRegistrationEmailTemplate(data: {
 
     return { subject, html };
 }
+
+
+

@@ -160,3 +160,6 @@ Environment: ✅ Production ✅ Preview ✅ Development (모두 체크)
 - `success: true`가 나오면 결제 시스템이 정상적으로 작동합니다
 
 **환경 변수를 설정하고 배포를 재시작하면 문제가 해결됩니다!** 🎉
+
+
+

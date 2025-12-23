@@ -209,3 +209,6 @@ Vercel 대시보드에서 모든 환경 변수가 설정되었는지 확인하�
 - [Nodemailer 문서](https://nodemailer.com/)
 - [Gmail 앱 비밀번호](https://support.google.com/accounts/answer/185833)
 - [Vercel 환경 변수 설정](https://vercel.com/docs/concepts/projects/environment-variables)
+
+
+

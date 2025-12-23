@@ -155,3 +155,6 @@ https://parplay.co.kr/api/payment/check-env
 - Vercel 대시보드 스크린샷 (Environment Variables 페이지)
 - `/api/payment/check-env` API 응답
 - 브라우저 콘솔 에러 메시지
+
+
+

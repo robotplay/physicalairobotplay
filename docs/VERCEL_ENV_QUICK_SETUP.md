@@ -72,3 +72,6 @@ Environment: ✅ Production ✅ Preview ✅ Development
 환경 변수를 설정하고 배포를 재시작하면 결제 시스템이 정상적으로 작동합니다!
 
 **문제가 계속되면:** `docs/VERCEL_ENV_SETUP.md` 파일의 상세 가이드를 참고하세요.
+
+
+

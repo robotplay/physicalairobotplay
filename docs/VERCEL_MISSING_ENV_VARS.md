@@ -163,3 +163,6 @@ https://parplay.co.kr/api/payment/check-env
 - `/api/payment/check-env` API 응답
 - 브라우저 콘솔 에러 메시지
 - 배포 로그 (에러가 있는 경우)
+
+
+

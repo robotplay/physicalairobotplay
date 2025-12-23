@@ -191,3 +191,6 @@ https://parplay.co.kr/api/payment/check-env
 - 브라우저 콘솔과 `/api/payment/check-env` API로 환경 변수 확인 가능
 
 **환경 변수를 설정하고 배포를 재시작하면 문제가 해결됩니다!** 🎉
+
+
+

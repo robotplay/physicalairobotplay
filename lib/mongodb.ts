@@ -46,7 +46,11 @@ export const COLLECTIONS = {
     AIRPLANE_REGISTRATIONS: 'airplane_registrations',
     CONSULTATIONS: 'consultations',
     PAYMENTS: 'payments',
+    NEWS: 'news',
 } as const;
+
+
+
 
 
 

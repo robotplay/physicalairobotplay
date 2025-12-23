@@ -183,3 +183,6 @@ const response = await portone.requestPayment({
 3. Channel을 재생성하여 **macOS 호환 PG**를 선택해야 합니다.
 
 **포트원 대시보드에서 Channel PG 설정을 변경한 후 다시 테스트해보세요!**
+
+
+

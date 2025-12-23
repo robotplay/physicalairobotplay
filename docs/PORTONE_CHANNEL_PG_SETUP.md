@@ -144,3 +144,6 @@ const response = await portone.requestPayment({
 4. 결제 테스트
 
 **Channel PG 설정을 변경한 후 다시 테스트해보세요!**
+
+
+

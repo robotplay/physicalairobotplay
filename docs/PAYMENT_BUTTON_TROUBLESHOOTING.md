@@ -193,3 +193,6 @@ https://parplay.co.kr/api/payment/check-env
 - 환경 변수는 Vercel에서 설정한 후 반드시 배포를 재시작해야 합니다
 
 **문제가 계속되면 브라우저 콘솔의 에러 메시지를 확인하세요!**
+
+
+
