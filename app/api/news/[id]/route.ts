@@ -64,6 +64,17 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
     try {
+        // MongoDB 연결 확인
+        if (!process.env.MONGODB_URI) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: 'MongoDB가 설정되지 않았습니다. 환경 변수 MONGODB_URI를 확인해주세요.',
+                },
+                { status: 500 }
+            );
+        }
+
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.NEWS);
 

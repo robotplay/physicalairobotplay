@@ -178,12 +178,18 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                 });
 
                 const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || `서버 오류: ${response.status}`);
+                }
+                
                 if (result.success) {
                     alert('공지사항이 작성되었습니다.');
                     handleCancel();
-                    onRefresh();
+                    await onRefresh();
                 } else {
-                    alert(result.error || '작성에 실패했습니다.');
+                    alert(result.error || result.details || '작성에 실패했습니다.');
+                    console.error('API 응답:', result);
                 }
             } else if (editingId) {
                 // 수정
@@ -196,17 +202,24 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                 });
 
                 const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || `서버 오류: ${response.status}`);
+                }
+                
                 if (result.success) {
                     alert('공지사항이 수정되었습니다.');
                     handleCancel();
-                    onRefresh();
+                    await onRefresh();
                 } else {
-                    alert(result.error || '수정에 실패했습니다.');
+                    alert(result.error || result.details || '수정에 실패했습니다.');
+                    console.error('API 응답:', result);
                 }
             }
         } catch (error) {
             console.error('Failed to save news:', error);
-            alert('저장 중 오류가 발생했습니다.');
+            const errorMessage = error instanceof Error ? error.message : '저장 중 오류가 발생했습니다.';
+            alert(`오류: ${errorMessage}\n\n자세한 내용은 브라우저 콘솔을 확인해주세요.`);
         }
     };
 
@@ -240,16 +253,38 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    공지사항 관리 ({news.length}건)
-                </h2>
-                <button
-                    onClick={handleCreate}
-                    className="flex items-center gap-2 px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                    <Plus className="w-4 h-4" />
-                    새 공지사항 작성
-                </button>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        공지사항 관리 ({news.length}건)
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        MongoDB에 저장된 공지사항을 관리합니다
+                    </p>
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={async () => {
+                            try {
+                                const response = await fetch('/api/news/test');
+                                const result = await response.json();
+                                alert(`MongoDB 연결 상태:\n${JSON.stringify(result, null, 2)}`);
+                            } catch (error) {
+                                alert('연결 테스트 실패');
+                            }
+                        }}
+                        className="px-3 py-2 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors cursor-pointer"
+                        title="MongoDB 연결 테스트"
+                    >
+                        연결 테스트
+                    </button>
+                    <button
+                        onClick={handleCreate}
+                        className="flex items-center gap-2 px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                        <Plus className="w-4 h-4" />
+                        새 공지사항 작성
+                    </button>
+                </div>
             </div>
 
             {/* Create/Edit Form */}
@@ -284,10 +319,13 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                     <div className="mb-3 relative w-full h-48 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
                                         {uploadPreview ? (
                                             // 업로드 전 미리보기 (base64)
-                                            <img
+                                            <Image
                                                 src={uploadPreview}
                                                 alt="미리보기"
-                                                className="w-full h-full object-cover"
+                                                fill
+                                                className="object-contain"
+                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                                unoptimized
                                             />
                                         ) : (
                                             // 업로드된 이미지 또는 URL

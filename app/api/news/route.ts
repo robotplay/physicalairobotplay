@@ -4,6 +4,16 @@ import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 // GET - 공지사항 목록 조회
 export async function GET(request: NextRequest) {
     try {
+        // MongoDB 연결 확인
+        if (!process.env.MONGODB_URI) {
+            return NextResponse.json({
+                success: true,
+                data: [],
+                count: 0,
+                message: 'MongoDB가 설정되지 않았습니다. 환경 변수를 확인해주세요.',
+            });
+        }
+
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.NEWS);
 
@@ -60,6 +70,17 @@ export async function GET(request: NextRequest) {
 // POST - 공지사항 작성
 export async function POST(request: NextRequest) {
     try {
+        // MongoDB 연결 확인
+        if (!process.env.MONGODB_URI) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: 'MongoDB가 설정되지 않았습니다. 환경 변수 MONGODB_URI를 확인해주세요.',
+                },
+                { status: 500 }
+            );
+        }
+
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.NEWS);
 
