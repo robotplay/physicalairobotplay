@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
+// Vercel에서 Sharp를 사용하기 위해 Node.js runtime 명시
+export const runtime = 'nodejs';
+export const maxDuration = 30; // 최대 실행 시간 30초
+
 export async function POST(request: NextRequest) {
     try {
         const formData = await request.formData();
@@ -43,19 +47,37 @@ export async function POST(request: NextRequest) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
+        console.log(`[Image Upload] 파일 타입: ${file.type}, 원본 크기: ${(buffer.length / 1024 / 1024).toFixed(2)}MB`);
+
         // Sharp를 사용하여 이미지 리사이징 및 최적화
+        // JPEG, PNG 등 모든 이미지 포맷 지원
         // 최대 크기: 1920x1080, JPEG 포맷, 품질 85%
-        const optimizedBuffer = await sharp(buffer)
-            .resize(1920, 1080, {
-                fit: 'inside', // 비율 유지하면서 1920x1080 이내로 리사이징
-                withoutEnlargement: true, // 원본이 작으면 확대하지 않음
-            })
-            .jpeg({
-                quality: 85, // JPEG 품질 (85%는 용량과 품질의 좋은 균형)
-                progressive: true, // 프로그레시브 JPEG (로딩 최적화)
-                mozjpeg: true, // mozjpeg 최적화 사용
-            })
-            .toBuffer();
+        let optimizedBuffer: Buffer;
+        try {
+            // 이미지 메타데이터 확인
+            const metadata = await sharp(buffer).metadata();
+            console.log(`[Image Upload] 원본 이미지 크기: ${metadata.width}x${metadata.height}, 포맷: ${metadata.format}`);
+
+            optimizedBuffer = await sharp(buffer)
+                .resize(1920, 1080, {
+                    fit: 'inside', // 비율 유지하면서 1920x1080 이내로 리사이징
+                    withoutEnlargement: true, // 원본이 작으면 확대하지 않음
+                })
+                .jpeg({
+                    quality: 85, // JPEG 품질 (85%는 용량과 품질의 좋은 균형)
+                    progressive: true, // 프로그레시브 JPEG (로딩 최적화)
+                    mozjpeg: true, // mozjpeg 최적화 사용
+                })
+                .toBuffer();
+
+            const optimizedMetadata = await sharp(optimizedBuffer).metadata();
+            console.log(`[Image Upload] 최적화된 이미지 크기: ${optimizedMetadata.width}x${optimizedMetadata.height}, 포맷: ${optimizedMetadata.format}`);
+        } catch (sharpError: any) {
+            console.error('[Image Upload] Sharp 처리 오류:', sharpError);
+            // Sharp 처리 실패 시 원본 이미지 사용 (fallback)
+            console.warn('[Image Upload] Sharp 처리 실패, 원본 이미지 사용');
+            optimizedBuffer = buffer;
+        }
 
         // 최적화된 이미지를 Base64로 변환
         const base64 = optimizedBuffer.toString('base64');
