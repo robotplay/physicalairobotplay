@@ -20,16 +20,21 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 파일 타입 검증
+        // 파일 타입 검증 (JPEG, PNG, WebP, GIF 등 모든 이미지 포맷 지원)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
+        const fileType = file.type.toLowerCase();
+        
         if (!file.type.startsWith('image/')) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: '이미지 파일만 업로드 가능합니다.',
+                    error: '이미지 파일만 업로드 가능합니다. (지원 포맷: JPEG, PNG, WebP, GIF, BMP)',
                 },
                 { status: 400 }
             );
         }
+        
+        console.log(`[Image Upload] 업로드 파일 정보 - 이름: ${file.name}, 타입: ${file.type}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
 
         // 파일 크기 제한 (10MB - 리사이징 전 원본 크기)
         const maxSize = 10 * 1024 * 1024; // 10MB
@@ -53,12 +58,24 @@ export async function POST(request: NextRequest) {
         // JPEG, PNG 등 모든 이미지 포맷 지원
         // 최대 크기: 1920x1080, JPEG 포맷, 품질 85%
         let optimizedBuffer: Buffer;
+        let isOptimized = false;
+        
         try {
             // 이미지 메타데이터 확인
             const metadata = await sharp(buffer).metadata();
-            console.log(`[Image Upload] 원본 이미지 크기: ${metadata.width}x${metadata.height}, 포맷: ${metadata.format}`);
+            console.log(`[Image Upload] 원본 이미지 정보 - 크기: ${metadata.width}x${metadata.height}, 포맷: ${metadata.format}, 채널: ${metadata.channels}, 투명도: ${metadata.hasAlpha ? '있음' : '없음'}`);
 
-            optimizedBuffer = await sharp(buffer)
+            // PNG의 경우 투명도를 제거하고 흰색 배경으로 변환
+            let sharpInstance = sharp(buffer);
+            
+            // PNG 또는 투명도가 있는 이미지인 경우 흰색 배경으로 합성
+            if (fileType === 'image/png' || metadata.hasAlpha) {
+                console.log('[Image Upload] PNG/투명도 이미지 감지 - 흰색 배경으로 변환');
+                sharpInstance = sharpInstance
+                    .flatten({ background: { r: 255, g: 255, b: 255 } }); // 투명도를 흰색으로 변환
+            }
+
+            optimizedBuffer = await sharpInstance
                 .resize(1920, 1080, {
                     fit: 'inside', // 비율 유지하면서 1920x1080 이내로 리사이징
                     withoutEnlargement: true, // 원본이 작으면 확대하지 않음
@@ -71,17 +88,27 @@ export async function POST(request: NextRequest) {
                 .toBuffer();
 
             const optimizedMetadata = await sharp(optimizedBuffer).metadata();
-            console.log(`[Image Upload] 최적화된 이미지 크기: ${optimizedMetadata.width}x${optimizedMetadata.height}, 포맷: ${optimizedMetadata.format}`);
+            console.log(`[Image Upload] 최적화 완료 - 크기: ${optimizedMetadata.width}x${optimizedMetadata.height}, 포맷: ${optimizedMetadata.format}`);
+            isOptimized = true;
         } catch (sharpError: any) {
             console.error('[Image Upload] Sharp 처리 오류:', sharpError);
-            // Sharp 처리 실패 시 원본 이미지 사용 (fallback)
-            console.warn('[Image Upload] Sharp 처리 실패, 원본 이미지 사용');
+            console.error('[Image Upload] 에러 상세:', {
+                message: sharpError.message,
+                stack: sharpError.stack,
+                code: sharpError.code,
+            });
+            
+            // Sharp 처리 실패 시 원본 이미지를 Base64로 변환 (fallback)
+            console.warn('[Image Upload] Sharp 처리 실패, 원본 이미지를 Base64로 변환');
             optimizedBuffer = buffer;
+            isOptimized = false;
         }
 
         // 최적화된 이미지를 Base64로 변환
         const base64 = optimizedBuffer.toString('base64');
-        const dataUrl = `data:image/jpeg;base64,${base64}`;
+        // Sharp로 처리된 경우 JPEG, 실패한 경우 원본 포맷 유지
+        const mimeType = isOptimized ? 'image/jpeg' : fileType;
+        const dataUrl = `data:${mimeType};base64,${base64}`;
 
         // 파일명 생성 (타임스탬프 + 원본 파일명)
         const timestamp = Date.now();
@@ -91,7 +118,9 @@ export async function POST(request: NextRequest) {
         // 원본 크기와 최적화된 크기 정보
         const originalSize = buffer.length;
         const optimizedSize = optimizedBuffer.length;
-        const compressionRatio = ((1 - optimizedSize / originalSize) * 100).toFixed(1);
+        const compressionRatio = isOptimized 
+            ? ((1 - optimizedSize / originalSize) * 100).toFixed(1)
+            : '0.0';
 
         // Base64 데이터 URL 반환 (MongoDB에 저장하거나 직접 사용 가능)
         return NextResponse.json({
@@ -101,7 +130,11 @@ export async function POST(request: NextRequest) {
             originalSize: originalSize,
             optimizedSize: optimizedSize,
             compressionRatio: compressionRatio,
-            message: `이미지가 업로드되었습니다. (최적화: ${compressionRatio}% 용량 감소)`,
+            isOptimized: isOptimized,
+            originalFormat: fileType,
+            message: isOptimized 
+                ? `이미지가 업로드되었습니다. (최적화: ${compressionRatio}% 용량 감소)`
+                : `이미지가 업로드되었습니다. (원본 포맷 유지)`,
         });
     } catch (error: any) {
         console.error('Failed to upload image:', error);

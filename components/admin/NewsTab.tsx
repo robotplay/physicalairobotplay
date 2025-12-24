@@ -121,9 +121,9 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
             return;
         }
 
-        // 파일 크기 검증 (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('파일 크기는 5MB 이하여야 합니다.');
+        // 파일 크기 검증 (10MB - 서버와 동일하게)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('파일 크기는 10MB 이하여야 합니다.');
             return;
         }
 
@@ -146,9 +146,15 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
-                alert('이미지가 업로드되었습니다.');
+                // 상세한 업로드 결과 메시지 표시
+                const message = result.message || '이미지가 업로드되었습니다.';
+                const details = result.isOptimized 
+                    ? `\n원본: ${(result.originalSize / 1024 / 1024).toFixed(2)}MB → 최적화: ${(result.optimizedSize / 1024 / 1024).toFixed(2)}MB`
+                    : `\n원본 포맷 유지: ${(result.originalSize / 1024 / 1024).toFixed(2)}MB`;
+                alert(message + details);
             } else {
-                alert(result.error || '업로드에 실패했습니다.');
+                alert(result.error || result.details || '업로드에 실패했습니다.');
+                console.error('업로드 실패:', result);
             }
         } catch (error) {
             console.error('Failed to upload image:', error);
