@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
+import { sendEmail, createRegistrationEmailTemplate } from '@/lib/email';
 
 // 문자 전송 함수 (실제 서비스 연동 필요)
 async function sendSMS(phone: string, message: string) {
