@@ -103,7 +103,7 @@ export default function Header() {
         { name: '강사진', href: '/#teachers' },
         { name: '성공 사례', href: '/#success' },
         { name: '온라인 특강', href: '/#courses' },
-        { name: '소식', href: '/news' },
+        { name: '소식', href: '/#news' },
     ];
 
     return (
@@ -139,33 +139,17 @@ export default function Header() {
                                             : 'text-white active:text-deep-electric-blue hover:text-deep-electric-blue'
                                     }`}
                                     onClick={(e) => {
-                                        // If we're not on the home page, handle navigation and scroll
+                                        const hash = item.href.split('#')[1];
+                                        
+                                        // If we're not on the home page, navigate first
                                         if (pathname !== '/') {
                                             e.preventDefault();
-                                            const hash = item.href.split('#')[1];
                                             
                                             // Navigate using Next.js router
                                             router.push(item.href);
                                             
-                                            // Wait for navigation, then scroll
-                                            setTimeout(() => {
-                                                const element = document.getElementById(hash);
-                                                if (element) {
-                                                    const headerOffset = 80;
-                                                    const elementPosition = element.getBoundingClientRect().top;
-                                                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                                                    
-                                                    window.scrollTo({
-                                                        top: offsetPosition,
-                                                        behavior: 'smooth'
-                                                    });
-                                                }
-                                            }, 500);
-                                        } else {
-                                            // If we're on the home page, scroll to the section
-                                            const hash = item.href.split('#')[1];
-                                            if (hash && typeof window !== 'undefined') {
-                                                e.preventDefault();
+                                            // Wait for navigation and component load, then scroll
+                                            const scrollToSection = (attempts = 0) => {
                                                 setTimeout(() => {
                                                     const element = document.getElementById(hash);
                                                     if (element) {
@@ -177,8 +161,41 @@ export default function Header() {
                                                             top: offsetPosition,
                                                             behavior: 'smooth'
                                                         });
+                                                    } else if (attempts < 10 && hash) {
+                                                        // Retry up to 10 times for dynamic components
+                                                        scrollToSection(attempts + 1);
                                                     }
-                                                }, 100);
+                                                }, attempts === 0 ? 500 : 200);
+                                            };
+                                            
+                                            if (hash) {
+                                                scrollToSection();
+                                            }
+                                        } else {
+                                            // If we're on the home page, scroll to the section
+                                            if (hash && typeof window !== 'undefined') {
+                                                e.preventDefault();
+                                                
+                                                const scrollToSection = (attempts = 0) => {
+                                                    setTimeout(() => {
+                                                        const element = document.getElementById(hash);
+                                                        if (element) {
+                                                            const headerOffset = 80;
+                                                            const elementPosition = element.getBoundingClientRect().top;
+                                                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                                            
+                                                            window.scrollTo({
+                                                                top: offsetPosition,
+                                                                behavior: 'smooth'
+                                                            });
+                                                        } else if (attempts < 10) {
+                                                            // Retry up to 10 times for dynamic components
+                                                            scrollToSection(attempts + 1);
+                                                        }
+                                                    }, attempts === 0 ? 100 : 200);
+                                                };
+                                                
+                                                scrollToSection();
                                             }
                                         }
                                     }}
@@ -240,16 +257,17 @@ export default function Header() {
                                 }`}
                                 onClick={(e) => {
                                     setIsMobileMenuOpen(false);
-                                    // If we're not on the home page, handle navigation and scroll
+                                    const hash = item.href.split('#')[1];
+                                    
+                                    // If we're not on the home page, navigate first
                                     if (pathname !== '/') {
                                         e.preventDefault();
-                                        const hash = item.href.split('#')[1];
                                         
                                         // Navigate using Next.js router
                                         router.push(item.href);
                                         
-                                        // Wait for navigation, then scroll
-                                        if (typeof window !== 'undefined' && hash) {
+                                        // Wait for navigation and component load, then scroll
+                                        const scrollToSection = (attempts = 0) => {
                                             setTimeout(() => {
                                                 const element = document.getElementById(hash);
                                                 if (element) {
@@ -261,26 +279,41 @@ export default function Header() {
                                                         top: offsetPosition,
                                                         behavior: 'smooth'
                                                     });
+                                                } else if (attempts < 10 && hash) {
+                                                    // Retry up to 10 times for dynamic components
+                                                    scrollToSection(attempts + 1);
                                                 }
-                                            }, 500);
+                                            }, attempts === 0 ? 500 : 200);
+                                        };
+                                        
+                                        if (hash) {
+                                            scrollToSection();
                                         }
                                     } else {
-                                        // If we're on the home page, just scroll smoothly
-                                        const hash = item.href.split('#')[1];
+                                        // If we're on the home page, scroll to the section
                                         if (hash && typeof window !== 'undefined') {
-                                            setTimeout(() => {
-                                                const element = document.getElementById(hash);
-                                                if (element) {
-                                                    const headerOffset = 80;
-                                                    const elementPosition = element.getBoundingClientRect().top;
-                                                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                                                    
-                                                    window.scrollTo({
-                                                        top: offsetPosition,
-                                                        behavior: 'smooth'
-                                                    });
-                                                }
-                                            }, 100);
+                                            e.preventDefault();
+                                            
+                                            const scrollToSection = (attempts = 0) => {
+                                                setTimeout(() => {
+                                                    const element = document.getElementById(hash);
+                                                    if (element) {
+                                                        const headerOffset = 80;
+                                                        const elementPosition = element.getBoundingClientRect().top;
+                                                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                                        
+                                                        window.scrollTo({
+                                                            top: offsetPosition,
+                                                            behavior: 'smooth'
+                                                        });
+                                                    } else if (attempts < 10) {
+                                                        // Retry up to 10 times for dynamic components
+                                                        scrollToSection(attempts + 1);
+                                                    }
+                                                }, attempts === 0 ? 100 : 200);
+                                            };
+                                            
+                                            scrollToSection();
                                         }
                                     }
                                 }}
