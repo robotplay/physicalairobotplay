@@ -96,15 +96,144 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
         }
     };
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            // 미리보기 생성
+    // 이미지 압축 함수 (클라이언트 측)
+    const compressImage = (file: File, maxWidth: number = 1920, maxHeight: number = 1080, quality: number = 0.85): Promise<File> => {
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setUploadPreview(reader.result as string);
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.onload = () => {
+                    // 캔버스 생성
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // 비율 유지하면서 리사이징
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width = width * ratio;
+                        height = height * ratio;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // 이미지 그리기
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        reject(new Error('Canvas context를 가져올 수 없습니다.'));
+                        return;
+                    }
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // JPEG로 변환 (Base64)
+                    canvas.toBlob(
+                        (blob) => {
+                            if (!blob) {
+                                reject(new Error('이미지 압축에 실패했습니다.'));
+                                return;
+                            }
+                            // File 객체로 변환
+                            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+                                type: 'image/jpeg',
+                                lastModified: Date.now(),
+                            });
+                            resolve(compressedFile);
+                        },
+                        'image/jpeg',
+                        quality
+                    );
+                };
+                img.onerror = () => reject(new Error('이미지를 로드할 수 없습니다.'));
+                img.src = e.target?.result as string;
             };
+            reader.onerror = () => reject(new Error('파일을 읽을 수 없습니다.'));
             reader.readAsDataURL(file);
+        });
+    };
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        // 파일 유효성 검사
+        const fileName = file.name?.toLowerCase() || '';
+        const fileExtension = fileName.split('.').pop() || '';
+        const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif'];
+        
+        if (!file.type?.startsWith('image/') && !validExtensions.includes(fileExtension)) {
+            alert(`이미지 파일만 업로드 가능합니다.\n\n파일명: ${file.name}\n감지된 타입: ${file.type || '없음'}\n확장자: ${fileExtension || '없음'}\n\n지원 포맷: JPEG, PNG, WebP, GIF, BMP, HEIC`);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            return;
+        }
+
+        // 파일 크기 검증 (6MB로 제한)
+        const maxSize = 6 * 1024 * 1024; // 6MB
+        if (file.size > maxSize) {
+            alert(`파일 크기는 6MB 이하여야 합니다.\n\n현재 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB\n\n이미지를 압축하거나 더 작은 파일을 선택해주세요.`);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            return;
+        }
+
+        // 파일이 비어있는지 확인
+        if (file.size === 0) {
+            alert('파일이 비어있습니다. 다른 이미지를 선택해주세요.');
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            return;
+        }
+
+        // 큰 파일(3MB 이상)인 경우 클라이언트 측에서 미리 압축
+        if (file.size > 3 * 1024 * 1024) {
+            try {
+                console.log(`[Client Compression] 원본 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB - 클라이언트 측 압축 시작`);
+                const compressedFile = await compressImage(file);
+                console.log(`[Client Compression] 압축 완료: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+                
+                // 압축된 파일로 교체 (DataTransfer 사용)
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(compressedFile);
+                if (fileInputRef.current) {
+                    fileInputRef.current.files = dataTransfer.files;
+                }
+            } catch (error: any) {
+                console.error('이미지 압축 오류:', error);
+                alert(`이미지 압축 중 오류가 발생했습니다: ${error.message}\n\n원본 파일로 업로드를 시도합니다.`);
+            }
+        }
+
+        // 미리보기 생성
+        try {
+            const reader = new FileReader();
+            reader.onerror = () => {
+                alert('파일을 읽을 수 없습니다. 파일이 손상되었거나 접근할 수 없습니다.\n\n다른 이미지 파일을 선택해주세요.');
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                setUploadPreview(null);
+            };
+            reader.onloadend = () => {
+                if (reader.result) {
+                    setUploadPreview(reader.result as string);
+                }
+            };
+            // 압축된 파일이 있으면 그것을 사용, 없으면 원본 사용
+            const fileToPreview = fileInputRef.current?.files?.[0] || file;
+            reader.readAsDataURL(fileToPreview);
+        } catch (error: any) {
+            console.error('파일 읽기 오류:', error);
+            alert(`파일을 읽을 수 없습니다: ${error.message}\n\n다른 이미지 파일을 선택해주세요.`);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            setUploadPreview(null);
         }
     };
 
