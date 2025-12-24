@@ -115,9 +115,13 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
             return;
         }
 
-        // 파일 타입 검증
-        if (!file.type.startsWith('image/')) {
-            alert('이미지 파일만 업로드 가능합니다.');
+        // 파일 타입 검증 (Photos 앱에서 드래그한 파일은 타입이 없을 수 있음)
+        const fileName = file.name?.toLowerCase() || '';
+        const fileExtension = fileName.split('.').pop() || '';
+        const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif'];
+        
+        if (!file.type?.startsWith('image/') && !validExtensions.includes(fileExtension)) {
+            alert(`이미지 파일만 업로드 가능합니다.\n\n파일명: ${file.name}\n감지된 타입: ${file.type || '없음'}\n확장자: ${fileExtension || '없음'}\n\n지원 포맷: JPEG, PNG, WebP, GIF, BMP, HEIC\n\nPhotos 앱에서 드래그한 파일의 경우, 파일을 먼저 저장한 후 업로드해주세요.`);
             return;
         }
 
@@ -153,12 +157,15 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                     : `\n원본 포맷 유지: ${(result.originalSize / 1024 / 1024).toFixed(2)}MB`;
                 alert(message + details);
             } else {
-                alert(result.error || result.details || '업로드에 실패했습니다.');
+                // 상세한 에러 메시지 표시
+                const errorMsg = result.error || result.details || '업로드에 실패했습니다.';
+                alert(`이미지 업로드 실패\n\n${errorMsg}\n\n파일명: ${file.name}\n크기: ${(file.size / 1024 / 1024).toFixed(2)}MB\n\n문제가 계속되면:\n1. 파일을 먼저 저장한 후 업로드\n2. 다른 이미지 파일로 시도\n3. 브라우저 콘솔 확인`);
                 console.error('업로드 실패:', result);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to upload image:', error);
-            alert('이미지 업로드 중 오류가 발생했습니다.');
+            const errorMsg = error?.message || '알 수 없는 오류';
+            alert(`이미지 업로드 중 오류가 발생했습니다.\n\n${errorMsg}\n\n파일명: ${file.name}\n\nPhotos 앱에서 드래그한 파일의 경우, 파일을 먼저 저장한 후 업로드해주세요.`);
         } finally {
             setIsUploading(false);
         }

@@ -20,21 +20,51 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 파일 타입 검증 (JPEG, PNG, WebP, GIF 등 모든 이미지 포맷 지원)
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/bmp'];
-        const fileType = file.type.toLowerCase();
-        
-        if (!file.type.startsWith('image/')) {
+        // 파일 크기 확인 (0 바이트 체크)
+        if (file.size === 0) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: '이미지 파일만 업로드 가능합니다. (지원 포맷: JPEG, PNG, WebP, GIF, BMP)',
+                    error: '파일이 비어있습니다. 다른 이미지를 선택해주세요.',
                 },
                 { status: 400 }
             );
         }
+
+        // 파일 타입 검증 (JPEG, PNG, WebP, GIF 등 모든 이미지 포맷 지원)
+        // Photos 앱에서 드래그한 파일은 때때로 타입이 없을 수 있으므로 파일명으로도 확인
+        let fileType = file.type?.toLowerCase() || '';
+        const originalFileName = file.name?.toLowerCase() || '';
+        const fileExtension = originalFileName.split('.').pop() || '';
         
-        console.log(`[Image Upload] 업로드 파일 정보 - 이름: ${file.name}, 타입: ${file.type}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        // 파일 타입이 없거나 잘못된 경우 파일 확장자로 확인
+        if (!fileType || !fileType.startsWith('image/')) {
+            const extensionToMime: Record<string, string> = {
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg',
+                'png': 'image/png',
+                'gif': 'image/gif',
+                'webp': 'image/webp',
+                'bmp': 'image/bmp',
+                'heic': 'image/heic',
+                'heif': 'image/heif',
+            };
+            
+            if (fileExtension && extensionToMime[fileExtension]) {
+                fileType = extensionToMime[fileExtension];
+                console.log(`[Image Upload] 파일 타입이 없어 확장자로 감지: ${fileExtension} → ${fileType}`);
+            } else {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: `이미지 파일만 업로드 가능합니다.\n파일명: ${file.name}\n감지된 타입: ${file.type || '없음'}\n확장자: ${fileExtension || '없음'}\n\n지원 포맷: JPEG, PNG, WebP, GIF, BMP`,
+                    },
+                    { status: 400 }
+                );
+            }
+        }
+        
+        console.log(`[Image Upload] 업로드 파일 정보 - 이름: ${file.name}, 타입: ${fileType}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB, 확장자: ${fileExtension}`);
 
         // 파일 크기 제한 (10MB - 리사이징 전 원본 크기)
         const maxSize = 10 * 1024 * 1024; // 10MB
@@ -49,10 +79,33 @@ export async function POST(request: NextRequest) {
         }
 
         // 파일을 버퍼로 읽기
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
+        let buffer: Buffer;
+        try {
+            const bytes = await file.arrayBuffer();
+            buffer = Buffer.from(bytes);
+            
+            if (buffer.length === 0) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: '파일을 읽을 수 없습니다. 파일이 손상되었거나 접근할 수 없습니다.',
+                    },
+                    { status: 400 }
+                );
+            }
+        } catch (readError: any) {
+            console.error('[Image Upload] 파일 읽기 오류:', readError);
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: `파일을 읽을 수 없습니다: ${readError.message}\n\nPhotos 앱에서 드래그한 파일의 경우, 파일을 먼저 저장한 후 업로드해주세요.`,
+                    details: readError.message,
+                },
+                { status: 400 }
+            );
+        }
 
-        console.log(`[Image Upload] 파일 타입: ${file.type}, 원본 크기: ${(buffer.length / 1024 / 1024).toFixed(2)}MB`);
+        console.log(`[Image Upload] 파일 타입: ${fileType}, 원본 크기: ${(buffer.length / 1024 / 1024).toFixed(2)}MB`);
 
         // Sharp를 사용하여 이미지 리사이징 및 최적화
         // JPEG, PNG 등 모든 이미지 포맷 지원
@@ -67,6 +120,12 @@ export async function POST(request: NextRequest) {
 
             // PNG의 경우 투명도를 제거하고 흰색 배경으로 변환
             let sharpInstance = sharp(buffer);
+            
+            // HEIC/HEIF 포맷 처리 (Photos 앱에서 자주 사용)
+            if (fileType === 'image/heic' || fileType === 'image/heif' || fileExtension === 'heic' || fileExtension === 'heif') {
+                console.log('[Image Upload] HEIC/HEIF 이미지 감지 - JPEG로 변환');
+                // Sharp가 자동으로 처리
+            }
             
             // PNG 또는 투명도가 있는 이미지인 경우 흰색 배경으로 합성
             if (fileType === 'image/png' || metadata.hasAlpha) {
@@ -112,8 +171,8 @@ export async function POST(request: NextRequest) {
 
         // 파일명 생성 (타임스탬프 + 원본 파일명)
         const timestamp = Date.now();
-        const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_'); // 특수문자 제거
-        const fileName = `${timestamp}_${originalName.replace(/\.[^/.]+$/, '')}.jpg`; // 확장자를 .jpg로 변경
+        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_'); // 특수문자 제거
+        const fileName = `${timestamp}_${sanitizedName.replace(/\.[^/.]+$/, '')}.jpg`; // 확장자를 .jpg로 변경
 
         // 원본 크기와 최적화된 크기 정보
         const originalSize = buffer.length;
