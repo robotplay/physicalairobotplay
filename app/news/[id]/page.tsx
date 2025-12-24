@@ -135,8 +135,8 @@ export default function NewsDetailPage() {
 
                     {/* Article */}
                     <article className="bg-gray-800 rounded-2xl overflow-hidden shadow-xl">
-                        {/* Image */}
-                        {newsItem.image && (
+                        {/* 대표 이미지 (에디터에 이미지가 없을 때만 표시) */}
+                        {newsItem.image && !newsItem.content.includes('<img') && (
                             <div className="relative w-full aspect-video overflow-hidden bg-gray-900">
                                 {newsItem.image.startsWith('data:image/') ? (
                                     // Base64 이미지
@@ -193,10 +193,11 @@ export default function NewsDetailPage() {
                             </div>
 
                             {/* Body */}
-                            <div className="prose prose-invert max-w-none">
-                                <div className="text-base sm:text-lg text-gray-300 leading-relaxed whitespace-pre-wrap">
-                                    {newsItem.content}
-                                </div>
+                            <div className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-8 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-300 prose-ol:text-gray-300 prose-li:text-gray-300 prose-blockquote:text-gray-400 prose-blockquote:border-gray-600">
+                                <div 
+                                    className="text-base sm:text-lg leading-relaxed"
+                                    dangerouslySetInnerHTML={{ __html: newsItem.content }}
+                                />
                             </div>
                         </div>
                     </article>

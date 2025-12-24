@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { Newspaper, Calendar, Edit, Trash2, Plus, X, Save, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import RichTextEditor from './RichTextEditor';
 
 interface NewsData {
     _id: string;
@@ -628,25 +629,60 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
 
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                내용 *
+                                내용 * (리치 텍스트 에디터)
                             </label>
-                            <textarea
-                                value={formData.content}
-                                onChange={(e) => {
-                                    setFormData({ ...formData, content: e.target.value });
-                                    // 자동으로 요약 생성
-                                    if (!formData.excerpt && e.target.value.length > 0) {
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            content: e.target.value,
-                                            excerpt: e.target.value.substring(0, 150) + '...',
-                                        }));
+                            <RichTextEditor
+                                content={formData.content}
+                                onChange={(htmlContent) => {
+                                    setFormData({ ...formData, content: htmlContent });
+                                    // 자동으로 요약 생성 (HTML 태그 제거)
+                                    if (!formData.excerpt && htmlContent.length > 0) {
+                                        const textContent = htmlContent.replace(/<[^>]*>/g, '').trim();
+                                        if (textContent.length > 0) {
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                content: htmlContent,
+                                                excerpt: textContent.substring(0, 150) + (textContent.length > 150 ? '...' : ''),
+                                            }));
+                                        }
                                     }
                                 }}
-                                placeholder="공지사항 내용을 입력하세요"
-                                rows={6}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                required
+                                placeholder="공지사항 내용을 입력하세요. 여러 이미지를 삽입할 수 있습니다."
+                                onImageUpload={async (file: File) => {
+                                    // 이미지 업로드 API 호출
+                                    const uploadFormData = new FormData();
+                                    uploadFormData.append('file', file);
+
+                                    const response = await fetch('/api/news/upload', {
+                                        method: 'POST',
+                                        body: uploadFormData,
+                                    });
+
+                                    if (!response.ok) {
+                                        let errorMessage = `서버 오류 (${response.status})`;
+                                        try {
+                                            const errorText = await response.text();
+                                            if (errorText) {
+                                                try {
+                                                    const errorJson = JSON.parse(errorText);
+                                                    errorMessage = errorJson.error || errorJson.details || errorMessage;
+                                                } catch {
+                                                    errorMessage = errorText.length > 200 ? errorText.substring(0, 200) + '...' : errorText;
+                                                }
+                                            }
+                                        } catch (e) {
+                                            console.error('응답 읽기 실패:', e);
+                                        }
+                                        throw new Error(errorMessage);
+                                    }
+
+                                    const result = await response.json();
+                                    if (result.success) {
+                                        return result.path; // Base64 데이터 URL 반환
+                                    } else {
+                                        throw new Error(result.error || '이미지 업로드에 실패했습니다.');
+                                    }
+                                }}
                             />
                         </div>
 
