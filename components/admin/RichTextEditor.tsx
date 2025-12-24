@@ -74,7 +74,7 @@ export default function RichTextEditor({
         },
         editorProps: {
             attributes: {
-                class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none focus:outline-none min-h-[300px] px-4 py-3 dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-4 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-700 dark:prose-ul:text-gray-300 prose-ol:text-gray-700 dark:prose-ol:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600',
+                class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none focus:outline-none min-h-[300px] px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-900 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-4 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-900 dark:prose-ul:text-white prose-ol:text-gray-900 dark:prose-ol:text-white prose-li:text-gray-900 dark:prose-li:text-white prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:border-gray-400 dark:prose-blockquote:border-gray-500',
             },
         },
     });
@@ -165,14 +165,14 @@ export default function RichTextEditor({
     return (
         <div className="border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 overflow-hidden">
             {/* 툴바 */}
-            <div className="border-b border-gray-300 dark:border-gray-600 p-2 flex flex-wrap gap-1 bg-gray-50 dark:bg-gray-900">
+            <div className="border-b border-gray-300 dark:border-gray-600 p-2 flex flex-wrap gap-1 bg-gray-100 dark:bg-gray-700">
                 {/* 텍스트 스타일 */}
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     disabled={!editor.can().chain().focus().toggleBold().run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('bold') ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('bold') ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="굵게 (Ctrl+B)"
                 >
@@ -182,8 +182,8 @@ export default function RichTextEditor({
                     type="button"
                     onClick={() => editor.chain().focus().toggleItalic().run()}
                     disabled={!editor.can().chain().focus().toggleItalic().run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('italic') ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('italic') ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="기울임 (Ctrl+I)"
                 >
@@ -193,22 +193,22 @@ export default function RichTextEditor({
                     type="button"
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     disabled={!editor.can().chain().focus().toggleStrike().run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('strike') ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('strike') ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="취소선"
                 >
                     <Strikethrough className="w-4 h-4" />
                 </button>
 
-                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-500 mx-1" />
 
                 {/* 제목 */}
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('heading', { level: 1 }) ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('heading', { level: 1 }) ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="제목 1"
                 >
@@ -217,8 +217,8 @@ export default function RichTextEditor({
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('heading', { level: 2 }) ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('heading', { level: 2 }) ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="제목 2"
                 >
@@ -227,22 +227,22 @@ export default function RichTextEditor({
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('heading', { level: 3 }) ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('heading', { level: 3 }) ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="제목 3"
                 >
                     <Heading3 className="w-4 h-4" />
                 </button>
 
-                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-500 mx-1" />
 
                 {/* 리스트 */}
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('bulletList') ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('bulletList') ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="글머리 기호"
                 >
@@ -251,8 +251,8 @@ export default function RichTextEditor({
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('orderedList') ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('orderedList') ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="번호 매기기"
                 >
@@ -261,22 +261,22 @@ export default function RichTextEditor({
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('blockquote') ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('blockquote') ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="인용구"
                 >
                     <Quote className="w-4 h-4" />
                 </button>
 
-                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-500 mx-1" />
 
                 {/* 정렬 */}
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('left').run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="왼쪽 정렬"
                 >
@@ -285,8 +285,8 @@ export default function RichTextEditor({
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('center').run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="가운데 정렬"
                 >
@@ -295,15 +295,15 @@ export default function RichTextEditor({
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('right').run()}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="오른쪽 정렬"
                 >
                     <AlignRight className="w-4 h-4" />
                 </button>
 
-                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-500 mx-1" />
 
                 {/* 이미지 업로드 */}
                 <input
@@ -325,7 +325,7 @@ export default function RichTextEditor({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingImage || !onImageUpload}
-                    className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200"
                     title="이미지 삽입"
                 >
                     {isUploadingImage ? (
@@ -344,22 +344,22 @@ export default function RichTextEditor({
                             editor.chain().focus().setLink({ href: url }).run();
                         }
                     }}
-                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                        editor.isActive('link') ? 'bg-gray-200 dark:bg-gray-700' : ''
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        editor.isActive('link') ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
                     title="링크 삽입"
                 >
                     <LinkIcon className="w-4 h-4" />
                 </button>
 
-                <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-500 mx-1" />
 
                 {/* 실행 취소/다시 실행 */}
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().undo().run()}
                     disabled={!editor.can().chain().focus().undo().run()}
-                    className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 text-gray-700 dark:text-gray-200"
                     title="실행 취소 (Ctrl+Z)"
                 >
                     <Undo className="w-4 h-4" />
@@ -368,7 +368,7 @@ export default function RichTextEditor({
                     type="button"
                     onClick={() => editor.chain().focus().redo().run()}
                     disabled={!editor.can().chain().focus().redo().run()}
-                    className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 text-gray-700 dark:text-gray-200"
                     title="다시 실행 (Ctrl+Y)"
                 >
                     <Redo className="w-4 h-4" />
