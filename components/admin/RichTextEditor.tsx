@@ -6,6 +6,7 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
+import Youtube from '@tiptap/extension-youtube';
 import { 
     Bold, 
     Italic, 
@@ -64,6 +65,15 @@ export default function RichTextEditor({
                     class: 'text-deep-electric-blue hover:underline',
                 },
             }),
+            Youtube.configure({
+                controls: true,
+                nocookie: false,
+                width: 640,
+                height: 360,
+                HTMLAttributes: {
+                    class: 'youtube-video',
+                },
+            }),
             Placeholder.configure({
                 placeholder,
             }),
@@ -74,7 +84,7 @@ export default function RichTextEditor({
         },
         editorProps: {
             attributes: {
-                class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none focus:outline-none min-h-[300px] px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-900 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-4 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-900 dark:prose-ul:text-white prose-ol:text-gray-900 dark:prose-ol:text-white prose-li:text-gray-900 dark:prose-li:text-white prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:border-gray-400 dark:prose-blockquote:border-gray-500',
+                class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none focus:outline-none min-h-[300px] px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-900 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-4 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-900 dark:prose-ul:text-white prose-ol:text-gray-900 dark:prose-ol:text-white prose-li:text-gray-900 dark:prose-li:text-white prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:border-gray-400 dark:prose-blockquote:border-gray-500 [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-lg [&_iframe]:my-4 [&_iframe]:max-w-full',
             },
         },
     });
@@ -339,15 +349,28 @@ export default function RichTextEditor({
                 <button
                     type="button"
                     onClick={() => {
-                        const url = window.prompt('링크 URL을 입력하세요:');
+                        const url = window.prompt('링크 URL을 입력하세요 (유튜브 URL은 자동으로 동영상으로 변환됩니다):');
                         if (url) {
-                            editor.chain().focus().setLink({ href: url }).run();
+                            // 유튜브 URL 감지 및 변환
+                            const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+                            const match = url.match(youtubeRegex);
+                            
+                            if (match && match[1]) {
+                                // 유튜브 동영상 ID 추출하여 임베드
+                                const videoId = match[1];
+                                editor.chain().focus().setYoutubeVideo({
+                                    src: `https://www.youtube.com/embed/${videoId}`,
+                                }).run();
+                            } else {
+                                // 일반 링크로 삽입
+                                editor.chain().focus().setLink({ href: url }).run();
+                            }
                         }
                     }}
                     className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
                         editor.isActive('link') ? 'bg-gray-200 dark:bg-gray-600' : ''
                     }`}
-                    title="링크 삽입"
+                    title="링크 삽입 (유튜브 URL은 자동으로 동영상으로 변환)"
                 >
                     <LinkIcon className="w-4 h-4" />
                 </button>

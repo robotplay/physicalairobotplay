@@ -195,7 +195,7 @@ export default function NewsDetailPage() {
                             {/* Body */}
                             <div className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-8 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-300 prose-ol:text-gray-300 prose-li:text-gray-300 prose-blockquote:text-gray-400 prose-blockquote:border-gray-600">
                                 <div 
-                                    className="text-base sm:text-lg leading-relaxed"
+                                    className="text-base sm:text-lg leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-lg [&_iframe]:my-8 [&_iframe]:max-w-full"
                                     dangerouslySetInnerHTML={{ __html: newsItem.content }}
                                 />
                             </div>
