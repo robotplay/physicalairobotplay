@@ -22,7 +22,13 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "app/api/news/upload/route.ts": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  }
 }
 
 

@@ -142,7 +142,41 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                 body: uploadFormData,
             });
 
-            const result = await response.json();
+            // 응답 상태 확인
+            if (!response.ok) {
+                // HTTP 에러 응답 처리
+                let errorMessage = `서버 오류 (${response.status}): ${response.statusText}`;
+                try {
+                    const errorText = await response.text();
+                    if (errorText) {
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            errorMessage = errorJson.error || errorJson.details || errorMessage;
+                        } catch {
+                            // JSON이 아니면 텍스트 그대로 사용
+                            errorMessage = errorText.length > 200 ? errorText.substring(0, 200) + '...' : errorText;
+                        }
+                    }
+                } catch (e) {
+                    // 응답 읽기 실패
+                    console.error('응답 읽기 실패:', e);
+                }
+                
+                throw new Error(errorMessage);
+            }
+
+            // JSON 응답 파싱
+            let result;
+            try {
+                const responseText = await response.text();
+                if (!responseText) {
+                    throw new Error('서버에서 응답이 없습니다.');
+                }
+                result = JSON.parse(responseText);
+            } catch (parseError: any) {
+                console.error('JSON 파싱 오류:', parseError);
+                throw new Error(`서버 응답을 읽을 수 없습니다: ${parseError.message}\n\n파일이 너무 크거나 서버 설정 문제일 수 있습니다.`);
+            }
 
             if (result.success) {
                 setFormData({ ...formData, image: result.path });
