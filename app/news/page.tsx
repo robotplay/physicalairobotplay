@@ -22,6 +22,13 @@ interface NewsItem {
     createdAt: string;
 }
 
+const CATEGORY_COLORS: Record<string, string> = {
+    '공지사항': 'bg-blue-500',
+    '대회 소식': 'bg-purple-500',
+    '교육 정보': 'bg-green-500',
+    '수업 스케치': 'bg-orange-500',
+};
+
 export default function NewsPage() {
     const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -127,7 +134,7 @@ export default function NewsPage() {
                                             />
                                         )}
                                         <div className="absolute top-4 left-4">
-                                            <span className="px-3 py-1 bg-deep-electric-blue text-white text-xs font-semibold rounded-full">
+                                            <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${CATEGORY_COLORS[item.category] || 'bg-deep-electric-blue'}`}>
                                                 {item.category}
                                             </span>
                                         </div>
