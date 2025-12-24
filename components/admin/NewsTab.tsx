@@ -125,9 +125,16 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
             return;
         }
 
-        // 파일 크기 검증 (10MB - 서버와 동일하게)
-        if (file.size > 10 * 1024 * 1024) {
-            alert('파일 크기는 10MB 이하여야 합니다.');
+        // 파일 크기 검증 (4MB로 제한 - Vercel 제한 고려)
+        const maxSize = 4 * 1024 * 1024; // 4MB
+        if (file.size > maxSize) {
+            alert(`파일 크기는 4MB 이하여야 합니다.\n\n현재 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB\n\n이미지를 압축하거나 더 작은 파일을 선택해주세요.`);
+            return;
+        }
+
+        // 파일이 비어있는지 확인
+        if (file.size === 0) {
+            alert('파일이 비어있습니다. 다른 이미지를 선택해주세요.');
             return;
         }
 

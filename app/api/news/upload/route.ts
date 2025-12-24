@@ -66,13 +66,13 @@ export async function POST(request: NextRequest) {
         
         console.log(`[Image Upload] 업로드 파일 정보 - 이름: ${file.name}, 타입: ${fileType}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB, 확장자: ${fileExtension}`);
 
-        // 파일 크기 제한 (10MB - 리사이징 전 원본 크기)
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        // 파일 크기 제한 (4MB - Vercel 제한 고려)
+        const maxSize = 4 * 1024 * 1024; // 4MB
         if (file.size > maxSize) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: '파일 크기는 10MB 이하여야 합니다.',
+                    error: `파일 크기는 4MB 이하여야 합니다.\n\n현재 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB\n\n이미지를 압축하거나 더 작은 파일을 선택해주세요.`,
                 },
                 { status: 400 }
             );
@@ -95,10 +95,16 @@ export async function POST(request: NextRequest) {
             }
         } catch (readError: any) {
             console.error('[Image Upload] 파일 읽기 오류:', readError);
+            console.error('[Image Upload] 파일 정보:', {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                lastModified: file.lastModified,
+            });
             return NextResponse.json(
                 {
                     success: false,
-                    error: `파일을 읽을 수 없습니다: ${readError.message}\n\nPhotos 앱에서 드래그한 파일의 경우, 파일을 먼저 저장한 후 업로드해주세요.`,
+                    error: `파일을 읽을 수 없습니다: ${readError.message}\n\n파일이 손상되었거나 접근할 수 없습니다.\n\n다른 이미지 파일을 선택해주세요.`,
                     details: readError.message,
                 },
                 { status: 400 }
