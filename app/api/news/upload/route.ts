@@ -66,13 +66,13 @@ export async function POST(request: NextRequest) {
         
         console.log(`[Image Upload] 업로드 파일 정보 - 이름: ${file.name}, 타입: ${fileType}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB, 확장자: ${fileExtension}`);
 
-        // 파일 크기 제한 (4MB - Vercel 제한 고려)
-        const maxSize = 4 * 1024 * 1024; // 4MB
+        // 파일 크기 제한 (6MB)
+        const maxSize = 6 * 1024 * 1024; // 6MB
         if (file.size > maxSize) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: `파일 크기는 4MB 이하여야 합니다.\n\n현재 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB\n\n이미지를 압축하거나 더 작은 파일을 선택해주세요.`,
+                    error: `파일 크기는 6MB 이하여야 합니다.\n\n현재 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB\n\n이미지를 압축하거나 더 작은 파일을 선택해주세요.`,
                 },
                 { status: 400 }
             );
