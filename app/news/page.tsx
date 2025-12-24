@@ -102,20 +102,30 @@ export default function NewsPage() {
                                 >
                                     {/* Image */}
                                     <div className="relative w-full aspect-video overflow-hidden bg-gray-900">
-                                        <Image
-                                            src={item.image || '/img/01.jpeg'}
-                                            alt={item.title}
-                                            fill
-                                            className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                            quality={85}
-                                            unoptimized={item.image?.startsWith('/uploads/')}
-                                            onError={(e) => {
-                                                // 이미지 로드 실패 시 기본 이미지로 대체
-                                                const target = e.target as HTMLImageElement;
-                                                target.src = '/img/01.jpeg';
-                                            }}
-                                        />
+                                        {item.image?.startsWith('data:image/') ? (
+                                            // Base64 이미지
+                                            <img
+                                                src={item.image}
+                                                alt={item.title}
+                                                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                                            />
+                                        ) : (
+                                            // 일반 이미지 URL
+                                            <Image
+                                                src={item.image || '/img/01.jpeg'}
+                                                alt={item.title}
+                                                fill
+                                                className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                quality={85}
+                                                unoptimized={item.image?.startsWith('/uploads/')}
+                                                onError={(e) => {
+                                                    // 이미지 로드 실패 시 기본 이미지로 대체
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = '/img/01.jpeg';
+                                                }}
+                                            />
+                                        )}
                                         <div className="absolute top-4 left-4">
                                             <span className="px-3 py-1 bg-deep-electric-blue text-white text-xs font-semibold rounded-full">
                                                 {item.category}

@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
 
 export async function POST(request: NextRequest) {
     try {
@@ -41,29 +38,22 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 업로드 디렉토리 생성
-        const uploadDir = join(process.cwd(), 'public', 'uploads', 'news');
-        if (!existsSync(uploadDir)) {
-            await mkdir(uploadDir, { recursive: true });
-        }
+        // Base64로 변환
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const base64 = buffer.toString('base64');
+        const dataUrl = `data:${file.type};base64,${base64}`;
 
         // 파일명 생성 (타임스탬프 + 원본 파일명)
         const timestamp = Date.now();
         const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_'); // 특수문자 제거
         const fileName = `${timestamp}_${originalName}`;
-        const filePath = join(uploadDir, fileName);
 
-        // 파일 저장
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        await writeFile(filePath, buffer);
-
-        // 웹에서 접근 가능한 경로 반환
-        const publicPath = `/uploads/news/${fileName}`;
-
+        // Base64 데이터 URL 반환 (MongoDB에 저장하거나 직접 사용 가능)
+        // 프로덕션에서는 외부 스토리지 사용 권장, 현재는 Base64 사용
         return NextResponse.json({
             success: true,
-            path: publicPath,
+            path: dataUrl, // Base64 데이터 URL
             fileName: fileName,
             message: '이미지가 업로드되었습니다.',
         });
@@ -79,4 +69,3 @@ export async function POST(request: NextRequest) {
         );
     }
 }
-

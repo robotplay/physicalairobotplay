@@ -138,20 +138,30 @@ export default function NewsDetailPage() {
                         {/* Image */}
                         {newsItem.image && (
                             <div className="relative w-full aspect-video overflow-hidden bg-gray-900">
-                                <Image
-                                    src={newsItem.image}
-                                    alt={newsItem.title}
-                                    fill
-                                    className="object-contain"
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-                                    quality={90}
-                                    unoptimized={newsItem.image.startsWith('/uploads/')}
-                                    onError={(e) => {
-                                        // 이미지 로드 실패 시 기본 이미지로 대체
-                                        const target = e.target as HTMLImageElement;
-                                        target.src = '/img/01.jpeg';
-                                    }}
-                                />
+                                {newsItem.image.startsWith('data:image/') ? (
+                                    // Base64 이미지
+                                    <img
+                                        src={newsItem.image}
+                                        alt={newsItem.title}
+                                        className="w-full h-full object-contain"
+                                    />
+                                ) : (
+                                    // 일반 이미지 URL
+                                    <Image
+                                        src={newsItem.image}
+                                        alt={newsItem.title}
+                                        fill
+                                        className="object-contain"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                                        quality={90}
+                                        unoptimized={newsItem.image.startsWith('/uploads/')}
+                                        onError={(e) => {
+                                            // 이미지 로드 실패 시 기본 이미지로 대체
+                                            const target = e.target as HTMLImageElement;
+                                            target.src = '/img/01.jpeg';
+                                        }}
+                                    />
+                                )}
                                 <div className="absolute top-6 left-6">
                                     <span className={`px-4 py-2 text-white text-sm font-semibold rounded-full ${CATEGORY_COLORS[newsItem.category] || 'bg-gray-500'}`}>
                                         {newsItem.category}

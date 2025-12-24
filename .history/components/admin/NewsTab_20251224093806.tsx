@@ -319,27 +319,23 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                     <div className="mb-3 relative w-full h-48 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
                                         {uploadPreview ? (
                                             // 업로드 전 미리보기 (base64)
-                                            <img
-                                                src={uploadPreview}
-                                                alt="미리보기"
-                                                className="w-full h-full object-contain"
-                                            />
-                                        ) : formData.image?.startsWith('data:image/') ? (
-                                            // Base64 이미지
-                                            <img
-                                                src={formData.image}
-                                                alt="미리보기"
-                                                className="w-full h-full object-contain"
-                                            />
-                                        ) : (
-                                            // 일반 이미지 URL
                                             <Image
-                                                src={formData.image}
+                                                src={uploadPreview}
                                                 alt="미리보기"
                                                 fill
                                                 className="object-contain"
                                                 sizes="(max-width: 768px) 100vw, 50vw"
-                                                unoptimized={formData.image?.startsWith('/uploads/')}
+                                                unoptimized
+                                            />
+                                        ) : (
+                                            // 업로드된 이미지 또는 URL
+                                            <Image
+                                                src={formData.image}
+                                                alt="미리보기"
+                                                fill
+                                                className="object-cover"
+                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                                unoptimized={formData.image.startsWith('/uploads/')}
                                             />
                                         )}
                                     </div>
@@ -578,24 +574,14 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
 
                             <div className="space-y-4">
                                 <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-900">
-                                    {selectedNews.image?.startsWith('data:image/') ? (
-                                        // Base64 이미지
-                                        <img
-                                            src={selectedNews.image}
-                                            alt={selectedNews.title}
-                                            className="w-full h-full object-contain"
-                                        />
-                                    ) : (
-                                        // 일반 이미지 URL
-                                        <Image
-                                            src={selectedNews.image}
-                                            alt={selectedNews.title}
-                                            fill
-                                            className="object-contain"
-                                            sizes="(max-width: 768px) 100vw, 33vw"
-                                            unoptimized={selectedNews.image?.startsWith('/uploads/')}
-                                        />
-                                    )}
+                                    <Image
+                                        src={selectedNews.image}
+                                        alt={selectedNews.title}
+                                        fill
+                                        className="object-contain"
+                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                        unoptimized={selectedNews.image?.startsWith('/uploads/')}
+                                    />
                                 </div>
 
                                 <div>
