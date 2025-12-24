@@ -161,6 +161,25 @@ export default function Header() {
                                                     });
                                                 }
                                             }, 500);
+                                        } else {
+                                            // If we're on the home page, scroll to the section
+                                            const hash = item.href.split('#')[1];
+                                            if (hash && typeof window !== 'undefined') {
+                                                e.preventDefault();
+                                                setTimeout(() => {
+                                                    const element = document.getElementById(hash);
+                                                    if (element) {
+                                                        const headerOffset = 80;
+                                                        const elementPosition = element.getBoundingClientRect().top;
+                                                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                                        
+                                                        window.scrollTo({
+                                                            top: offsetPosition,
+                                                            behavior: 'smooth'
+                                                        });
+                                                    }
+                                                }, 100);
+                                            }
                                         }
                                     }}
                                 >
