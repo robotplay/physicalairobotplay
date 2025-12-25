@@ -68,6 +68,26 @@ echo -e "${GREEN}✅ 압축 완료! 크기: $COMPRESSED_SIZE${NC}"
 # 원본 디렉토리 삭제
 rm -rf "$BACKUP_DIR"
 
+# Google Drive 업로드 (rclone 설정되어 있는 경우)
+GDRIVE_UPLOADED=false
+if command -v rclone &> /dev/null && rclone listremotes 2>/dev/null | grep -q "^gdrive:"; then
+    echo -e "${GREEN}☁️  Google Drive 업로드 중...${NC}"
+    
+    if rclone copy "$BACKUP_ROOT/backup-$DATE.tar.gz" gdrive:mongodb-backups/ --progress 2>&1 | grep -v "Transferred:"; then
+        echo -e "${GREEN}✅ Google Drive 업로드 완료!${NC}"
+        GDRIVE_UPLOADED=true
+    else
+        echo -e "${YELLOW}⚠️  Google Drive 업로드 실패 (로컬 백업은 정상)${NC}"
+    fi
+else
+    if ! command -v rclone &> /dev/null; then
+        echo -e "${YELLOW}💡 rclone 미설치: Google Drive 업로드 건너뜀${NC}"
+    elif ! rclone listremotes 2>/dev/null | grep -q "^gdrive:"; then
+        echo -e "${YELLOW}💡 Google Drive 미설정: 업로드 건너뜀${NC}"
+        echo "   설정: ./scripts/setup-gdrive.sh"
+    fi
+fi
+
 # 30일 이상 된 백업 삭제
 echo -e "${YELLOW}🧹 30일 이상 된 백업 정리 중...${NC}"
 find "$BACKUP_ROOT" -name "backup-*.tar.gz" -mtime +30 -delete
@@ -79,9 +99,17 @@ echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${GREEN}🎉 백업 완료!${NC}"
 echo ""
-echo "📁 백업 파일: $BACKUP_ROOT/backup-$DATE.tar.gz"
+echo "📁 로컬 백업: $BACKUP_ROOT/backup-$DATE.tar.gz"
 echo "📊 압축 크기: $COMPRESSED_SIZE"
-echo "📦 전체 백업 개수: $REMAINING_BACKUPS"
+echo "📦 전체 백업: $REMAINING_BACKUPS개"
+
+if [ "$GDRIVE_UPLOADED" = true ]; then
+    echo "☁️  Google Drive: ✅ 업로드됨"
+    echo "   위치: gdrive:mongodb-backups/backup-$DATE.tar.gz"
+else
+    echo "☁️  Google Drive: ⏭️  건너뜀"
+fi
+
 echo ""
 echo "복원 방법:"
 echo "  1. 압축 해제: tar -xzf backup-$DATE.tar.gz"
