@@ -152,7 +152,9 @@ export function AdvancedCourseSchema() {
       "라즈베리파이",
       "OpenCV",
       "AI 비전",
-      "로봇 대회 준비",
+      "IRO 대회 준비",
+      "FIRA 대회 준비",
+      "AI 로봇 개발",
     ],
     audience: {
       "@type": "EducationalAudience",
@@ -174,11 +176,6 @@ export function AdvancedCourseSchema() {
         },
       },
     },
-    teaches: [
-      "IRO 대회 준비",
-      "FIRA 대회 준비",
-      "AI 로봇 개발",
-    ],
   };
 
   return <JsonLd data={data} />;
