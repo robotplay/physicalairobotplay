@@ -3,9 +3,19 @@
 import { useState } from 'react';
 import Image from "next/image";
 import ConsultationModal from "./ConsultationModal";
+import { trackCTAClick, trackConsultation } from "@/lib/analytics";
 
 export default function Hero() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleCurriculumClick = () => {
+        trackCTAClick('교육 과정 보기', 'hero');
+    };
+
+    const handleConsultationClick = () => {
+        trackConsultation('open', 'hero');
+        setIsModalOpen(true);
+    };
 
     return (
         <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
@@ -35,12 +45,13 @@ export default function Hero() {
                 <div className="flex flex-col md:flex-row gap-4 justify-center">
                     <a 
                         href="/curriculum"
+                        onClick={handleCurriculumClick}
                         className="px-8 py-4 bg-deep-electric-blue hover:bg-blue-700 text-white font-bold rounded-full transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(0,82,255,0.5)] text-center cursor-pointer"
                     >
                         교육 과정 보기
                     </a>
                     <button 
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={handleConsultationClick}
                         className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 font-bold rounded-full transition-all cursor-pointer"
                         type="button"
                     >

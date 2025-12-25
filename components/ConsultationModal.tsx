@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Phone, Mail, User, MessageSquare, Send } from 'lucide-react';
 import ScrollAnimation from './ScrollAnimation';
+import { trackConsultation } from '@/lib/analytics';
 
 interface ConsultationModalProps {
     isOpen: boolean;
@@ -72,6 +73,9 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
 
             setIsSubmitting(false);
             setSubmitStatus('success');
+            
+            // Track successful consultation submission
+            trackConsultation('submit', 'modal');
             
             // 3초 후 폼 초기화 및 모달 닫기
             setTimeout(() => {

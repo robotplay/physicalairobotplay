@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Hero from "@/components/Hero";
+import { initScrollTracking } from "@/lib/analytics";
 
 // Lazy load components below the fold for better initial load
 const History = dynamic(() => import("@/components/History"), {
@@ -39,6 +40,9 @@ const Footer = dynamic(() => import("@/components/Footer"), {
 export default function Home() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    
+    // Initialize scroll depth tracking
+    const cleanupScrollTracking = initScrollTracking();
     
     // Handle hash navigation after page load
     const handleHashScroll = () => {
@@ -83,6 +87,7 @@ export default function Home() {
     return () => {
       clearTimeout(timer);
       window.removeEventListener('hashchange', handleHashScroll);
+      if (cleanupScrollTracking) cleanupScrollTracking();
     };
   }, []);
 
