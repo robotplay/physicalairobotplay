@@ -1,0 +1,11 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+# Host
+Host: https://parplay.co.kr
+
+# Sitemaps
+Sitemap: https://parplay.co.kr/sitemap.xml
