@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import AirRobotHero from '@/components/AirRobotHero';
+import { AirRobotCourseSchema, BreadcrumbSchema } from '@/components/JsonLd';
 
 export const metadata: Metadata = {
   title: "AirRobot Course - 드론 코딩 전문 과정",
@@ -51,15 +52,24 @@ const Footer = dynamic(() => import('@/components/Footer'), {
 
 export default function AirRobotCoursePage() {
   return (
-    <main className="min-h-screen bg-[#1A1A1A] text-white">
-      <AirRobotHero />
-      <AirRobotOverview />
-      <AirRobotCurriculum />
-      <AirRobotShowcase />
-      <AirRobotCompetition />
-      <AirRobotCTA />
-      <Footer />
-    </main>
+    <>
+      <AirRobotCourseSchema />
+      <BreadcrumbSchema
+        items={[
+          { name: "홈", url: "https://parplay.co.kr" },
+          { name: "AirRobot Course", url: "https://parplay.co.kr/airrobot-course" },
+        ]}
+      />
+      <main className="min-h-screen bg-[#1A1A1A] text-white">
+        <AirRobotHero />
+        <AirRobotOverview />
+        <AirRobotCurriculum />
+        <AirRobotShowcase />
+        <AirRobotCompetition />
+        <AirRobotCTA />
+        <Footer />
+      </main>
+    </>
   );
 }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import BasicCourseHero from '@/components/BasicCourseHero';
+import { BasicCourseSchema, BreadcrumbSchema } from '@/components/JsonLd';
 
 export const metadata: Metadata = {
   title: "Basic Course - 로봇 코딩 기초 과정",
@@ -46,14 +47,23 @@ const Footer = dynamic(() => import('@/components/Footer'), {
 
 export default function BasicCoursePage() {
   return (
-    <main className="min-h-screen bg-[#1A1A1A] text-white">
-      <BasicCourseHero />
-      <CourseOverview />
-      <CurriculumRoadmap />
-      <LearningOutcomes />
-      <BasicCourseCTA />
-      <Footer />
-    </main>
+    <>
+      <BasicCourseSchema />
+      <BreadcrumbSchema
+        items={[
+          { name: "홈", url: "https://parplay.co.kr" },
+          { name: "Basic Course", url: "https://parplay.co.kr/basic-course" },
+        ]}
+      />
+      <main className="min-h-screen bg-[#1A1A1A] text-white">
+        <BasicCourseHero />
+        <CourseOverview />
+        <CurriculumRoadmap />
+        <LearningOutcomes />
+        <BasicCourseCTA />
+        <Footer />
+      </main>
+    </>
   );
 }
 

@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
 import Header from "@/components/Header";
+import { OrganizationSchema, WebSiteSchema } from "@/components/JsonLd";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -107,6 +108,10 @@ export default function RootLayout({
 }>) {
     return (
     <html lang="ko">
+      <head>
+        <OrganizationSchema />
+        <WebSiteSchema />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
