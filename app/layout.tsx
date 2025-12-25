@@ -19,12 +19,15 @@ const geistMono = Geist_Mono({
   preload: false,
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://physicalairobotplay.vercel.app';
+const siteUrl = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://parplay.co.kr';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "피지컬 AI 로봇플레이",
-  description: "상상을 현실로 만드는 코딩 교육, 피지컬 AI 로봇플레이입니다.",
+  title: {
+    default: "피지컬 AI 로봇플레이 | 천안 코딩 로봇 교육",
+    template: "%s | 피지컬 AI 로봇플레이",
+  },
+  description: "상상을 현실로 만드는 코딩 교육. 천안 불당동의 로봇 코딩 전문 교육 기관. Basic부터 Advanced, 드론 과정까지 IRO, FIRA 국제 대회 준비.",
   keywords: [
     "천안 코딩 교육",
     "로봇 교육",
@@ -55,8 +58,8 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    title: "피지컬 AI 로봇플레이",
-    description: "상상을 현실로 만드는 코딩 교육. Basic부터 Advanced, 드론 과정까지.",
+    title: "피지컬 AI 로봇플레이 | 천안 코딩 로봇 교육",
+    description: "상상을 현실로 만드는 코딩 교육. 천안 불당동의 로봇 코딩 전문 교육 기관. Basic부터 Advanced, 드론 과정까지 IRO, FIRA 국제 대회 준비.",
     url: siteUrl,
     siteName: "피지컬 AI 로봇플레이",
     images: [
@@ -64,16 +67,20 @@ export const metadata: Metadata = {
         url: `${siteUrl}/og-image.jpeg`,
         width: 1200,
         height: 630,
+        alt: "피지컬 AI 로봇플레이 - 로봇 코딩 교육",
       },
     ],
     locale: "ko_KR",
     type: "website",
+    countryName: "South Korea",
   },
   twitter: {
     card: "summary_large_image",
-    title: "피지컬 AI 로봇플레이",
-    description: "상상을 현실로 만드는 코딩 교육. Basic부터 Advanced, 드론 과정까지.",
+    title: "피지컬 AI 로봇플레이 | 천안 코딩 로봇 교육",
+    description: "상상을 현실로 만드는 코딩 교육. 천안 불당동의 로봇 코딩 전문 교육 기관. Basic부터 Advanced, 드론 과정까지 IRO, FIRA 국제 대회 준비.",
     images: [`${siteUrl}/og-image.jpeg`],
+    creator: "@parplay",
+    site: "@parplay",
   },
   robots: {
     index: true,
