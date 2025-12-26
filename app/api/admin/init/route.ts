@@ -80,7 +80,7 @@ export async function GET() {
         return NextResponse.json({
             success: true,
             hasAdmin: adminCount > 0,
-            adminCount,
+            count: adminCount, // adminCount를 count로 변경하여 일관성 유지
         });
     } catch (error) {
         console.error('Failed to check admin status:', error);
