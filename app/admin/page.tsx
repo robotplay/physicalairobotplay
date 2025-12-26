@@ -7,6 +7,7 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import RegistrationsTab from '@/components/admin/RegistrationsTab';
 import NewsTab from '@/components/admin/NewsTab';
+import OnlineCoursesTab from '@/components/admin/OnlineCoursesTab';
 
 interface ConsultationData {
     id: string;
@@ -61,7 +62,24 @@ interface NewsData {
     updatedAt?: string;
 }
 
-type TabType = 'consultations' | 'payments' | 'registrations' | 'news';
+interface OnlineCourseData {
+    _id: string;
+    id: string;
+    title: string;
+    description: string;
+    duration: string;
+    students: string;
+    level: string;
+    thumbnail: string;
+    category: string;
+    color: string;
+    meetingUrl: string;
+    platformType: 'zoom' | 'whale';
+    schedule: { day: string, time: string }[];
+    createdAt: string;
+}
+
+type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -70,6 +88,7 @@ export default function AdminPage() {
     const [payments, setPayments] = useState<PaymentData[]>([]);
     const [registrations, setRegistrations] = useState<RegistrationData[]>([]);
     const [news, setNews] = useState<NewsData[]>([]);
+    const [onlineCourses, setOnlineCourses] = useState<OnlineCourseData[]>([]);
     const [selectedConsultation, setSelectedConsultation] = useState<ConsultationData | null>(null);
     const [selectedPayment, setSelectedPayment] = useState<PaymentData | null>(null);
     const [selectedRegistration, setSelectedRegistration] = useState<RegistrationData | null>(null);
@@ -161,10 +180,24 @@ export default function AdminPage() {
             }
         };
 
+        // MongoDB에서 온라인 강좌 불러오기
+        const loadOnlineCourses = async () => {
+            try {
+                const response = await fetch('/api/online-courses');
+                const result = await response.json();
+                if (result.success) {
+                    setOnlineCourses(result.data || []);
+                }
+            } catch (error) {
+                console.error('Failed to load online courses:', error);
+            }
+        };
+
         loadConsultations();
         loadPayments();
         loadRegistrations();
         loadNews();
+        loadOnlineCourses();
 
         // 실시간 업데이트를 위한 이벤트 리스너
         const handleStorageChange = () => {
@@ -239,7 +272,8 @@ export default function AdminPage() {
                                     상담 문의 <span className="font-bold text-deep-electric-blue dark:text-sky-400">{consultations.length}건</span> | 
                                     결제 내역 <span className="font-bold text-green-600 dark:text-green-400">{payments.length}건</span> | 
                                     신청서 <span className="font-bold text-purple-600 dark:text-purple-400">{registrations.length}건</span> | 
-                                    공지사항 <span className="font-bold text-orange-600 dark:text-orange-400">{news.length}건</span>
+                                    공지사항 <span className="font-bold text-orange-600 dark:text-orange-400">{news.length}건</span> |
+                                    온라인 강좌 <span className="font-bold text-blue-600 dark:text-blue-400">{onlineCourses.length}개</span>
                                 </p>
                             </div>
                             <button
@@ -327,6 +361,24 @@ export default function AdminPage() {
                                 <div className="flex items-center gap-2">
                                     <Newspaper className="w-4 h-4" />
                                     공지사항 ({news.length})
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('online-courses');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'online-courses'
+                                        ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Video className="w-4 h-4" />
+                                    온라인 강좌 ({onlineCourses.length})
                                 </div>
                             </button>
                         </div>
@@ -569,6 +621,23 @@ export default function AdminPage() {
                                 }
                             } catch (error) {
                                 console.error('Failed to refresh news:', error);
+                            }
+                        }}
+                    />
+                )}
+
+                {activeTab === 'online-courses' && (
+                    <OnlineCoursesTab
+                        courses={onlineCourses}
+                        onRefresh={async () => {
+                            try {
+                                const response = await fetch('/api/online-courses');
+                                const result = await response.json();
+                                if (result.success) {
+                                    setOnlineCourses(result.data || []);
+                                }
+                            } catch (error) {
+                                console.error('Failed to refresh online courses:', error);
                             }
                         }}
                     />

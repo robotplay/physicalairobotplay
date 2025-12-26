@@ -1,57 +1,81 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import ScrollAnimation from './ScrollAnimation';
-import { Play, Clock, Users, Award, ArrowRight, BookOpen, Video } from 'lucide-react';
+import { Play, Clock, Users, Award, ArrowRight, BookOpen, Video, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface Course {
+    id: string;
+    _id: string;
+    title: string;
+    description: string;
+    duration: string;
+    students: string;
+    level: string;
+    thumbnail: string;
+    category: string;
+    color: string;
+}
+
 export default function OnlineCourses() {
-    const courses = [
-        {
-            id: 1,
-            title: '로봇 코딩 기초 완전정복',
-            description: '블록 코딩부터 시작하는 로봇 프로그래밍의 첫걸음',
-            duration: '4주',
-            students: '120명',
-            level: '입문',
-            thumbnail: '/img/01.jpeg',
-            category: 'Basic Course',
-            color: 'from-active-orange to-orange-600',
-        },
-        {
-            id: 2,
-            title: 'AI 비전 인식 프로젝트',
-            description: 'OpenCV와 Python으로 배우는 실전 AI 비전 시스템',
-            duration: '6주',
-            students: '85명',
-            level: '중급',
-            thumbnail: '/img/02.jpeg',
-            category: 'Advanced Course',
-            color: 'from-deep-electric-blue to-blue-600',
-        },
-        {
-            id: 3,
-            title: '드론 제어 마스터 클래스',
-            description: '항공 역학과 알고리즘을 활용한 전문 드론 제어',
-            duration: '4주',
-            students: '65명',
-            level: '고급',
-            thumbnail: '/img/03.jpeg',
-            category: 'AirRobot Course',
-            color: 'from-sky-400 to-blue-600',
-        },
-        {
-            id: 4,
-            title: '자율주행 로봇 만들기',
-            description: '라즈베리파이와 센서를 활용한 자율주행 시스템 구축',
-            duration: '8주',
-            students: '95명',
-            level: '중급',
-            thumbnail: '/img/04.jpeg',
-            category: 'Advanced Course',
-            color: 'from-deep-electric-blue to-purple-600',
-        },
-    ];
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await fetch('/api/online-courses');
+                const result = await response.json();
+                if (result.success && result.data.length > 0) {
+                    setCourses(result.data);
+                } else {
+                    // 데이터가 없으면 기본 데이터 사용
+                    setCourses([
+                        {
+                            id: '1',
+                            _id: '1',
+                            title: '로봇 코딩 기초 완전정복',
+                            description: '블록 코딩부터 시작하는 로봇 프로그래밍의 첫걸음',
+                            duration: '4주',
+                            students: '120명',
+                            level: '입문',
+                            thumbnail: '/img/01.jpeg',
+                            category: 'Basic Course',
+                            color: 'from-active-orange to-orange-600',
+                        },
+                        {
+                            id: '2',
+                            _id: '2',
+                            title: 'AI 비전 인식 프로젝트',
+                            description: 'OpenCV와 Python으로 배우는 실전 AI 비전 시스템',
+                            duration: '6주',
+                            students: '85명',
+                            level: '중급',
+                            thumbnail: '/img/02.jpeg',
+                            category: 'Advanced Course',
+                            color: 'from-deep-electric-blue to-blue-600',
+                        },
+                    ]);
+                }
+            } catch (error) {
+                console.error('Failed to fetch courses:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchCourses();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-[400px] flex items-center justify-center bg-[#1A1A1A]">
+                <Loader2 className="w-8 h-8 text-neon-purple animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <section id="courses" className="section-padding bg-[#1A1A1A]">

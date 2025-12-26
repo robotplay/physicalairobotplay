@@ -47,7 +47,10 @@ export const COLLECTIONS = {
     CONSULTATIONS: 'consultations',
     PAYMENTS: 'payments',
     NEWS: 'news',
+    ONLINE_COURSES: 'online_courses',
+    ONLINE_ENROLLMENTS: 'online_enrollments',
 } as const;
+
 
 
 

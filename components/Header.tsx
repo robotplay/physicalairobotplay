@@ -104,6 +104,7 @@ export default function Header() {
         { name: '성공 사례', href: '/#success' },
         { name: '온라인 특강', href: '/#courses' },
         { name: '소식', href: '/#news' },
+        { name: '마이 강의실', href: '/my-classroom' },
     ];
 
     return (
