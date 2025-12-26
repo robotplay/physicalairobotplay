@@ -95,29 +95,29 @@ export default function AdminPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
-        // 인증 확인
-        if (typeof window !== 'undefined') {
-            const authenticated = sessionStorage.getItem('admin-authenticated');
-            const loginTime = sessionStorage.getItem('admin-login-time');
-            
-            // 24시간 후 자동 로그아웃
-            if (authenticated === 'true' && loginTime) {
-                const timeDiff = Date.now() - parseInt(loginTime);
-                const hours24 = 24 * 60 * 60 * 1000;
+        // JWT 기반 인증 확인
+        const checkAuth = async () => {
+            try {
+                const response = await fetch('/api/auth/me');
+                const result = await response.json();
                 
-                if (timeDiff < hours24) {
-                    setIsAuthenticated(true);
+                if (result.success && result.user) {
+                    // 관리자 권한 확인
+                    if (result.user.role === 'admin') {
+                        setIsAuthenticated(true);
+                    } else {
+                        router.push('/admin/login');
+                    }
                 } else {
-                    sessionStorage.removeItem('admin-authenticated');
-                    sessionStorage.removeItem('admin-login-time');
                     router.push('/admin/login');
-                    return;
                 }
-            } else {
+            } catch (error) {
+                console.error('Auth check failed:', error);
                 router.push('/admin/login');
-                return;
             }
-        }
+        };
+
+        checkAuth();
     }, [router]);
 
     useEffect(() => {
@@ -291,10 +291,14 @@ export default function AdminPage() {
                                 </p>
                             </div>
                             <button
-                                onClick={() => {
-                                    sessionStorage.removeItem('admin-authenticated');
-                                    sessionStorage.removeItem('admin-login-time');
-                                    router.push('/admin/login');
+                                onClick={async () => {
+                                    try {
+                                        await fetch('/api/auth/logout', { method: 'POST' });
+                                        router.push('/admin/login');
+                                    } catch (error) {
+                                        console.error('Logout failed:', error);
+                                        router.push('/admin/login');
+                                    }
                                 }}
                                 className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg cursor-pointer"
                             >

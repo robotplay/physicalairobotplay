@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, Eye, EyeOff, User } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminLogin() {
     const router = useRouter();
@@ -17,6 +18,8 @@ export default function AdminLogin() {
         setError('');
         setIsLoading(true);
 
+        const loadingToast = toast.loading('로그인 중...');
+
         try {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -30,16 +33,16 @@ export default function AdminLogin() {
 
             if (result.success) {
                 // JWT 인증 성공 - 쿠키에 토큰이 자동 설정됨
-                // sessionStorage도 함께 설정 (기존 코드와의 호환성)
-                sessionStorage.setItem('admin-authenticated', 'true');
-                sessionStorage.setItem('admin-login-time', Date.now().toString());
+                toast.success('로그인 성공!', { id: loadingToast });
                 router.push('/admin');
             } else {
+                toast.error(result.error || '로그인에 실패했습니다.', { id: loadingToast });
                 setError(result.error || '로그인에 실패했습니다.');
                 setIsLoading(false);
             }
         } catch (error) {
             console.error('Login failed:', error);
+            toast.error('로그인 중 오류가 발생했습니다.', { id: loadingToast });
             setError('로그인 중 오류가 발생했습니다.');
             setIsLoading(false);
         }
