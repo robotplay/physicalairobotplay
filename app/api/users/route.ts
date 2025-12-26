@@ -70,8 +70,13 @@ export async function GET(request: NextRequest) {
 // POST - 사용자 생성 (관리자만)
 export async function POST(request: NextRequest) {
     try {
+        console.log('=== POST /api/users - Creating user ===');
+        
         const auth = await checkAuth('admin');
+        console.log('Auth check result:', auth);
+        
         if (!auth.authorized) {
+            console.error('Authorization failed:', auth.error);
             return NextResponse.json(
                 { success: false, error: auth.error },
                 { status: 401 }
@@ -79,10 +84,13 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
+        console.log('Received body:', { ...body, password: '***' }); // 비밀번호는 로그에서 숨김
+        
         const { username, password, name, email, phone, role } = body;
 
         // 필수 필드 검증
         if (!username || !password || !name || !role) {
+            console.error('Missing required fields:', { username: !!username, password: !!password, name: !!name, role: !!role });
             return NextResponse.json(
                 { success: false, error: '필수 항목을 입력해주세요.' },
                 { status: 400 }
@@ -101,8 +109,10 @@ export async function POST(request: NextRequest) {
         const collection = db.collection(COLLECTIONS.USERS);
 
         // 중복 아이디 확인
+        console.log('Checking for existing user:', username);
         const existingUser = await collection.findOne({ username });
         if (existingUser) {
+            console.error('Username already exists:', username);
             return NextResponse.json(
                 { success: false, error: '이미 사용 중인 아이디입니다.' },
                 { status: 400 }
@@ -110,6 +120,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 비밀번호 해싱
+        console.log('Hashing password...');
         const hashedPassword = await hashPassword(password);
 
         // 사용자 데이터 생성
@@ -131,7 +142,9 @@ export async function POST(request: NextRequest) {
             updatedAt: new Date(),
         };
 
+        console.log('Inserting user data:', { ...userData, password: '***' });
         const result = await collection.insertOne(userData);
+        console.log('User created successfully with ID:', result.insertedId.toString());
 
         // 비밀번호 제외하고 반환
         const { password: _, ...userWithoutPassword } = userData;
@@ -146,6 +159,10 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         console.error('Create user error:', error);
+        if (error instanceof Error) {
+            console.error('Error details:', error.message);
+            console.error('Error stack:', error.stack);
+        }
         return NextResponse.json(
             { success: false, error: '사용자 생성 중 오류가 발생했습니다.' },
             { status: 500 }
