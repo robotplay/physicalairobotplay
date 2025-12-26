@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
             content: content || '', // 리치 HTML 콘텐츠
             duration,
             students: students || '0명',
-            capacity: capacity || 30, // 정원
+            capacity: capacity || 4, // 정원
             level,
             category,
             color,

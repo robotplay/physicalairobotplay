@@ -54,7 +54,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         content: '', // 리치 HTML 콘텐츠
         duration: '4주',
         students: '0명',
-        capacity: 30, // 정원
+        capacity: 4, // 정원
         level: '입문',
         category: 'Basic Course',
         color: 'from-active-orange to-orange-600',
@@ -95,7 +95,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             content: item.content || '',
             duration: item.duration,
             students: item.students,
-            capacity: item.capacity || 30,
+            capacity: item.capacity || 4,
             level: item.level,
             category: item.category,
             color: item.color,
@@ -250,7 +250,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                                             type="number" 
                                             value={formData.capacity} 
                                             onChange={e => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })} 
-                                            placeholder="30" 
+                                            placeholder="4" 
                                             min="1"
                                             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
                                             required
