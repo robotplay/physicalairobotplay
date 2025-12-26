@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users } from 'lucide-react';
+import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings } from 'lucide-react';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import RegistrationsTab from '@/components/admin/RegistrationsTab';
 import NewsTab from '@/components/admin/NewsTab';
 import OnlineCoursesTab, { CourseData } from '@/components/admin/OnlineCoursesTab';
 import TeachersTab from '@/components/admin/TeachersTab';
+import AccountSettingsTab from '@/components/admin/AccountSettingsTab';
 
 interface ConsultationData {
     id: string;
@@ -76,7 +77,7 @@ interface TeacherData {
     createdAt: string;
 }
 
-type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers';
+type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'settings';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -412,6 +413,24 @@ export default function AdminPage() {
                                     강사 관리 ({teachers.length})
                                 </div>
                             </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('settings');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'settings'
+                                        ? 'border-gray-600 text-gray-600 dark:text-gray-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <Settings className="w-4 h-4" />
+                                    계정 설정
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </ScrollAnimation>
@@ -689,6 +708,10 @@ export default function AdminPage() {
                             }
                         }}
                     />
+                )}
+
+                {activeTab === 'settings' && (
+                    <AccountSettingsTab />
                 )}
             </div>
         </main>
