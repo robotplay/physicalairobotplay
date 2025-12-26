@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users } from 'lucide-react';
+import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users, DollarSign, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import RichTextEditor from './RichTextEditor';
 import toast from 'react-hot-toast';
@@ -410,6 +410,169 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 </div>
             )}
 
+            {/* 강좌 상세 정보 모달 */}
+            {selectedCourse && !isCreating && !editingId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedCourse(null)}>
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-deep-electric-blue" onClick={(e) => e.stopPropagation()}>
+                        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between z-10">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">강좌 상세 정보</h3>
+                            <button
+                                onClick={() => setSelectedCourse(null)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                            </button>
+                        </div>
+                        
+                        <div className="p-6 space-y-6">
+                            {/* 썸네일 */}
+                            <div className="relative w-full h-64 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                                <Image 
+                                    src={selectedCourse.thumbnail} 
+                                    alt={selectedCourse.title} 
+                                    fill 
+                                    className="object-cover" 
+                                />
+                                <div className="absolute top-4 left-4">
+                                    <span className={`text-xs font-bold px-3 py-1 rounded-full bg-gradient-to-r ${selectedCourse.color} text-white`}>
+                                        {selectedCourse.category}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* 기본 정보 */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">기본 정보</h4>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">강좌 제목</label>
+                                            <p className="text-base text-gray-900 dark:text-white font-semibold">{selectedCourse.title}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">간단 소개</label>
+                                            <p className="text-base text-gray-900 dark:text-white">{selectedCourse.description || '없음'}</p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">기간</label>
+                                                <p className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                                    <Clock className="w-4 h-4" /> {selectedCourse.duration}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">레벨</label>
+                                                <p className="text-base text-gray-900 dark:text-white">{selectedCourse.level}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">수강 정보</h4>
+                                    <div className="space-y-3">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">가격</label>
+                                                <p className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                                    <DollarSign className="w-4 h-4" /> {selectedCourse.price?.toLocaleString() || 0}원
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">정원</label>
+                                                <p className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                                    <Users className="w-4 h-4" /> {selectedCourse.capacity || 4}명
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">현재 수강생</label>
+                                            <p className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                                <Users className="w-4 h-4" /> {selectedCourse.students || '0명'}
+                                            </p>
+                                        </div>
+                                        {selectedCourse.teacherName && (
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">담당 강사</label>
+                                                <p className="text-base text-gray-900 dark:text-white">{selectedCourse.teacherName}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 회의 링크 */}
+                            {selectedCourse.meetingUrl && (
+                                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                        <label className="text-sm font-semibold text-blue-900 dark:text-blue-300">
+                                            {selectedCourse.platformType === 'zoom' ? 'Zoom' : '웨일온'} 회의 링크
+                                        </label>
+                                    </div>
+                                    <a 
+                                        href={selectedCourse.meetingUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+                                    >
+                                        {selectedCourse.meetingUrl}
+                                    </a>
+                                </div>
+                            )}
+
+                            {/* 수업 스케줄 */}
+                            {selectedCourse.schedule && selectedCourse.schedule.length > 0 && (
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <Calendar className="w-5 h-5" /> 수업 스케줄
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {selectedCourse.schedule.map((schedule, idx) => (
+                                            <div key={idx} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                    {schedule.day}요일 {schedule.time}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 상세 내용 */}
+                            {selectedCourse.content && (
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">상세 내용</h4>
+                                    <div 
+                                        className="prose prose-sm dark:prose-invert max-w-none bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
+                                        dangerouslySetInnerHTML={{ __html: selectedCourse.content }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* 액션 버튼 */}
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <button
+                                    onClick={() => {
+                                        setSelectedCourse(null);
+                                        handleEdit(selectedCourse);
+                                    }}
+                                    className="flex items-center gap-2 px-6 py-2 bg-deep-electric-blue text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                                >
+                                    <Edit className="w-4 h-4" /> 수정하기
+                                </button>
+                                <button
+                                    onClick={() => setSelectedCourse(null)}
+                                    className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                >
+                                    닫기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {courses.length === 0 ? (
                     <div className="lg:col-span-2 text-center py-16 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
@@ -421,7 +584,17 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                     </div>
                 ) : (
                     courses.map(course => (
-                        <div key={course._id} className={`bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md border-2 cursor-pointer hover:shadow-lg transition-all ${selectedCourse?._id === course._id ? 'border-deep-electric-blue' : 'border-gray-100 dark:border-gray-800'}`} onClick={() => setSelectedCourse(course)}>
+                        <div 
+                            key={course._id} 
+                            className={`
+                                bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md border-2 
+                                cursor-pointer hover:shadow-xl hover:border-deep-electric-blue/50 
+                                transition-all duration-300 transform hover:-translate-y-1
+                                ${selectedCourse?._id === course._id ? 'border-deep-electric-blue ring-2 ring-deep-electric-blue/20' : 'border-gray-100 dark:border-gray-800'}
+                            `} 
+                            onClick={() => setSelectedCourse(course)}
+                            title="클릭하여 상세 정보 보기"
+                        >
                             <div className="flex gap-4">
                                 <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
                                     <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />
