@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         const collection = db.collection(COLLECTIONS.ONLINE_COURSES);
 
         const body = await request.json();
-        const { id, title, description, content, duration, level, category, color, thumbnail, meetingUrl, platformType, schedule, price, students } = body;
+        const { id, title, description, duration, level, category, color, thumbnail, meetingUrl, platformType, schedule } = body;
 
         if (!title || !category) {
             return NextResponse.json(
@@ -58,9 +58,7 @@ export async function POST(request: NextRequest) {
         const courseData = {
             title,
             description,
-            content: content || '', // 리치 HTML 콘텐츠
             duration,
-            students: students || '0명',
             level,
             category,
             color,
@@ -68,7 +66,6 @@ export async function POST(request: NextRequest) {
             meetingUrl: meetingUrl || '',
             platformType: platformType || 'zoom',
             schedule: schedule || [], // [{ day: '월', time: '14:00' }]
-            price: price || 0, // 가격
             updatedAt: new Date(),
         };
 
@@ -109,8 +106,8 @@ export async function DELETE(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
-        if (!id || !ObjectId.isValid(id)) {
-            return NextResponse.json({ success: false, error: '유효한 ID가 필요합니다.' }, { status: 400 });
+        if (!id) {
+            return NextResponse.json({ success: false, error: 'ID가 필요합니다.' }, { status: 400 });
         }
 
         const db = await getDatabase();

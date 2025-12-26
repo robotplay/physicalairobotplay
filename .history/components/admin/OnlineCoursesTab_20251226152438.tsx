@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users } from 'lucide-react';
+import { Video, Calendar, Edit, Trash2, Plus, X, Save, Image as ImageIcon, Upload, Loader2, Link as LinkIcon, Clock, Users, Award } from 'lucide-react';
 import Image from 'next/image';
 import RichTextEditor from './RichTextEditor';
 
@@ -141,7 +141,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 setUploadPreview(null);
                 alert('이미지가 업로드되었습니다.');
             }
-        } catch {
+        } catch (error) {
             alert('업로드 실패');
         } finally {
             setIsUploading(false);
@@ -181,7 +181,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 handleCancel();
                 onRefresh();
             }
-        } catch {
+        } catch (error) {
             alert('저장 실패');
         }
     };
@@ -194,7 +194,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 alert('삭제되었습니다.');
                 onRefresh();
             }
-        } catch {
+        } catch (error) {
             alert('삭제 실패');
         }
     };
@@ -241,7 +241,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">화상 회의 플랫폼</label>
-                                    <select value={formData.platformType} onChange={e => setFormData({ ...formData, platformType: e.target.value as 'zoom' | 'whale' })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                    <select value={formData.platformType} onChange={e => setFormData({ ...formData, platformType: e.target.value as any })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                         {PLATFORMS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                                     </select>
                                 </div>

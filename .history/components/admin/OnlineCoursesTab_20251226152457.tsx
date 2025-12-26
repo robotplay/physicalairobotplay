@@ -141,7 +141,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 setUploadPreview(null);
                 alert('이미지가 업로드되었습니다.');
             }
-        } catch {
+        } catch (error) {
             alert('업로드 실패');
         } finally {
             setIsUploading(false);
@@ -181,7 +181,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 handleCancel();
                 onRefresh();
             }
-        } catch {
+        } catch (error) {
             alert('저장 실패');
         }
     };
@@ -194,7 +194,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 alert('삭제되었습니다.');
                 onRefresh();
             }
-        } catch {
+        } catch (error) {
             alert('삭제 실패');
         }
     };

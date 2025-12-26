@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users } from 'lucide-react';
+import { Video, Calendar, Edit, Trash2, Plus, X, Save, Image as ImageIcon, Upload, Loader2, Link as LinkIcon, Clock, Users, Award } from 'lucide-react';
 import Image from 'next/image';
 import RichTextEditor from './RichTextEditor';
 
@@ -141,7 +141,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 setUploadPreview(null);
                 alert('이미지가 업로드되었습니다.');
             }
-        } catch {
+        } catch (error) {
             alert('업로드 실패');
         } finally {
             setIsUploading(false);
@@ -181,7 +181,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 handleCancel();
                 onRefresh();
             }
-        } catch {
+        } catch (error) {
             alert('저장 실패');
         }
     };
@@ -194,7 +194,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 alert('삭제되었습니다.');
                 onRefresh();
             }
-        } catch {
+        } catch (error) {
             alert('삭제 실패');
         }
     };
@@ -241,7 +241,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">화상 회의 플랫폼</label>
-                                    <select value={formData.platformType} onChange={e => setFormData({ ...formData, platformType: e.target.value as 'zoom' | 'whale' })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                    <select value={formData.platformType} onChange={e => setFormData({ ...formData, platformType: e.target.value as any })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                         {PLATFORMS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                                     </select>
                                 </div>
@@ -289,53 +289,8 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">강좌 간단 소개 (카드 표시용)</label>
-                            <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} placeholder="강좌의 간단한 소개를 입력하세요 (한 줄 정도)" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">가격 (원) *</label>
-                            <input 
-                                type="number" 
-                                value={formData.price} 
-                                onChange={e => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })} 
-                                placeholder="0" 
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                강좌 상세 내용 * (리치 텍스트 에디터)
-                            </label>
-                            <RichTextEditor
-                                content={formData.content}
-                                onChange={(htmlContent) => {
-                                    setFormData({ ...formData, content: htmlContent });
-                                }}
-                                placeholder="강좌의 상세 내용을 입력하세요. 커리큘럼, 수강 대상, 준비물 등을 작성할 수 있습니다."
-                                onImageUpload={async (file: File) => {
-                                    const uploadFormData = new FormData();
-                                    uploadFormData.append('file', file);
-
-                                    const response = await fetch('/api/news/upload', {
-                                        method: 'POST',
-                                        body: uploadFormData,
-                                    });
-
-                                    if (!response.ok) {
-                                        throw new Error('이미지 업로드 실패');
-                                    }
-
-                                    const result = await response.json();
-                                    if (result.success) {
-                                        return result.path;
-                                    } else {
-                                        throw new Error(result.error || '이미지 업로드에 실패했습니다.');
-                                    }
-                                }}
-                            />
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">강좌 설명</label>
+                            <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                         </div>
 
                         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
