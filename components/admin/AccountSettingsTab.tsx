@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Lock, Save, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, Lock, Save, Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface AdminUser {
     _id: string;
@@ -16,7 +17,6 @@ export default function AccountSettingsTab() {
     const [user, setUser] = useState<AdminUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     // 프로필 정보
     const [name, setName] = useState('');
@@ -56,7 +56,8 @@ export default function AccountSettingsTab() {
     const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
-        setMessage(null);
+
+        const loadingToast = toast.loading('프로필 정보 업데이트 중...');
 
         try {
             const response = await fetch(`/api/users/${user?._id}`, {
@@ -74,14 +75,14 @@ export default function AccountSettingsTab() {
             const result = await response.json();
 
             if (result.success) {
-                setMessage({ type: 'success', text: '프로필 정보가 업데이트되었습니다.' });
+                toast.success('프로필 정보가 업데이트되었습니다.', { id: loadingToast });
                 await loadUserInfo();
             } else {
-                setMessage({ type: 'error', text: result.error || '업데이트에 실패했습니다.' });
+                toast.error(result.error || '업데이트에 실패했습니다.', { id: loadingToast });
             }
         } catch (error) {
             console.error('Failed to update profile:', error);
-            setMessage({ type: 'error', text: '업데이트 중 오류가 발생했습니다.' });
+            toast.error('업데이트 중 오류가 발생했습니다.', { id: loadingToast });
         } finally {
             setSaving(false);
         }
@@ -89,21 +90,20 @@ export default function AccountSettingsTab() {
 
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSaving(true);
-        setMessage(null);
 
         // 비밀번호 유효성 검사
         if (newPassword.length < 6) {
-            setMessage({ type: 'error', text: '새 비밀번호는 최소 6자 이상이어야 합니다.' });
-            setSaving(false);
+            toast.error('새 비밀번호는 최소 6자 이상이어야 합니다.');
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setMessage({ type: 'error', text: '새 비밀번호가 일치하지 않습니다.' });
-            setSaving(false);
+            toast.error('새 비밀번호가 일치하지 않습니다.');
             return;
         }
+
+        setSaving(true);
+        const loadingToast = toast.loading('비밀번호 변경 중...');
 
         try {
             // 먼저 현재 비밀번호로 로그인 시도 (검증)
@@ -119,7 +119,7 @@ export default function AccountSettingsTab() {
             });
 
             if (!loginResponse.ok) {
-                setMessage({ type: 'error', text: '현재 비밀번호가 올바르지 않습니다.' });
+                toast.error('현재 비밀번호가 올바르지 않습니다.', { id: loadingToast });
                 setSaving(false);
                 return;
             }
@@ -138,16 +138,16 @@ export default function AccountSettingsTab() {
             const result = await response.json();
 
             if (result.success) {
-                setMessage({ type: 'success', text: '비밀번호가 변경되었습니다.' });
+                toast.success('비밀번호가 변경되었습니다.', { id: loadingToast });
                 setCurrentPassword('');
                 setNewPassword('');
                 setConfirmPassword('');
             } else {
-                setMessage({ type: 'error', text: result.error || '비밀번호 변경에 실패했습니다.' });
+                toast.error(result.error || '비밀번호 변경에 실패했습니다.', { id: loadingToast });
             }
         } catch (error) {
             console.error('Failed to change password:', error);
-            setMessage({ type: 'error', text: '비밀번호 변경 중 오류가 발생했습니다.' });
+            toast.error('비밀번호 변경 중 오류가 발생했습니다.', { id: loadingToast });
         } finally {
             setSaving(false);
         }
@@ -163,28 +163,6 @@ export default function AccountSettingsTab() {
 
     return (
         <div className="space-y-6">
-            {/* 메시지 */}
-            {message && (
-                <div className={`p-4 rounded-lg border ${
-                    message.type === 'success' 
-                        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
-                        : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                }`}>
-                    <div className="flex items-center gap-2">
-                        {message.type === 'success' ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                        ) : (
-                            <AlertCircle className="w-5 h-5 text-red-600" />
-                        )}
-                        <p className={`text-sm font-medium ${
-                            message.type === 'success' ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                            {message.text}
-                        </p>
-                    </div>
-                </div>
-            )}
-
             {/* 프로필 정보 */}
             <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-3 mb-6">

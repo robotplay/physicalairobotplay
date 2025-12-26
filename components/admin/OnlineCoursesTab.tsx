@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users } from 'lucide-react';
 import Image from 'next/image';
 import RichTextEditor from './RichTextEditor';
+import toast from 'react-hot-toast';
 
 export interface CourseData {
     _id: string;
@@ -136,6 +137,8 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         const uploadFormData = new FormData();
         uploadFormData.append('file', file);
 
+        const loadingToast = toast.loading('이미지 업로드 중...');
+
         try {
             const response = await fetch('/api/news/upload', {
                 method: 'POST',
@@ -145,10 +148,13 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             if (result.success) {
                 setFormData({ ...formData, thumbnail: result.path });
                 setUploadPreview(null);
-                alert('이미지가 업로드되었습니다.');
+                toast.success('이미지가 업로드되었습니다.', { id: loadingToast });
+            } else {
+                toast.error(result.error || '업로드 실패', { id: loadingToast });
             }
-        } catch {
-            alert('업로드 실패');
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error('업로드 실패', { id: loadingToast });
         } finally {
             setIsUploading(false);
         }
@@ -175,6 +181,9 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const loadingToast = toast.loading(editingId ? '온라인 강좌 수정 중...' : '온라인 강좌 추가 중...');
+
         try {
             const response = await fetch('/api/online-courses', {
                 method: 'POST',
@@ -183,25 +192,35 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             });
             const result = await response.json();
             if (result.success) {
-                alert(editingId ? '수정되었습니다.' : '추가되었습니다.');
+                toast.success(editingId ? '수정되었습니다.' : '추가되었습니다.', { id: loadingToast });
                 handleCancel();
                 onRefresh();
+            } else {
+                toast.error(result.error || '저장 실패', { id: loadingToast });
             }
-        } catch {
-            alert('저장 실패');
+        } catch (error) {
+            console.error('Save error:', error);
+            toast.error('저장 실패', { id: loadingToast });
         }
     };
 
     const handleDelete = async (id: string) => {
         if (!confirm('정말 삭제하시겠습니까?')) return;
+
+        const loadingToast = toast.loading('온라인 강좌 삭제 중...');
+
         try {
             const response = await fetch(`/api/online-courses?id=${id}`, { method: 'DELETE' });
-            if ((await response.json()).success) {
-                alert('삭제되었습니다.');
+            const result = await response.json();
+            if (result.success) {
+                toast.success('삭제되었습니다.', { id: loadingToast });
                 onRefresh();
+            } else {
+                toast.error(result.error || '삭제 실패', { id: loadingToast });
             }
-        } catch {
-            alert('삭제 실패');
+        } catch (error) {
+            console.error('Delete error:', error);
+            toast.error('삭제 실패', { id: loadingToast });
         }
     };
 

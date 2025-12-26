@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { User, Mail, Phone, Edit, Trash2, Plus, X, Save, Eye, EyeOff, UserCheck, UserX } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface Teacher {
     _id: string;
@@ -77,14 +78,16 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
         e.preventDefault();
 
         if (!formData.name || !formData.username) {
-            alert('이름과 아이디는 필수입니다.');
+            toast.error('이름과 아이디는 필수입니다.');
             return;
         }
 
         if (isCreating && !formData.password) {
-            alert('비밀번호를 입력해주세요.');
+            toast.error('비밀번호를 입력해주세요.');
             return;
         }
+
+        const loadingToast = toast.loading(isCreating ? '강사 계정 생성 중...' : '강사 정보 수정 중...');
 
         try {
             if (isCreating) {
@@ -107,11 +110,11 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
                 }
 
                 if (result.success) {
-                    alert('강사 계정이 생성되었습니다.');
+                    toast.success('강사 계정이 생성되었습니다.', { id: loadingToast });
                     handleCancel();
                     await onRefresh();
                 } else {
-                    alert(result.error || '생성에 실패했습니다.');
+                    toast.error(result.error || '생성에 실패했습니다.', { id: loadingToast });
                 }
             } else if (editingId) {
                 // 수정
@@ -141,17 +144,17 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
                 }
 
                 if (result.success) {
-                    alert('강사 정보가 수정되었습니다.');
+                    toast.success('강사 정보가 수정되었습니다.', { id: loadingToast });
                     handleCancel();
                     await onRefresh();
                 } else {
-                    alert(result.error || '수정에 실패했습니다.');
+                    toast.error(result.error || '수정에 실패했습니다.', { id: loadingToast });
                 }
             }
         } catch (error) {
             console.error('Failed to save teacher:', error);
             const errorMessage = error instanceof Error ? error.message : '저장 중 오류가 발생했습니다.';
-            alert(`오류: ${errorMessage}`);
+            toast.error(`오류: ${errorMessage}`, { id: loadingToast });
         }
     };
 
@@ -160,6 +163,8 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
             return;
         }
 
+        const loadingToast = toast.loading('강사 계정 삭제 중...');
+
         try {
             const response = await fetch(`/api/users/${id}`, {
                 method: 'DELETE',
@@ -167,17 +172,17 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
 
             const result = await response.json();
             if (result.success) {
-                alert('강사 계정이 삭제되었습니다.');
+                toast.success('강사 계정이 삭제되었습니다.', { id: loadingToast });
                 onRefresh();
                 if (selectedTeacher?._id === id) {
                     setSelectedTeacher(null);
                 }
             } else {
-                alert(result.error || '삭제에 실패했습니다.');
+                toast.error(result.error || '삭제에 실패했습니다.', { id: loadingToast });
             }
         } catch (error) {
             console.error('Failed to delete teacher:', error);
-            alert('삭제 중 오류가 발생했습니다.');
+            toast.error('삭제 중 오류가 발생했습니다.', { id: loadingToast });
         }
     };
 
@@ -188,6 +193,8 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
         if (!confirm(`${teacher.name} 강사를 ${action}하시겠습니까?`)) {
             return;
         }
+
+        const loadingToast = toast.loading(`강사 계정 ${action} 중...`);
 
         try {
             const response = await fetch(`/api/users/${teacher._id}`, {
@@ -200,14 +207,14 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
 
             const result = await response.json();
             if (result.success) {
-                alert(`강사 계정이 ${action}되었습니다.`);
+                toast.success(`강사 계정이 ${action}되었습니다.`, { id: loadingToast });
                 onRefresh();
             } else {
-                alert(result.error || `${action}에 실패했습니다.`);
+                toast.error(result.error || `${action}에 실패했습니다.`, { id: loadingToast });
             }
         } catch (error) {
             console.error('Failed to toggle status:', error);
-            alert('상태 변경 중 오류가 발생했습니다.');
+            toast.error('상태 변경 중 오류가 발생했습니다.', { id: loadingToast });
         }
     };
 
