@@ -290,7 +290,7 @@ export default function AdminPage() {
                         </div>
 
                         {/* Tabs */}
-                        <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+                        <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
                             <button
                                 onClick={() => {
                                     setActiveTab('consultations');
@@ -298,13 +298,13 @@ export default function AdminPage() {
                                     setSelectedPayment(null);
                                     setSelectedRegistration(null);
                                 }}
-                                className={`px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
                                     activeTab === 'consultations'
                                         ? 'border-deep-electric-blue text-deep-electric-blue dark:text-sky-400'
                                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                 }`}
                             >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 whitespace-nowrap">
                                     <MessageSquare className="w-4 h-4" />
                                     상담 문의 ({consultations.length})
                                 </div>
@@ -316,13 +316,13 @@ export default function AdminPage() {
                                     setSelectedPayment(null);
                                     setSelectedRegistration(null);
                                 }}
-                                className={`px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
                                     activeTab === 'payments'
                                         ? 'border-green-600 text-green-600 dark:text-green-400'
                                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                 }`}
                             >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 whitespace-nowrap">
                                     <CreditCard className="w-4 h-4" />
                                     결제 내역 ({payments.length})
                                 </div>
@@ -334,13 +334,13 @@ export default function AdminPage() {
                                     setSelectedPayment(null);
                                     setSelectedRegistration(null);
                                 }}
-                                className={`px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
                                     activeTab === 'registrations'
                                         ? 'border-purple-600 text-purple-600 dark:text-purple-400'
                                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                 }`}
                             >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 whitespace-nowrap">
                                     <FileText className="w-4 h-4" />
                                     신청서 ({registrations.length})
                                 </div>
@@ -352,13 +352,13 @@ export default function AdminPage() {
                                     setSelectedPayment(null);
                                     setSelectedRegistration(null);
                                 }}
-                                className={`px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
                                     activeTab === 'news'
                                         ? 'border-orange-600 text-orange-600 dark:text-orange-400'
                                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                 }`}
                             >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 whitespace-nowrap">
                                     <Newspaper className="w-4 h-4" />
                                     공지사항 ({news.length})
                                 </div>
@@ -370,13 +370,13 @@ export default function AdminPage() {
                                     setSelectedPayment(null);
                                     setSelectedRegistration(null);
                                 }}
-                                className={`px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
                                     activeTab === 'online-courses'
                                         ? 'border-blue-600 text-blue-600 dark:text-blue-400'
                                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                 }`}
                             >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 whitespace-nowrap">
                                     <Video className="w-4 h-4" />
                                     온라인 강좌 ({onlineCourses.length})
                                 </div>

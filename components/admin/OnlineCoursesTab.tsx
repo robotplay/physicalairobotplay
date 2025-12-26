@@ -208,69 +208,69 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold mb-2">강좌 제목 *</label>
-                                    <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800" required />
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">강좌 제목 *</label>
+                                    <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" required />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold mb-2">카테고리 *</label>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">카테고리 *</label>
                                     <select value={formData.category} onChange={e => {
                                         const cat = CATEGORIES.find(c => c.value === e.target.value);
                                         setFormData({ ...formData, category: e.target.value, color: cat?.color || '' });
-                                    }} className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800">
+                                    }} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                         {CATEGORIES.map(cat => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
                                     </select>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2">기간</label>
-                                        <input type="text" value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800" />
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">기간</label>
+                                        <input type="text" value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2">레벨</label>
-                                        <input type="text" value={formData.level} onChange={e => setFormData({ ...formData, level: e.target.value })} className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800" />
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">레벨</label>
+                                        <input type="text" value={formData.level} onChange={e => setFormData({ ...formData, level: e.target.value })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold mb-2">화상 회의 플랫폼</label>
-                                    <select value={formData.platformType} onChange={e => setFormData({ ...formData, platformType: e.target.value as any })} className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800">
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">화상 회의 플랫폼</label>
+                                    <select value={formData.platformType} onChange={e => setFormData({ ...formData, platformType: e.target.value as any })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                         {PLATFORMS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold mb-2">회의 링크 (Zoom/웨일온 URL)</label>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">회의 링크 (Zoom/웨일온 URL)</label>
                                     <div className="flex gap-2">
                                         <LinkIcon className="w-5 h-5 mt-2 text-gray-400" />
-                                        <input type="url" value={formData.meetingUrl} onChange={e => setFormData({ ...formData, meetingUrl: e.target.value })} placeholder="https://zoom.us/j/..." className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800" />
+                                        <input type="url" value={formData.meetingUrl} onChange={e => setFormData({ ...formData, meetingUrl: e.target.value })} placeholder="https://zoom.us/j/..." className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                                     </div>
                                 </div>
                             </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold mb-2">썸네일 이미지</label>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">썸네일 이미지</label>
                                     {(uploadPreview || formData.thumbnail) && (
-                                        <div className="mb-2 relative h-40 rounded-lg overflow-hidden border">
+                                        <div className="mb-2 relative h-40 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
                                             <Image src={uploadPreview || formData.thumbnail} alt="미리보기" fill className="object-cover" />
                                         </div>
                                     )}
                                     <div className="flex gap-2">
                                         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" id="course-img" />
-                                        <label htmlFor="course-img" className="flex-1 px-4 py-2 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-deep-electric-blue transition-colors">이미지 선택</label>
+                                        <label htmlFor="course-img" className="flex-1 px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center cursor-pointer hover:border-deep-electric-blue transition-colors text-gray-700 dark:text-gray-300">이미지 선택</label>
                                         {fileInputRef.current?.files?.[0] && <button type="button" onClick={handleImageUpload} disabled={isUploading} className="px-4 py-2 bg-deep-electric-blue text-white rounded-lg">{isUploading ? '...' : '업로드'}</button>}
                                     </div>
                                 </div>
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
-                                        <label className="text-sm font-semibold">수업 스케줄</label>
+                                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">수업 스케줄</label>
                                         <button type="button" onClick={addSchedule} className="text-xs text-deep-electric-blue font-bold">+ 추가</button>
                                     </div>
                                     <div className="space-y-2">
                                         {formData.schedule.map((item, idx) => (
                                             <div key={idx} className="flex gap-2 items-center">
-                                                <select value={item.day} onChange={e => updateSchedule(idx, 'day', e.target.value)} className="px-2 py-1 border rounded dark:bg-gray-800 text-sm">
+                                                <select value={item.day} onChange={e => updateSchedule(idx, 'day', e.target.value)} className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm">
                                                     {['월','화','수','목','금','토','일'].map(d => <option key={d} value={d}>{d}요일</option>)}
                                                 </select>
-                                                <input type="time" value={item.time} onChange={e => updateSchedule(idx, 'time', e.target.value)} className="px-2 py-1 border rounded dark:bg-gray-800 text-sm" />
+                                                <input type="time" value={item.time} onChange={e => updateSchedule(idx, 'time', e.target.value)} className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
                                                 <button type="button" onClick={() => removeSchedule(idx)} className="text-red-500"><X className="w-4 h-4" /></button>
                                             </div>
                                         ))}
@@ -280,47 +280,57 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold mb-2">강좌 설명</label>
-                            <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-4 py-2 border rounded-lg dark:bg-gray-800" />
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">강좌 설명</label>
+                            <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t">
-                            <button type="button" onClick={handleCancel} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg font-semibold">취소</button>
-                            <button type="submit" className="px-6 py-2 bg-deep-electric-blue text-white rounded-lg font-semibold">저장하기</button>
+                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <button type="button" onClick={handleCancel} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">취소</button>
+                            <button type="submit" className="px-6 py-2 bg-deep-electric-blue text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">저장하기</button>
                         </div>
                     </form>
                 </div>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {courses.map(course => (
-                    <div key={course._id} className={`bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md border-2 ${selectedCourse?._id === course._id ? 'border-deep-electric-blue' : 'border-gray-100 dark:border-gray-800'}`} onClick={() => setSelectedCourse(course)}>
-                        <div className="flex gap-4">
-                            <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                                <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-start">
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${course.color} text-white`}>{course.category}</span>
-                                    <div className="flex gap-1">
-                                        <button onClick={e => { e.stopPropagation(); handleEdit(course); }} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-blue-500"><Edit className="w-4 h-4" /></button>
-                                        <button onClick={e => { e.stopPropagation(); handleDelete(course._id); }} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-red-500"><Trash2 className="w-4 h-4" /></button>
-                                    </div>
+                {courses.length === 0 ? (
+                    <div className="lg:col-span-2 text-center py-16 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                        <Video className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">아직 온라인 강좌가 없습니다</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                            새 강좌를 추가해보세요
+                        </p>
+                    </div>
+                ) : (
+                    courses.map(course => (
+                        <div key={course._id} className={`bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md border-2 cursor-pointer hover:shadow-lg transition-all ${selectedCourse?._id === course._id ? 'border-deep-electric-blue' : 'border-gray-100 dark:border-gray-800'}`} onClick={() => setSelectedCourse(course)}>
+                            <div className="flex gap-4">
+                                <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
+                                    <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />
                                 </div>
-                                <h3 className="font-bold text-lg mt-1 truncate">{course.title}</h3>
-                                <div className="flex gap-3 mt-2 text-xs text-gray-500">
-                                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {course.duration}</span>
-                                    <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {course.students}</span>
-                                </div>
-                                {course.meetingUrl && (
-                                    <div className="mt-2 text-[10px] text-green-600 font-bold flex items-center gap-1">
-                                        <Video className="w-3 h-3" /> {course.platformType === 'zoom' ? 'Zoom' : '웨일온'} 링크 설정됨
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${course.color} text-white`}>{course.category}</span>
+                                        <div className="flex gap-1">
+                                            <button onClick={e => { e.stopPropagation(); handleEdit(course); }} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-blue-500" title="수정"><Edit className="w-4 h-4" /></button>
+                                            <button onClick={e => { e.stopPropagation(); handleDelete(course._id); }} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-red-500" title="삭제"><Trash2 className="w-4 h-4" /></button>
+                                        </div>
                                     </div>
-                                )}
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white truncate">{course.title}</h3>
+                                    <div className="flex gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {course.duration}</span>
+                                        <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {course.students}</span>
+                                    </div>
+                                    {course.meetingUrl && (
+                                        <div className="mt-2 text-[10px] text-green-600 dark:text-green-400 font-bold flex items-center gap-1">
+                                            <Video className="w-3 h-3" /> {course.platformType === 'zoom' ? 'Zoom' : '웨일온'} 링크 설정됨
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                )}
             </div>
         </div>
     );
