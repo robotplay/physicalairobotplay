@@ -71,6 +71,9 @@ export async function POST(request: NextRequest) {
 
         if (id) {
             // 수정
+            if (!ObjectId.isValid(id)) {
+                return NextResponse.json({ success: false, error: '유효하지 않은 ID입니다.' }, { status: 400 });
+            }
             await collection.updateOne(
                 { _id: new ObjectId(id) },
                 { $set: courseData }
@@ -103,8 +106,8 @@ export async function DELETE(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
-        if (!id) {
-            return NextResponse.json({ success: false, error: 'ID가 필요합니다.' }, { status: 400 });
+        if (!id || !ObjectId.isValid(id)) {
+            return NextResponse.json({ success: false, error: '유효한 ID가 필요합니다.' }, { status: 400 });
         }
 
         const db = await getDatabase();

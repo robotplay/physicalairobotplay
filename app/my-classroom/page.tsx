@@ -25,9 +25,10 @@ export default function MyClassroom() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [currentTime, setCurrentTime] = useState(new Date());
+    const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
     useEffect(() => {
+        setCurrentTime(new Date());
         // 서버 시간과 동기화하기 위해 1분마다 업데이트
         const timer = setInterval(() => setCurrentTime(new Date()), 60000);
         return () => clearInterval(timer);
@@ -78,6 +79,7 @@ export default function MyClassroom() {
     };
 
     const checkIsActive = (schedule: { day: string, time: string }[]) => {
+        if (!currentTime) return { active: false, message: '시간 확인 중...' };
         if (!schedule || schedule.length === 0) return { active: false, message: '수업 일정이 설정되지 않았습니다.' };
 
         const now = currentTime;
