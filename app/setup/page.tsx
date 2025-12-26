@@ -7,7 +7,9 @@ export default function SetupPage() {
     const [loading, setLoading] = useState(false);
     const [dbStatus, setDbStatus] = useState<{ connected: boolean; message: string } | null>(null);
     const [adminStatus, setAdminStatus] = useState<{ hasAdmin: boolean; count: number } | null>(null);
+    const [adminList, setAdminList] = useState<any[]>([]);
     const [createResult, setCreateResult] = useState<any>(null);
+    const [resetKey, setResetKey] = useState('');
 
     useEffect(() => {
         checkStatus();
@@ -25,6 +27,13 @@ export default function SetupPage() {
             const adminRes = await fetch('/api/admin/init');
             const adminData = await adminRes.json();
             setAdminStatus(adminData);
+
+            // 관리자 목록 조회
+            const listRes = await fetch('/api/admin/reset');
+            const listData = await listRes.json();
+            if (listData.success) {
+                setAdminList(listData.admins || []);
+            }
         } catch (error) {
             console.error('Status check failed:', error);
         } finally {
@@ -46,6 +55,39 @@ export default function SetupPage() {
             }
         } catch (error) {
             console.error('Admin creation failed:', error);
+            setCreateResult({ success: false, error: '요청 중 오류가 발생했습니다.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const resetAdmin = async () => {
+        if (!resetKey) {
+            alert('초기화 키를 입력해주세요.');
+            return;
+        }
+
+        if (!confirm('⚠️ 기존 모든 관리자 계정이 삭제되고 새로 생성됩니다. 계속하시겠습니까?')) {
+            return;
+        }
+
+        setLoading(true);
+        setCreateResult(null);
+        try {
+            const res = await fetch('/api/admin/reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resetKey }),
+            });
+            const data = await res.json();
+            setCreateResult(data);
+            
+            // 성공하면 상태 다시 확인
+            if (data.success) {
+                setTimeout(checkStatus, 1000);
+            }
+        } catch (error) {
+            console.error('Admin reset failed:', error);
             setCreateResult({ success: false, error: '요청 중 오류가 발생했습니다.' });
         } finally {
             setLoading(false);
@@ -142,6 +184,56 @@ export default function SetupPage() {
                                             </>
                                         )}
                                     </button>
+                                )}
+                                {adminStatus.hasAdmin && adminList.length > 0 && (
+                                    <div className="mt-4 space-y-2">
+                                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                            등록된 관리자 계정:
+                                        </h3>
+                                        {adminList.map((admin) => (
+                                            <div key={admin._id} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="font-mono font-bold text-gray-900 dark:text-white">
+                                                            {admin.username}
+                                                        </p>
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                            {admin.name} ({admin.email})
+                                                        </p>
+                                                    </div>
+                                                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                                        admin.status === 'active' 
+                                                            ? 'bg-green-500 text-white' 
+                                                            : 'bg-gray-500 text-white'
+                                                    }`}>
+                                                        {admin.status === 'active' ? '활성' : '비활성'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                                            <h4 className="text-sm font-bold text-orange-900 dark:text-orange-300 mb-2">
+                                                🔄 관리자 계정 초기화
+                                            </h4>
+                                            <p className="text-xs text-orange-800 dark:text-orange-400 mb-3">
+                                                로그인이 안 되면 계정을 초기화할 수 있습니다. 기존 계정이 삭제되고 새로 생성됩니다.
+                                            </p>
+                                            <input
+                                                type="text"
+                                                value={resetKey}
+                                                onChange={(e) => setResetKey(e.target.value)}
+                                                placeholder='초기화 키 입력 (기본: "reset-admin-2024")'
+                                                className="w-full px-3 py-2 mb-2 border border-orange-300 dark:border-orange-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                                            />
+                                            <button
+                                                onClick={resetAdmin}
+                                                disabled={loading || !resetKey}
+                                                className="w-full px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                                            >
+                                                {loading ? '초기화 중...' : '관리자 계정 초기화'}
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         ) : null}
