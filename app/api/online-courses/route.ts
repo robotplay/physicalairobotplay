@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         const collection = db.collection(COLLECTIONS.ONLINE_COURSES);
 
         const body = await request.json();
-        const { id, title, description, content, duration, level, category, color, thumbnail, meetingUrl, platformType, schedule, price, students } = body;
+        const { id, title, description, content, duration, level, category, color, thumbnail, meetingUrl, platformType, schedule, price, students, capacity } = body;
 
         if (!title || !category) {
             return NextResponse.json(
@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
             content: content || '', // 리치 HTML 콘텐츠
             duration,
             students: students || '0명',
+            capacity: capacity || 30, // 정원
             level,
             category,
             color,

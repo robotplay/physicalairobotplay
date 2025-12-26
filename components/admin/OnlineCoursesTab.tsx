@@ -12,7 +12,8 @@ export interface CourseData {
     description: string;
     content: string; // 리치 HTML 콘텐츠
     duration: string;
-    students: string;
+    students: string; // 현재 수강생 수
+    capacity: number; // 정원
     level: string;
     thumbnail: string;
     category: string;
@@ -53,6 +54,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         content: '', // 리치 HTML 콘텐츠
         duration: '4주',
         students: '0명',
+        capacity: 30, // 정원
         level: '입문',
         category: 'Basic Course',
         color: 'from-active-orange to-orange-600',
@@ -71,6 +73,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             content: '',
             duration: '4주',
             students: '0명',
+            capacity: 30,
             level: '입문',
             category: 'Basic Course',
             color: 'from-active-orange to-orange-600',
@@ -92,6 +95,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             content: item.content || '',
             duration: item.duration,
             students: item.students,
+            capacity: item.capacity || 30,
             level: item.level,
             category: item.category,
             color: item.color,
@@ -239,6 +243,30 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                                         <input type="text" value={formData.level} onChange={e => setFormData({ ...formData, level: e.target.value })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                                     </div>
                                 </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">정원 (명) *</label>
+                                        <input 
+                                            type="number" 
+                                            value={formData.capacity} 
+                                            onChange={e => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })} 
+                                            placeholder="30" 
+                                            min="1"
+                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">현재 수강생 수</label>
+                                        <input 
+                                            type="text" 
+                                            value={formData.students} 
+                                            onChange={e => setFormData({ ...formData, students: e.target.value })} 
+                                            placeholder="0명" 
+                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
+                                        />
+                                    </div>
+                                </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">화상 회의 플랫폼</label>
                                     <select value={formData.platformType} onChange={e => setFormData({ ...formData, platformType: e.target.value as 'zoom' | 'whale' })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
@@ -293,16 +321,31 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                             <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} placeholder="강좌의 간단한 소개를 입력하세요 (한 줄 정도)" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">가격 (원) *</label>
-                            <input 
-                                type="number" 
-                                value={formData.price} 
-                                onChange={e => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })} 
-                                placeholder="0" 
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
-                                required
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">가격 (원) *</label>
+                                <input 
+                                    type="number" 
+                                    value={formData.price} 
+                                    onChange={e => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })} 
+                                    placeholder="0" 
+                                    min="0"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">정원 (명) *</label>
+                                <input 
+                                    type="number" 
+                                    value={formData.capacity} 
+                                    onChange={e => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })} 
+                                    placeholder="30" 
+                                    min="1"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
+                                    required
+                                />
+                            </div>
                         </div>
 
                         <div>
