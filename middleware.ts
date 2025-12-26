@@ -4,6 +4,11 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
+    // API 경로는 미들웨어에서 제외 (API 자체에서 인증 처리)
+    if (path.startsWith('/api/')) {
+        return NextResponse.next();
+    }
+
     // 관리자 페이지 보호
     if (path.startsWith('/admin') && !path.startsWith('/admin/login')) {
         // 클라이언트 측 인증은 페이지 컴포넌트에서 처리
