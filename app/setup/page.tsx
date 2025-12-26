@@ -120,7 +120,7 @@ export default function SetupPage() {
                                     )}
                                     <span className={`font-semibold ${adminStatus.hasAdmin ? 'text-green-600' : 'text-orange-600'}`}>
                                         {adminStatus.hasAdmin 
-                                            ? `관리자 계정 존재 (${adminStatus.adminCount}개)` 
+                                            ? `관리자 계정 존재 (${adminStatus.count}개)` 
                                             : '관리자 계정 없음'}
                                     </span>
                                 </div>
