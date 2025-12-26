@@ -3,7 +3,7 @@ import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 // GET - 온라인 강좌 목록 조회
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         if (!process.env.MONGODB_URI) {
             return NextResponse.json({
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
         const courses = await collection.find({}).sort({ createdAt: -1 }).toArray();
 
-        const formattedCourses = courses.map((item: any) => ({
+        const formattedCourses = courses.map((item: { _id: ObjectId; [key: string]: unknown }) => ({
             ...item,
             id: item._id.toString(),
             _id: item._id.toString(),
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
             data: formattedCourses,
             count: formattedCourses.length,
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to fetch online courses:', error);
         return NextResponse.json(
             { success: false, error: '강좌를 불러오는데 실패했습니다.' },
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
                 message: '강좌가 추가되었습니다.',
             });
         }
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to save online course:', error);
         return NextResponse.json(
             { success: false, error: '강좌 저장에 실패했습니다.' },
@@ -119,7 +119,7 @@ export async function DELETE(request: NextRequest) {
         await collection.deleteOne({ _id: new ObjectId(id) });
 
         return NextResponse.json({ success: true, message: '강좌가 삭제되었습니다.' });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to delete online course:', error);
         return NextResponse.json(
             { success: false, error: '강좌 삭제에 실패했습니다.' },

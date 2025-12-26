@@ -7,7 +7,7 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import RegistrationsTab from '@/components/admin/RegistrationsTab';
 import NewsTab from '@/components/admin/NewsTab';
-import OnlineCoursesTab from '@/components/admin/OnlineCoursesTab';
+import OnlineCoursesTab, { CourseData } from '@/components/admin/OnlineCoursesTab';
 
 interface ConsultationData {
     id: string;
@@ -62,23 +62,6 @@ interface NewsData {
     updatedAt?: string;
 }
 
-interface OnlineCourseData {
-    _id: string;
-    id: string;
-    title: string;
-    description: string;
-    duration: string;
-    students: string;
-    level: string;
-    thumbnail: string;
-    category: string;
-    color: string;
-    meetingUrl: string;
-    platformType: 'zoom' | 'whale';
-    schedule: { day: string, time: string }[];
-    createdAt: string;
-}
-
 type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses';
 
 export default function AdminPage() {
@@ -88,7 +71,7 @@ export default function AdminPage() {
     const [payments, setPayments] = useState<PaymentData[]>([]);
     const [registrations, setRegistrations] = useState<RegistrationData[]>([]);
     const [news, setNews] = useState<NewsData[]>([]);
-    const [onlineCourses, setOnlineCourses] = useState<OnlineCourseData[]>([]);
+    const [onlineCourses, setOnlineCourses] = useState<CourseData[]>([]);
     const [selectedConsultation, setSelectedConsultation] = useState<ConsultationData | null>(null);
     const [selectedPayment, setSelectedPayment] = useState<PaymentData | null>(null);
     const [selectedRegistration, setSelectedRegistration] = useState<RegistrationData | null>(null);

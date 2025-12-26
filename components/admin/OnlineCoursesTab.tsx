@@ -5,7 +5,7 @@ import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users } from 'lu
 import Image from 'next/image';
 import RichTextEditor from './RichTextEditor';
 
-interface CourseData {
+export interface CourseData {
     _id: string;
     id: string;
     title: string;

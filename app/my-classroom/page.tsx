@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Video, Clock, User, Phone, LogOut, ArrowRight, Calendar, AlertCircle, Loader2, ExternalLink, Award } from 'lucide-react';
+import { Video, Clock, User, Phone, LogOut, Calendar, AlertCircle, Loader2, ExternalLink, Award } from 'lucide-react';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Image from 'next/image';
 
@@ -55,7 +55,7 @@ export default function MyClassroom() {
             } else {
                 setError(result.error || '인증에 실패했습니다. 정보를 확인해주세요.');
             }
-        } catch (err) {
+        } catch {
             setError('서버 오류가 발생했습니다.');
         } finally {
             setIsLoading(false);

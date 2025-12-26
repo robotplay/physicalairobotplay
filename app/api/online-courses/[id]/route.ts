@@ -47,7 +47,7 @@ export async function GET(
             success: true,
             data: formattedCourse,
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to fetch online course:', error);
         return NextResponse.json(
             { success: false, error: '강좌를 불러오는데 실패했습니다.' },
