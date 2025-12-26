@@ -20,7 +20,8 @@ export async function GET(request: NextRequest) {
         // 쿼리 파라미터에서 필터링 옵션 가져오기
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category');
-        const limit = parseInt(searchParams.get('limit') || '0');
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '6'); // 기본값 6개
         const sort = searchParams.get('sort') || 'desc'; // desc 또는 asc
 
         // 필터 조건 구성
@@ -32,8 +33,15 @@ export async function GET(request: NextRequest) {
         // 정렬 옵션
         const sortOption: any = { createdAt: sort === 'asc' ? 1 : -1 };
 
+        // 전체 개수 조회 (페이지네이션용)
+        const totalCount = await collection.countDocuments(filter);
+
+        // 페이지네이션 계산
+        const skip = (page - 1) * limit;
+        const totalPages = Math.ceil(totalCount / limit);
+
         // 쿼리 실행
-        let query = collection.find(filter).sort(sortOption);
+        let query = collection.find(filter).sort(sortOption).skip(skip);
         if (limit > 0) {
             query = query.limit(limit);
         }
@@ -53,6 +61,10 @@ export async function GET(request: NextRequest) {
             success: true,
             data: formattedNews,
             count: formattedNews.length,
+            totalCount,
+            page,
+            totalPages,
+            limit,
         });
     } catch (error: any) {
         console.error('Failed to fetch news:', error);
