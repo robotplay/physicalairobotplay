@@ -197,8 +197,8 @@ export default function AdminPage() {
             try {
                 const response = await fetch('/api/users?role=teacher');
                 const result = await response.json();
-                if (result.success) {
-                    setTeachers(result.data || []);
+                if (result.success && result.data) {
+                    setTeachers(result.data.users || []);
                 }
             } catch (error) {
                 console.error('Failed to load teachers:', error);
@@ -704,8 +704,8 @@ export default function AdminPage() {
                             try {
                                 const response = await fetch('/api/users?role=teacher');
                                 const result = await response.json();
-                                if (result.success) {
-                                    setTeachers(result.data || []);
+                                if (result.success && result.data) {
+                                    setTeachers(result.data.users || []);
                                 }
                             } catch (error) {
                                 console.error('Failed to refresh teachers:', error);

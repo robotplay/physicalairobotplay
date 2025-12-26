@@ -1,7 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 import { hashPassword, verifyToken, hasPermission } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import {
+    successResponse,
+    unauthorizedResponse,
+    badRequestResponse,
+    handleMongoError,
+    handleError,
+} from '@/lib/api-response';
 
 // 권한 체크 헬퍼 함수
 async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
@@ -29,10 +36,7 @@ export async function GET(request: NextRequest) {
     try {
         const auth = await checkAuth('admin');
         if (!auth.authorized) {
-            return NextResponse.json(
-                { success: false, error: auth.error },
-                { status: 401 }
-            );
+            return unauthorizedResponse(auth.error);
         }
 
         const { searchParams } = new URL(request.url);
@@ -53,17 +57,12 @@ export async function GET(request: NextRequest) {
             _id: user._id.toString(),
         }));
 
-        return NextResponse.json({
-            success: true,
-            data: formattedUsers, // users -> data로 변경 (다른 API와 일관성 유지)
+        return successResponse({
+            users: formattedUsers,
             count: formattedUsers.length,
         });
     } catch (error) {
-        console.error('Get users error:', error);
-        return NextResponse.json(
-            { success: false, error: '사용자 목록 조회 중 오류가 발생했습니다.' },
-            { status: 500 }
-        );
+        return handleMongoError(error);
     }
 }
 
@@ -77,10 +76,7 @@ export async function POST(request: NextRequest) {
         
         if (!auth.authorized) {
             console.error('Authorization failed:', auth.error);
-            return NextResponse.json(
-                { success: false, error: auth.error },
-                { status: 401 }
-            );
+            return unauthorizedResponse(auth.error);
         }
 
         const body = await request.json();
@@ -91,18 +87,12 @@ export async function POST(request: NextRequest) {
         // 필수 필드 검증
         if (!username || !password || !name || !role) {
             console.error('Missing required fields:', { username: !!username, password: !!password, name: !!name, role: !!role });
-            return NextResponse.json(
-                { success: false, error: '필수 항목을 입력해주세요.' },
-                { status: 400 }
-            );
+            return badRequestResponse('필수 항목을 입력해주세요.', '아이디, 비밀번호, 이름, 역할은 필수입니다.');
         }
 
         // 역할 검증
         if (!['admin', 'teacher', 'student'].includes(role)) {
-            return NextResponse.json(
-                { success: false, error: '유효하지 않은 역할입니다.' },
-                { status: 400 }
-            );
+            return badRequestResponse('유효하지 않은 역할입니다.', '역할은 admin, teacher, student 중 하나여야 합니다.');
         }
 
         const db = await getDatabase();
@@ -113,10 +103,7 @@ export async function POST(request: NextRequest) {
         const existingUser = await collection.findOne({ username });
         if (existingUser) {
             console.error('Username already exists:', username);
-            return NextResponse.json(
-                { success: false, error: '이미 사용 중인 아이디입니다.' },
-                { status: 400 }
-            );
+            return badRequestResponse('이미 사용 중인 아이디입니다.');
         }
 
         // 비밀번호 해싱
@@ -149,24 +136,21 @@ export async function POST(request: NextRequest) {
         // 비밀번호 제외하고 반환
         const { password: _, ...userWithoutPassword } = userData;
 
-        return NextResponse.json({
-            success: true,
-            data: {
+        return successResponse(
+            {
                 ...userWithoutPassword,
                 _id: result.insertedId.toString(),
             },
-            message: '사용자가 생성되었습니다.',
-        });
+            '사용자가 생성되었습니다.',
+            201
+        );
     } catch (error) {
         console.error('Create user error:', error);
         if (error instanceof Error) {
             console.error('Error details:', error.message);
             console.error('Error stack:', error.stack);
         }
-        return NextResponse.json(
-            { success: false, error: '사용자 생성 중 오류가 발생했습니다.' },
-            { status: 500 }
-        );
+        return handleMongoError(error);
     }
 }
 
