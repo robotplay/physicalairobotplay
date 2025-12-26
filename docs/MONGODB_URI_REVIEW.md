@@ -164,3 +164,4 @@ mongodb+srv://academy-admin:hkjtop!%4034@academy-cluster.eekhbti.mongodb.net/aca
 4. **연결 테스트**
 
 연결 문자열 자체는 올바르므로, MongoDB Atlas 설정을 확인하는 것이 중요합니다!
+

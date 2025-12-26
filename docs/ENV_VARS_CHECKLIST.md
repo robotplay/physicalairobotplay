@@ -149,3 +149,4 @@ git push origin main
 
 - 상세 가이드: `/docs/VERCEL_MONGODB_FIX.md`
 - 빠른 설정: `/docs/VERCEL_ENV_QUICK_SETUP.md`
+

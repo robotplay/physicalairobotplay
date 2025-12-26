@@ -261,3 +261,4 @@ mongodb+srv://academy-admin:hkjtop!%4034@academy-cluster.eekhbti.mongodb.net/aca
 - [ ] 재배포 완료
 - [ ] `/api/news/test`에서 연결 확인
 - [ ] 공지사항 작성 테스트 성공
+

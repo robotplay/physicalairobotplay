@@ -328,3 +328,4 @@ mongodb+srv://academy-admin:Academy2025@academy-cluster.eekhbti.mongodb.net/acad
 **가장 쉬운 방법:**
 - 비밀번호를 특수문자 없는 것으로 변경 (`Academy2025`)
 - 인코딩 불필요
+

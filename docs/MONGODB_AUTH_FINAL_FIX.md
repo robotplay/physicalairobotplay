@@ -284,3 +284,4 @@ https://parplay.co.kr/api/news/test
 1. **MongoDB Atlas 사용자 비밀번호 스크린샷**
 2. **Vercel MONGODB_URI 값 (비밀번호 부분만)**
 3. **에러 메시지 전체**
+

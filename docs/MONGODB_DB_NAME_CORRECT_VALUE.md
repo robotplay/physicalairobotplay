@@ -103,3 +103,4 @@ return client.db(process.env.MONGODB_DB_NAME || 'academy-site');
 **핵심:**
 - `MONGODB_DB_NAME`은 데이터베이스 이름만 (슬래시 없음)
 - `MONGODB_URI`는 전체 연결 문자열 (슬래시 포함)
+

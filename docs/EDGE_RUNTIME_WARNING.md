@@ -96,3 +96,4 @@ export const alt = 'Physical AI Robot Play';
 **이 경고는 무시해도 됩니다!**
 
 Open Graph 이미지는 Edge Runtime을 사용하는 것이 정상이며, 이 경고는 단순히 정보를 제공하는 것입니다. 현재 설정을 그대로 유지하는 것을 권장합니다.
+

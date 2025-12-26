@@ -257,3 +257,4 @@ mongodb+srv://...@cluster.mongodb.net/academy-site?...
 3. **공지사항 작성 테스트**
 
 모든 환경 변수가 설정되었는지 확인하세요!
+

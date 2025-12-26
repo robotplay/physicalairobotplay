@@ -299,3 +299,4 @@ mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority
 
 4. **MongoDB Atlas 연결 상태**
    - MongoDB Atlas → Database → 클러스터 상태
+

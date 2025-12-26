@@ -136,3 +136,4 @@ https://parplay.co.kr/api/news
 1. 브라우저 콘솔 에러 메시지
 2. `/api/news/test` 응답 내용
 3. 작성하려는 공지사항 내용 (카테고리, 제목, 내용)
+

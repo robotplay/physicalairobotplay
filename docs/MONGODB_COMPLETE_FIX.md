@@ -311,3 +311,4 @@ mongodb+srv://academy-admin:hkjtop!%4034@academy-cluster.eekhbti.mongodb.net/aca
 ```
 
 이 연결 문자열을 Vercel에 설정하고 재배포하면 해결됩니다!
+
