@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Video, Clock, User, Phone, LogOut, ArrowRight, Calendar, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
+import { Video, Clock, User, Phone, LogOut, ArrowRight, Calendar, AlertCircle, Loader2, ExternalLink, Award } from 'lucide-react';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import Image from 'next/image';
 
