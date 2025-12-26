@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            users: formattedUsers,
+            data: formattedUsers, // users -> data로 변경 (다른 API와 일관성 유지)
             count: formattedUsers.length,
         });
     } catch (error) {
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            user: {
+            data: {
                 ...userWithoutPassword,
                 _id: result.insertedId.toString(),
             },

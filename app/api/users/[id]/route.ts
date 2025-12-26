@@ -92,7 +92,7 @@ export async function PUT(
 
         return NextResponse.json({
             success: true,
-            user: {
+            data: {
                 ...updatedUser,
                 _id: updatedUser?._id.toString(),
             },
