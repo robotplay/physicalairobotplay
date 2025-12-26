@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Phone, Mail, User, MessageSquare, Send, ArrowLeft, CreditCard, Loader2 } from 'lucide-react';
+import { X, Phone, Mail, User, MessageSquare, Send, ArrowLeft, CreditCard, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import PaymentButton from '@/components/PaymentButton';
 import Image from 'next/image';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 interface EnrollmentData {
     courseId: string;
@@ -59,8 +60,17 @@ export default function PaymentPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // 이메일 필수 확인
+        if (!formData.email || !formData.email.includes('@')) {
+            toast.error('수강 접근 링크를 받으려면 올바른 이메일이 필요합니다.');
+            return;
+        }
+
         setIsSubmitting(true);
         setSubmitStatus('idle');
+
+        const loadingToast = toast.loading('수강 신청 처리 중...');
 
         try {
             // 온라인 강좌 신청 API 호출
@@ -76,18 +86,27 @@ export default function PaymentPage() {
                 }),
             });
 
-            if (!response.ok) {
-                throw new Error('신청서 전송 실패');
-            }
-
             const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || '신청서 전송 실패');
+            }
 
             setIsSubmitting(false);
             setSubmitStatus('success');
-            setRegistrationId(result.data?.id || result.id);
+            setRegistrationId(result.data?.enrollment?.id || result.id);
+            
+            toast.success('수강 신청이 완료되었습니다!', { id: loadingToast, duration: 5000 });
+            toast.success('📧 이메일로 수강 접근 링크가 발송되었습니다.', { duration: 6000 });
+            
             setShowPayment(true); // 결제 버튼 표시
+            
+            // localStorage 정리
+            localStorage.removeItem('enrollmentData');
         } catch (error) {
             console.error('Failed to submit enrollment:', error);
+            const errorMessage = error instanceof Error ? error.message : '신청 중 오류가 발생했습니다.';
+            toast.error(errorMessage, { id: loadingToast });
             setIsSubmitting(false);
             setSubmitStatus('error');
         }
@@ -268,6 +287,9 @@ export default function PaymentPage() {
                                         <label className="block text-sm font-semibold text-gray-300 mb-2">
                                             <Mail className="w-4 h-4 inline mr-2" />
                                             이메일 *
+                                            <span className="ml-2 text-xs text-deep-electric-blue">
+                                                (수강 접근 링크 발송)
+                                            </span>
                                         </label>
                                         <input
                                             type="email"
@@ -278,6 +300,9 @@ export default function PaymentPage() {
                                             className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-deep-electric-blue"
                                             placeholder="example@email.com"
                                         />
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            💡 이메일로 수강 접근 코드가 발송됩니다
+                                        </p>
                                     </div>
                                 </div>
 
@@ -324,9 +349,34 @@ export default function PaymentPage() {
                     ) : (
                         /* Payment Section */
                         <div className="bg-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-700">
-                            <div className="mb-6 p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
-                                <p className="text-green-400 text-sm font-semibold mb-2">✅ 신청서가 접수되었습니다!</p>
-                                <p className="text-gray-300 text-sm">아래 버튼을 클릭하여 결제를 진행해주세요.</p>
+                            {/* Success Message */}
+                            <div className="mb-6 space-y-4">
+                                <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
+                                    <div className="flex items-start gap-3">
+                                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-green-400 font-semibold mb-1">✅ 신청서가 접수되었습니다!</p>
+                                            <p className="text-gray-300 text-sm">
+                                                아래 버튼을 클릭하여 결제를 진행해주세요.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl">
+                                    <div className="flex items-start gap-3">
+                                        <Mail className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-blue-400 font-semibold mb-1">📧 이메일을 확인해주세요</p>
+                                            <p className="text-gray-300 text-sm">
+                                                <strong>{formData.email}</strong>로 수강 접근 링크가 발송되었습니다.
+                                            </p>
+                                            <p className="text-gray-400 text-xs mt-2">
+                                                💡 이메일에 포함된 6자리 접근 코드로 언제든지 수강할 수 있습니다.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="mb-6">
