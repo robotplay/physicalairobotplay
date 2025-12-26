@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown } from 'lucide-react';
 
@@ -88,6 +88,9 @@ export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+    
+    // 드롭다운 닫기 지연을 위한 타이머
+    const dropdownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -96,8 +99,30 @@ export default function Header() {
             setIsScrolled(window.scrollY > 20);
         };
         window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            // 컴포넌트 언마운트 시 타이머 정리
+            if (dropdownTimerRef.current) {
+                clearTimeout(dropdownTimerRef.current);
+            }
+        };
     }, []);
+
+    // 드롭다운 열기 (지연 취소)
+    const handleDropdownEnter = () => {
+        if (dropdownTimerRef.current) {
+            clearTimeout(dropdownTimerRef.current);
+            dropdownTimerRef.current = null;
+        }
+        setIsDropdownOpen(true);
+    };
+
+    // 드롭다운 닫기 (지연 적용)
+    const handleDropdownLeave = () => {
+        dropdownTimerRef.current = setTimeout(() => {
+            setIsDropdownOpen(false);
+        }, 200); // 200ms 지연
+    };
 
     // 새로운 메뉴 구조
     const dropdownItems = [
@@ -139,8 +164,8 @@ export default function Header() {
                             {/* PAR 드롭다운 메뉴 */}
                             <div 
                                 className="relative group"
-                                onMouseEnter={() => setIsDropdownOpen(true)}
-                                onMouseLeave={() => setIsDropdownOpen(false)}
+                                onMouseEnter={handleDropdownEnter}
+                                onMouseLeave={handleDropdownLeave}
                             >
                                 <button
                                     className={`flex items-center gap-1 font-semibold transition-all text-base xl:text-lg whitespace-nowrap cursor-pointer ${
@@ -160,7 +185,7 @@ export default function Header() {
                                 {/* 드롭다운 메뉴 */}
                                 <div 
                                     className={`
-                                        absolute top-full left-0 mt-2 w-48
+                                        absolute top-full left-0 mt-1 w-48
                                         bg-[#1A1A1A]/98 backdrop-blur-xl rounded-xl shadow-2xl
                                         border border-gray-700/50
                                         transition-all duration-300 ease-out origin-top
@@ -169,6 +194,8 @@ export default function Header() {
                                             : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
                                         }
                                     `}
+                                    onMouseEnter={handleDropdownEnter}
+                                    onMouseLeave={handleDropdownLeave}
                                 >
                                     <div className="py-2">
                                         {dropdownItems.map((item, index) => (
