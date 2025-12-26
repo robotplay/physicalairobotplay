@@ -343,19 +343,19 @@ export default function Header() {
                                 href="/basic-course"
                                 className="flex items-center justify-center px-4 py-2.5 xl:px-5 xl:py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 text-sm xl:text-base whitespace-nowrap touch-manipulation cursor-pointer shadow-lg hover:shadow-xl"
                             >
-                                Basic
+                                Basic Course
                             </Link>
                             <Link
                                 href="/advanced-course"
                                 className="flex items-center justify-center px-4 py-2.5 xl:px-5 xl:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 text-sm xl:text-base whitespace-nowrap touch-manipulation cursor-pointer shadow-lg hover:shadow-xl"
                             >
-                                Advanced
+                                Advanced Course
                             </Link>
                             <Link
                                 href="/airrobot-course"
                                 className="flex items-center justify-center px-4 py-2.5 xl:px-5 xl:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 text-sm xl:text-base whitespace-nowrap touch-manipulation cursor-pointer shadow-lg hover:shadow-xl"
                             >
-                                AirRobot
+                                AirRobot Course
                             </Link>
                     </nav>
 
