@@ -77,6 +77,7 @@ export async function PUT(
 
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.NEWS);
+        const usersCollection = db.collection(COLLECTIONS.USERS);
 
         // Next.js 16에서는 params가 Promise일 수 있음
         const resolvedParams = params instanceof Promise ? await params : params;
@@ -93,7 +94,7 @@ export async function PUT(
             );
         }
 
-        const { category, title, content, excerpt, image } = body;
+        const { category, title, content, excerpt, image, authorId, authorRole } = body;
 
         // 필수 필드 검증
         if (!category || !title || !content) {
@@ -116,6 +117,16 @@ export async function PUT(
 
         if (excerpt) updateData.excerpt = excerpt;
         if (image) updateData.image = image;
+
+        // authorId가 있으면 작성자 정보 조회 및 업데이트
+        if (authorId) {
+            const author = await usersCollection.findOne({ _id: authorId });
+            if (author) {
+                updateData.authorId = authorId;
+                updateData.authorRole = authorRole || 'admin';
+                updateData.authorName = author.name;
+            }
+        }
 
         const result = await collection.updateOne(
             { _id: new ObjectId(id) },

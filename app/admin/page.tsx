@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video } from 'lucide-react';
+import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users } from 'lucide-react';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import RegistrationsTab from '@/components/admin/RegistrationsTab';
 import NewsTab from '@/components/admin/NewsTab';
 import OnlineCoursesTab, { CourseData } from '@/components/admin/OnlineCoursesTab';
+import TeachersTab from '@/components/admin/TeachersTab';
 
 interface ConsultationData {
     id: string;
@@ -62,7 +63,20 @@ interface NewsData {
     updatedAt?: string;
 }
 
-type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses';
+interface TeacherData {
+    _id: string;
+    id: string;
+    username: string;
+    name: string;
+    email: string;
+    phone: string;
+    role: string;
+    teacherId: string;
+    status: 'active' | 'inactive';
+    createdAt: string;
+}
+
+type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -72,6 +86,7 @@ export default function AdminPage() {
     const [registrations, setRegistrations] = useState<RegistrationData[]>([]);
     const [news, setNews] = useState<NewsData[]>([]);
     const [onlineCourses, setOnlineCourses] = useState<CourseData[]>([]);
+    const [teachers, setTeachers] = useState<TeacherData[]>([]);
     const [selectedConsultation, setSelectedConsultation] = useState<ConsultationData | null>(null);
     const [selectedPayment, setSelectedPayment] = useState<PaymentData | null>(null);
     const [selectedRegistration, setSelectedRegistration] = useState<RegistrationData | null>(null);
@@ -176,11 +191,25 @@ export default function AdminPage() {
             }
         };
 
+        // MongoDB에서 강사 목록 불러오기
+        const loadTeachers = async () => {
+            try {
+                const response = await fetch('/api/users?role=teacher');
+                const result = await response.json();
+                if (result.success) {
+                    setTeachers(result.data || []);
+                }
+            } catch (error) {
+                console.error('Failed to load teachers:', error);
+            }
+        };
+
         loadConsultations();
         loadPayments();
         loadRegistrations();
         loadNews();
         loadOnlineCourses();
+        loadTeachers();
 
         // 실시간 업데이트를 위한 이벤트 리스너
         const handleStorageChange = () => {
@@ -256,7 +285,8 @@ export default function AdminPage() {
                                     결제 내역 <span className="font-bold text-green-600 dark:text-green-400">{payments.length}건</span> | 
                                     신청서 <span className="font-bold text-purple-600 dark:text-purple-400">{registrations.length}건</span> | 
                                     공지사항 <span className="font-bold text-orange-600 dark:text-orange-400">{news.length}건</span> |
-                                    온라인 강좌 <span className="font-bold text-blue-600 dark:text-blue-400">{onlineCourses.length}개</span>
+                                    온라인 강좌 <span className="font-bold text-blue-600 dark:text-blue-400">{onlineCourses.length}개</span> |
+                                    강사 <span className="font-bold text-indigo-600 dark:text-indigo-400">{teachers.length}명</span>
                                 </p>
                             </div>
                             <button
@@ -362,6 +392,24 @@ export default function AdminPage() {
                                 <div className="flex items-center gap-2 whitespace-nowrap">
                                     <Video className="w-4 h-4" />
                                     온라인 강좌 ({onlineCourses.length})
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('teachers');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'teachers'
+                                        ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <Users className="w-4 h-4" />
+                                    강사 관리 ({teachers.length})
                                 </div>
                             </button>
                         </div>
@@ -621,6 +669,23 @@ export default function AdminPage() {
                                 }
                             } catch (error) {
                                 console.error('Failed to refresh online courses:', error);
+                            }
+                        }}
+                    />
+                )}
+
+                {activeTab === 'teachers' && (
+                    <TeachersTab
+                        teachers={teachers}
+                        onRefresh={async () => {
+                            try {
+                                const response = await fetch('/api/users?role=teacher');
+                                const result = await response.json();
+                                if (result.success) {
+                                    setTeachers(result.data || []);
+                                }
+                            } catch (error) {
+                                console.error('Failed to refresh teachers:', error);
                             }
                         }}
                     />

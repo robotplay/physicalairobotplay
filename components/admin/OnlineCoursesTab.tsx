@@ -22,6 +22,8 @@ export interface CourseData {
     platformType: 'zoom' | 'whale';
     schedule: { day: string, time: string }[];
     price: number; // 가격
+    teacherId?: string; // 강사 ID
+    teacherName?: string; // 강사 이름
     createdAt: string;
 }
 

@@ -44,15 +44,25 @@ export async function POST(request: NextRequest) {
     try {
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.ONLINE_COURSES);
+        const usersCollection = db.collection(COLLECTIONS.USERS);
 
         const body = await request.json();
-        const { id, title, description, content, duration, level, category, color, thumbnail, meetingUrl, platformType, schedule, price, students, capacity } = body;
+        const { id, title, description, content, duration, level, category, color, thumbnail, meetingUrl, platformType, schedule, price, students, capacity, teacherId } = body;
 
         if (!title || !category) {
             return NextResponse.json(
                 { success: false, error: '제목과 카테고리는 필수입니다.' },
                 { status: 400 }
             );
+        }
+
+        // teacherId가 있으면 강사 정보 조회
+        let teacherName = undefined;
+        if (teacherId) {
+            const teacher = await usersCollection.findOne({ teacherId });
+            if (teacher) {
+                teacherName = teacher.name as string;
+            }
         }
 
         const courseData = {
@@ -70,6 +80,8 @@ export async function POST(request: NextRequest) {
             platformType: platformType || 'zoom',
             schedule: schedule || [], // [{ day: '월', time: '14:00' }]
             price: price || 0, // 가격
+            teacherId: teacherId || undefined, // 강사 ID
+            teacherName: teacherName || undefined, // 강사 이름
             updatedAt: new Date(),
         };
 

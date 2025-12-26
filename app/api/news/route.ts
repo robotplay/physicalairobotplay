@@ -83,9 +83,10 @@ export async function POST(request: NextRequest) {
 
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.NEWS);
+        const usersCollection = db.collection(COLLECTIONS.USERS);
 
         const body = await request.json();
-        const { category, title, content, excerpt, image } = body;
+        const { category, title, content, excerpt, image, authorId, authorRole } = body;
 
         // 필수 필드 검증
         if (!category || !title || !content) {
@@ -98,6 +99,15 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // authorId가 있으면 작성자 정보 조회
+        let authorName = undefined;
+        if (authorId) {
+            const author = await usersCollection.findOne({ _id: authorId });
+            if (author) {
+                authorName = author.name as string;
+            }
+        }
+
         // 새 공지사항 생성
         const newNews = {
             category,
@@ -105,6 +115,9 @@ export async function POST(request: NextRequest) {
             content,
             excerpt: excerpt || content.substring(0, 150) + '...',
             image: image || '/img/01.jpeg',
+            authorId: authorId || undefined, // 작성자 ID
+            authorRole: authorRole || 'admin', // 작성자 역할 (admin, teacher)
+            authorName: authorName || undefined, // 작성자 이름
             createdAt: new Date(),
             updatedAt: new Date(),
         };

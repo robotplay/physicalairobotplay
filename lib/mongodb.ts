@@ -43,6 +43,7 @@ export async function getDatabase(): Promise<Db> {
 
 // 컬렉션 이름 상수
 export const COLLECTIONS = {
+    USERS: 'users',
     AIRPLANE_REGISTRATIONS: 'airplane_registrations',
     CONSULTATIONS: 'consultations',
     PAYMENTS: 'payments',
