@@ -1,270 +1,321 @@
-# 웹 호스팅 배포 가이드
+# 배포 가이드
 
-## 🏆 추천 순위
+## 🚀 Vercel 배포
 
-### 1순위: Vercel (가장 추천) ⭐⭐⭐⭐⭐
+### 1. Vercel 프로젝트 생성
 
-**왜 Vercel인가?**
-- Next.js를 만든 회사가 운영하는 플랫폼
-- Next.js에 완벽하게 최적화됨
-- 무료 플랜 제공 (개인/소규모 프로젝트 충분)
-- 자동 배포 (Git 연동)
-- CDN 자동 설정
-- Serverless Functions 내장 (API 라우트 지원)
+```bash
+# Vercel CLI 설치 (선택)
+npm i -g vercel
 
-**장점:**
-- ✅ 설정이 매우 간단 (GitHub 연결만 하면 됨)
-- ✅ 무료 플랜: 무제한 프로젝트, 100GB 대역폭
-- ✅ 자동 HTTPS
-- ✅ 환경 변수 관리 쉬움
-- ✅ 한국 사용자 접근성 좋음 (글로벌 CDN)
+# 프로젝트 연결
+vercel link
 
-**단점:**
-- ❌ 무료 플랜은 서버리스 함수 실행 시간 제한 (충분함)
-- ❌ 데이터베이스는 별도 필요 (MongoDB Atlas 등)
-
-**비용:**
-- 무료 플랜: 개인 프로젝트 충분
-- Pro 플랜: $20/월 (팀 협업, 더 많은 리소스)
-
-**배포 방법:**
-1. GitHub에 코드 푸시
-2. Vercel.com 가입
-3. "New Project" 클릭
-4. GitHub 저장소 선택
-5. 환경 변수 설정 (NEXT_PUBLIC_ADMIN_PASSWORD 등)
-6. Deploy 클릭 → 완료!
-
-**데이터베이스 연동:**
-- MongoDB Atlas (무료 플랜 있음) 추천
-- Vercel Postgres (Pro 플랜 필요)
-
----
-
-### 2순위: Railway ⭐⭐⭐⭐
-
-**장점:**
-- ✅ 간단한 설정
-- ✅ 데이터베이스 내장 (PostgreSQL)
-- ✅ 합리적인 가격 ($5/월부터)
-- ✅ 한국 사용자 접근성 좋음
-
-**단점:**
-- ❌ Vercel만큼 Next.js 최적화는 아님
-- ❌ 무료 플랜 제한적
-
-**비용:**
-- 무료 크레딧: $5 (테스트용)
-- Hobby: $5/월
-- Pro: $20/월
-
-**배포 방법:**
-1. Railway.app 가입
-2. "New Project" → "Deploy from GitHub"
-3. 저장소 선택
-4. 환경 변수 설정
-5. 자동 배포
-
----
-
-### 3순위: Netlify ⭐⭐⭐⭐
-
-**장점:**
-- ✅ 무료 플랜 제공
-- ✅ 간단한 설정
-- ✅ 좋은 CDN
-
-**단점:**
-- ❌ Next.js 최적화는 Vercel보다 약함
-- ❌ Serverless Functions 제한적
-
-**비용:**
-- 무료 플랜 제공
-- Pro: $19/월
-
----
-
-### 4순위: Render ⭐⭐⭐
-
-**장점:**
-- ✅ 무료 플랜 제공
-- ✅ 간단한 설정
-- ✅ 데이터베이스 옵션
-
-**단점:**
-- ❌ 무료 플랜은 서비스가 15분 비활성 시 슬리프 모드
-- ❌ 첫 로딩이 느릴 수 있음
-
-**비용:**
-- 무료 플랜 (제한적)
-- Starter: $7/월
-
----
-
-## 🚫 비추천 (이 프로젝트에는)
-
-### AWS / GCP / Azure
-- ❌ 설정이 복잡함
-- ❌ 비용이 높을 수 있음
-- ❌ Next.js 특화 플랫폼이 아님
-- ✅ 대규모 프로젝트에는 적합
-
----
-
-## 📊 비교표
-
-| 플랫폼 | 무료 플랜 | 설정 난이도 | Next.js 최적화 | 데이터베이스 | 추천도 |
-|--------|----------|------------|---------------|------------|--------|
-| **Vercel** | ✅ | ⭐ 매우 쉬움 | ⭐⭐⭐⭐⭐ | 별도 필요 | 🏆 최고 |
-| **Railway** | 제한적 | ⭐⭐ 쉬움 | ⭐⭐⭐⭐ | 내장 | 👍 좋음 |
-| **Netlify** | ✅ | ⭐⭐ 쉬움 | ⭐⭐⭐⭐ | 별도 필요 | 👍 좋음 |
-| **Render** | 제한적 | ⭐⭐ 쉬움 | ⭐⭐⭐ | 옵션 | 보통 |
-
----
-
-## 🎯 최종 추천: Vercel
-
-### 이유
-1. **Next.js 최적화**: 가장 빠르고 안정적
-2. **무료 플랜**: 개인/소규모 프로젝트에 충분
-3. **설정 간단**: 5분이면 배포 완료
-4. **자동 배포**: Git 푸시 시 자동 업데이트
-5. **글로벌 CDN**: 한국 사용자 접근성 좋음
-
-### 데이터베이스 추천
-- **MongoDB Atlas**: 무료 플랜 512MB (충분함)
-- **Supabase**: 무료 플랜, PostgreSQL
-- **PlanetScale**: 무료 플랜, MySQL
-
----
-
-## 📝 배포 전 체크리스트
-
-### 1. 환경 변수 설정
-```env
-NEXT_PUBLIC_ADMIN_PASSWORD=111111
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+# 또는 Vercel 대시보드에서 GitHub 저장소 연결
 ```
 
-### 2. Git 저장소 준비
-- GitHub/GitLab/Bitbucket에 코드 푸시
-- `.env.local`은 커밋하지 않음 (이미 .gitignore에 포함)
+### 2. 환경변수 설정
 
-### 3. 빌드 확인
+Vercel 대시보드 → Settings → Environment Variables
+
+#### 필수 환경변수
+
 ```bash
-npm run build
-```
-- 빌드 성공 확인
+# MongoDB
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
 
-### 4. 프로덕션 최적화
-- ✅ 이미 완료됨 (이미지 최적화, 코드 스플리팅 등)
+# JWT 시크릿 (강력한 랜덤 문자열)
+JWT_SECRET=your-super-secret-jwt-key-min-32-characters-long
+
+# 사이트 URL
+NEXT_PUBLIC_SITE_URL=https://parplay.co.kr
+```
+
+#### 선택 환경변수
+
+```bash
+# 이메일 (SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM_NAME=피지컬 AI 로봇플레이
+SMTP_FROM_EMAIL=noreply@parplay.co.kr
+
+# PortOne 결제
+NEXT_PUBLIC_PORTONE_STORE_ID=your-store-id
+NEXT_PUBLIC_PORTONE_CHANNEL_KEY=your-channel-key
+PORTONE_API_SECRET=your-api-secret
+
+# 관리자 계정 (초기 설정용)
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your-secure-password
+
+# SMS (선택)
+SMS_API_KEY=your-sms-api-key
+SMS_API_URL=https://sms-api-url.com
+ADMIN_PHONE=010-0000-0000
+```
+
+### 3. 배포
+
+```bash
+# 프로덕션 배포
+vercel --prod
+
+# 또는 GitHub push로 자동 배포
+git push origin main
+```
 
 ---
 
-## 🚀 Vercel 배포 단계별 가이드
+## 🗄️ MongoDB 설정
 
-### Step 1: GitHub에 코드 푸시
+### 1. MongoDB Atlas 설정
+
+1. [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) 접속
+2. 무료 클러스터 생성
+3. Database Access → Add New Database User
+4. Network Access → Add IP Address (0.0.0.0/0 또는 Vercel IP)
+5. Connect → Connect your application → 연결 문자열 복사
+
+### 2. 인덱스 생성
+
+MongoDB Compass 또는 Atlas UI에서:
+
+```javascript
+// users 컬렉션
+db.users.createIndex({ "username": 1 }, { unique: true })
+db.users.createIndex({ "email": 1 })
+db.users.createIndex({ "role": 1 })
+
+// online_enrollments 컬렉션
+db.online_enrollments.createIndex({ "accessCode": 1 }, { unique: true })
+db.online_enrollments.createIndex({ "email": 1 })
+db.online_enrollments.createIndex({ "courseId": 1 })
+db.online_enrollments.createIndex({ "createdAt": -1 })
+
+// online_courses 컬렉션
+db.online_courses.createIndex({ "category": 1 })
+db.online_courses.createIndex({ "createdAt": -1 })
+
+// news 컬렉션
+db.news.createIndex({ "category": 1 })
+db.news.createIndex({ "createdAt": -1 })
+```
+
+---
+
+## 📧 이메일 설정 (Gmail)
+
+### 1. Gmail 앱 비밀번호 생성
+
+1. Google 계정 → 보안
+2. 2단계 인증 활성화
+3. 앱 비밀번호 생성
+4. "메일" 선택 → 비밀번호 복사
+
+### 2. 환경변수 설정
+
 ```bash
-git init
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-16-digit-app-password
+```
+
+---
+
+## 💳 PortOne 결제 설정
+
+### 1. PortOne 가입
+
+1. [PortOne](https://portone.io/) 가입
+2. 상점 생성
+3. 채널 생성 (테스트/실제)
+
+### 2. API 키 발급
+
+1. 개발자 센터 → API Keys
+2. Store ID, Channel Key, API Secret 복사
+
+### 3. 환경변수 설정
+
+```bash
+NEXT_PUBLIC_PORTONE_STORE_ID=imp12345678
+NEXT_PUBLIC_PORTONE_CHANNEL_KEY=channel-key-xxxxxxxx
+PORTONE_API_SECRET=your-api-secret
+```
+
+---
+
+## 🔐 보안 체크리스트
+
+### 배포 전 확인
+
+- [ ] JWT_SECRET이 강력한 랜덤 문자열인가?
+- [ ] MongoDB 연결 문자열이 안전하게 저장되었는가?
+- [ ] API 시크릿 키들이 환경변수로 관리되는가?
+- [ ] .env.local 파일이 .gitignore에 포함되었는가?
+- [ ] 프로덕션 환경에서 HTTPS가 사용되는가?
+- [ ] CORS 설정이 적절한가?
+- [ ] Rate Limiting이 설정되었는가? (선택)
+
+### JWT_SECRET 생성
+
+```bash
+# Node.js로 강력한 시크릿 생성
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+# 또는 OpenSSL
+openssl rand -hex 32
+```
+
+---
+
+## 🧪 배포 후 테스트
+
+### 1. 기본 기능 테스트
+
+```bash
+# 헬스 체크
+curl https://your-domain.com/api/test-db
+
+# MongoDB 연결 확인
+curl https://your-domain.com/api/verify-mongodb
+```
+
+### 2. 관리자 계정 초기화
+
+```bash
+# 초기 관리자 생성
+curl -X POST https://your-domain.com/api/admin/init
+```
+
+### 3. 전체 플로우 테스트
+
+1. 메인 페이지 접속
+2. 온라인 강좌 → 강의 보기
+3. 신청하기 → 정보 입력
+4. 이메일 수신 확인
+5. 접근 코드로 수강 시작
+6. 관리자 로그인 테스트
+
+---
+
+## 📊 모니터링
+
+### Vercel Analytics
+
+```typescript
+// app/layout.tsx에 이미 추가됨
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+```
+
+### 로그 확인
+
+```bash
+# Vercel CLI로 실시간 로그
+vercel logs --follow
+
+# 또는 Vercel 대시보드에서 확인
+```
+
+---
+
+## 🔄 업데이트 배포
+
+### 자동 배포 (GitHub)
+
+```bash
 git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/your-username/your-repo.git
-git push -u origin main
+git commit -m "feat: 새로운 기능 추가"
+git push origin main
+# → Vercel이 자동으로 배포
 ```
 
-### Step 2: Vercel 가입 및 연결
-1. https://vercel.com 접속
-2. "Sign Up" → GitHub 계정으로 가입
-3. "New Project" 클릭
-4. GitHub 저장소 선택
-5. "Import" 클릭
+### 수동 배포
 
-### Step 3: 프로젝트 설정
-- **Framework Preset**: Next.js (자동 감지)
-- **Root Directory**: `./` (기본값)
-- **Build Command**: `npm run build` (자동)
-- **Output Directory**: `.next` (자동)
+```bash
+vercel --prod
+```
 
-### Step 4: 환경 변수 설정
-- Settings → Environment Variables
-- 추가할 변수:
-  - `NEXT_PUBLIC_ADMIN_PASSWORD`: `111111` (또는 더 강력한 비밀번호)
-  - `NEXT_PUBLIC_SITE_URL`: `https://your-project.vercel.app`
+### 롤백
 
-### Step 5: 배포
-- "Deploy" 클릭
-- 2-3분 후 배포 완료
-- 자동으로 URL 생성: `https://your-project.vercel.app`
-
-### Step 6: 커스텀 도메인 (선택)
-- Settings → Domains
-- 도메인 추가 (예: `physical-ai-robot-play.com`)
+```bash
+# Vercel 대시보드에서 이전 배포 선택 → Promote to Production
+```
 
 ---
 
-## 💾 데이터베이스 설정 (Admin 페이지용)
+## 🐛 문제 해결
 
-### MongoDB Atlas 설정 (무료)
+### 빌드 실패
 
-1. **MongoDB Atlas 가입**
-   - https://www.mongodb.com/cloud/atlas 접속
-   - 무료 클러스터 생성 (M0)
+```bash
+# 로컬에서 빌드 테스트
+npm run build
 
-2. **데이터베이스 연결**
-   - Connection String 복사
-   - Vercel 환경 변수에 추가: `MONGODB_URI`
+# 의존성 재설치
+rm -rf node_modules package-lock.json
+npm install
+```
 
-3. **API 라우트 생성**
-   - `/app/api/consultations/route.ts` 생성
-   - MongoDB 연동 코드 작성
+### MongoDB 연결 실패
 
-### Supabase 설정 (무료, PostgreSQL)
+1. IP 화이트리스트 확인 (0.0.0.0/0)
+2. 연결 문자열 확인
+3. 사용자 권한 확인
 
-1. **Supabase 가입**
-   - https://supabase.com 접속
-   - 새 프로젝트 생성
+### 이메일 발송 실패
 
-2. **연결 정보**
-   - Connection String 복사
-   - Vercel 환경 변수에 추가
+1. SMTP 설정 확인
+2. 앱 비밀번호 재생성
+3. 방화벽 설정 확인
 
----
+### 결제 실패
 
-## 🔒 보안 강화 (프로덕션)
-
-### 필수 사항
-1. ✅ 강력한 비밀번호 사용 (111111 → 복잡한 비밀번호)
-2. ✅ HTTPS 사용 (Vercel 자동)
-3. ✅ 환경 변수로 비밀번호 관리
-4. ⚠️ 서버 사이드 인증 구현 (현재는 클라이언트 사이드)
-
-### 권장 사항
-- Rate Limiting 추가
-- CSRF 보호
-- 입력 검증 강화
+1. PortOne 키 확인
+2. 채널 활성화 확인
+3. 테스트/실제 모드 확인
 
 ---
 
-## 📞 지원 및 도움말
+## 📝 체크리스트
 
-### Vercel 문서
-- https://vercel.com/docs
-- 한국어 지원: 제한적 (영어 문서)
+### 배포 전
 
-### 문제 해결
-- Vercel Dashboard → Logs에서 에러 확인
-- Build Logs에서 빌드 오류 확인
+- [ ] 환경변수 모두 설정
+- [ ] MongoDB 인덱스 생성
+- [ ] 빌드 성공 확인
+- [ ] 테스트 가이드 검토
+
+### 배포 후
+
+- [ ] 헬스 체크 통과
+- [ ] 관리자 로그인 테스트
+- [ ] 수강 신청 플로우 테스트
+- [ ] 이메일 발송 테스트
+- [ ] 결제 테스트 (테스트 모드)
+
+### 프로덕션 전환
+
+- [ ] 도메인 연결
+- [ ] SSL 인증서 확인
+- [ ] PortOne 실제 모드 전환
+- [ ] 백업 설정
+- [ ] 모니터링 설정
 
 ---
 
-## 💡 최종 권장사항
+## 🎉 완료!
 
-**지금 당장 배포하려면:**
-1. ✅ **Vercel** 사용 (가장 쉬움)
-2. ✅ **MongoDB Atlas** 무료 플랜으로 데이터베이스 연동
-3. ✅ GitHub에 코드 푸시 후 Vercel 연결
+배포가 완료되면:
 
-**예상 소요 시간:** 10-15분
+1. 📧 팀에 공유
+2. 📊 Analytics 확인
+3. 🐛 버그 리포트 대기
+4. 🚀 마케팅 시작!
 
-**비용:** 무료 (개인 프로젝트 기준)
-
+**Happy Deploying! 🚀**
