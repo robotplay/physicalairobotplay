@@ -129,12 +129,12 @@ export default function Header() {
                     </Link>
 
                         {/* Desktop Navigation */}
-                        <nav className="hidden lg:flex items-center gap-4 xl:gap-8">
+                        <nav className="hidden lg:flex items-center gap-3 xl:gap-6">
                             {navItems.map((item) => (
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className={`font-medium transition-colors text-xs xl:text-sm cursor-pointer ${
+                                    className={`flex items-center font-medium transition-colors text-sm xl:text-base whitespace-nowrap cursor-pointer ${
                                         isScrolled
                                             ? 'text-gray-300 active:text-deep-electric-blue hover:text-deep-electric-blue'
                                             : 'text-white active:text-deep-electric-blue hover:text-deep-electric-blue'
@@ -206,19 +206,19 @@ export default function Header() {
                             ))}
                             <Link
                                 href="/basic-course"
-                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-active-orange active:bg-orange-600 hover:bg-orange-600 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation cursor-pointer"
+                                className="flex items-center justify-center px-4 py-2 xl:px-5 xl:py-2.5 bg-active-orange active:bg-orange-600 hover:bg-orange-600 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-sm xl:text-base whitespace-nowrap touch-manipulation cursor-pointer"
                             >
                                 Basic Course
                             </Link>
                             <Link
                                 href="/advanced-course"
-                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-deep-electric-blue active:bg-blue-700 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation cursor-pointer"
+                                className="flex items-center justify-center px-4 py-2 xl:px-5 xl:py-2.5 bg-deep-electric-blue active:bg-blue-700 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-sm xl:text-base whitespace-nowrap touch-manipulation cursor-pointer"
                             >
                                 Advanced Course
                             </Link>
                             <Link
                                 href="/airrobot-course"
-                                className="px-3 py-1.5 xl:px-4 xl:py-2 bg-gradient-to-r from-sky-400 to-blue-600 active:from-sky-500 active:to-blue-700 hover:from-sky-500 hover:to-blue-700 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-xs xl:text-sm touch-manipulation cursor-pointer"
+                                className="flex items-center justify-center px-4 py-2 xl:px-5 xl:py-2.5 bg-gradient-to-r from-sky-400 to-blue-600 active:from-sky-500 active:to-blue-700 hover:from-sky-500 hover:to-blue-700 text-white font-semibold rounded-lg transition-all transform active:scale-95 hover:scale-105 text-sm xl:text-base whitespace-nowrap touch-manipulation cursor-pointer"
                             >
                                 AirRobot Course
                             </Link>
