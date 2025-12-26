@@ -124,9 +124,13 @@ export async function DELETE(
         const resolvedParams = params instanceof Promise ? await params : params;
         const { id } = resolvedParams;
 
-        if (!id || !ObjectId.isValid(id)) {
+        console.log('Delete user - Received ID:', id);
+        console.log('Delete user - ID type:', typeof id);
+        console.log('Delete user - Is valid ObjectId:', ObjectId.isValid(id));
+
+        if (!id) {
             return NextResponse.json(
-                { success: false, error: '유효하지 않은 사용자 ID입니다.' },
+                { success: false, error: 'ID가 제공되지 않았습니다.' },
                 { status: 400 }
             );
         }
@@ -134,24 +138,50 @@ export async function DELETE(
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.USERS);
 
-        // 사용자 존재 확인
-        const user = await collection.findOne({ _id: new ObjectId(id) });
+        // ObjectId로 변환 가능한지 확인하고 시도
+        let user;
+        if (ObjectId.isValid(id)) {
+            try {
+                const objectId = new ObjectId(id);
+                console.log('Attempting to find user with ObjectId:', objectId);
+                user = await collection.findOne({ _id: objectId });
+            } catch (err) {
+                console.error('ObjectId conversion error:', err);
+            }
+        }
+
+        // ObjectId로 찾지 못하면 문자열 id 필드로도 시도
         if (!user) {
+            console.log('Attempting to find user with string id field:', id);
+            user = await collection.findOne({ id: id });
+        }
+
+        if (!user) {
+            console.error('User not found with ID:', id);
+            // 디버깅을 위해 모든 사용자의 _id와 id 출력
+            const allUsers = await collection.find({}).project({ _id: 1, id: 1, username: 1 }).toArray();
+            console.log('All users in DB:', JSON.stringify(allUsers, null, 2));
+            
             return NextResponse.json(
-                { success: false, error: '사용자를 찾을 수 없습니다.' },
+                { success: false, error: '사용자를 찾을 수 없습니다. ID를 확인해주세요.' },
                 { status: 404 }
             );
         }
 
+        console.log('Found user:', user._id, user.username);
+
         // 자기 자신은 삭제 불가
-        if (auth.user && auth.user.userId === id) {
+        const userIdToCheck = user._id.toString();
+        if (auth.user && auth.user.userId === userIdToCheck) {
             return NextResponse.json(
                 { success: false, error: '자기 자신은 삭제할 수 없습니다.' },
                 { status: 400 }
             );
         }
 
-        await collection.deleteOne({ _id: new ObjectId(id) });
+        // 삭제 실행
+        const deleteResult = await collection.deleteOne({ _id: user._id });
+        console.log('Delete result:', deleteResult);
 
         return NextResponse.json({
             success: true,
