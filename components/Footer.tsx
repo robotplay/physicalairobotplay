@@ -69,10 +69,11 @@ export default function Footer() {
                             <h3 className="text-lg font-bold mb-6 text-gray-200">Contact Us</h3>
                             <ul className="space-y-4">
                                 {[
-                                    { icon: MapPin, text: '충청남도 천안시 서북구 불당동 불당34길 3-15 202호 불당동 탑프라자', href: 'https://www.google.com/maps/search/?api=1&query=충청남도+천안시+서북구+불당동+불당34길+3-15+202호+불당동+탑프라자' },
                                     { icon: Phone, text: '041-566-5345', href: 'tel:041-566-5345' },
-                                    { icon: Mail, text: 'hkjtop@naver.com', href: 'mailto:hkjtop@naver.com' },
-                                    { icon: FileText, text: '학원 등록번호: [실제 등록번호로 교체 필요]', href: null },
+                                    { icon: Mail, text: 'hkj5345@gmail.com', href: 'mailto:hkj5345@gmail.com' },
+                                    { icon: FileText, text: '사업자등록번호: 326-81-03489', href: null },
+                                    { icon: FileText, text: '사업자명 주식회사 에이아이씨티', href: null },
+                                    { icon: MapPin, text: '충청남도 아산시 탕정면 선문로221번길 70, 405호', href: 'https://www.google.com/maps/search/?api=1&query=충청남도+아산시+탕정면+선문로221번길+70' },
                                 ].map((item, index) => {
                                     const Icon = item.icon;
                                     return (
@@ -119,7 +120,7 @@ export default function Footer() {
                                 <div className="p-4 bg-gray-800/50 backdrop-blur-sm">
                                     <div className="flex items-start gap-2 text-sm text-gray-300">
                                         <MapPin className="w-4 h-4 text-deep-electric-blue flex-shrink-0 mt-0.5" />
-                                        <span className="leading-relaxed">충청남도 천안시 서북구 불당동<br />불당34길 3-15 202호 불당동 탑프라자</span>
+                                        <span className="leading-relaxed">충청남도 천안시 서북구 불당동<br />불당34길 3-15 202호 불당동 탑프라자 로봇플레이</span>
                                     </div>
                                     <a
                                         href="https://www.google.com/maps/search/?api=1&query=충청남도+천안시+서북구+불당동+불당34길+3-15+202호+불당동+탑프라자"

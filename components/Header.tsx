@@ -10,6 +10,11 @@ import { Menu, X } from 'lucide-react';
 function LogoWithFallback() {
     const [imageError, setImageError] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     // Try different image formats and paths
     // Add version query to bypass browser cache
@@ -49,6 +54,9 @@ function LogoWithFallback() {
         );
     }
 
+    // Prevent hydration mismatch - always show image opacity-100 on initial render
+    const imageOpacity = isMounted && imageLoaded ? 'opacity-100' : 'opacity-100';
+
     return (
         <>
             <Image
@@ -56,9 +64,7 @@ function LogoWithFallback() {
                 alt="PAR Physical AI RobotCoding"
                 width={200}
                 height={60}
-                className={`h-full w-auto object-contain transition-opacity duration-300 ${
-                    imageLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
+                className={`h-full w-auto object-contain transition-opacity duration-300 ${imageOpacity}`}
                 priority
                 onError={handleError}
                 onLoad={handleLoad}
@@ -66,17 +72,6 @@ function LogoWithFallback() {
                     filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
                 }}
             />
-            {!imageLoaded && (
-                <div className="absolute inset-0 flex items-center gap-2 animate-pulse">
-                    <div className="text-2xl sm:text-3xl font-black text-deep-electric-blue">
-                        PAR
-                    </div>
-                    <div className="hidden sm:block text-xs leading-tight">
-                        <div className="text-deep-electric-blue">Physical AI Robot</div>
-                        <div className="text-active-orange font-semibold">Coding</div>
-                    </div>
-                </div>
-            )}
         </>
     );
 }
@@ -86,9 +81,10 @@ export default function Header() {
     const pathname = usePathname();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        if (typeof window === 'undefined') return;
+        setIsMounted(true);
         
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -107,14 +103,15 @@ export default function Header() {
         { name: '마이 강의실', href: '/my-classroom' },
     ];
 
+    // Prevent hydration mismatch by using the same initial state on server and client
+    const headerClassName = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isMounted && isScrolled
+            ? 'bg-[#1A1A1A]/95 backdrop-blur-md shadow-lg border-b border-gray-700'
+            : 'bg-transparent'
+    }`;
+
     return (
-        <header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-                isScrolled
-                    ? 'bg-[#1A1A1A]/95 backdrop-blur-md shadow-lg border-b border-gray-700'
-                    : 'bg-transparent'
-            }`}
-        >
+        <header className={headerClassName}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16 sm:h-20">
                     {/* Logo */}
@@ -135,7 +132,7 @@ export default function Header() {
                                     key={item.name}
                                     href={item.href}
                                     className={`flex items-center font-medium transition-colors text-sm xl:text-base whitespace-nowrap cursor-pointer ${
-                                        isScrolled
+                                        isMounted && isScrolled
                                             ? 'text-gray-300 active:text-deep-electric-blue hover:text-deep-electric-blue'
                                             : 'text-white active:text-deep-electric-blue hover:text-deep-electric-blue'
                                     }`}
@@ -227,7 +224,7 @@ export default function Header() {
                     {/* Mobile Menu Button */}
                     <button
                         className={`lg:hidden transition-colors touch-manipulation p-2 cursor-pointer ${
-                            isScrolled
+                            isMounted && isScrolled
                                 ? 'text-gray-300 active:text-deep-electric-blue hover:text-deep-electric-blue'
                                 : 'text-white active:text-deep-electric-blue hover:text-deep-electric-blue'
                         }`}
@@ -245,14 +242,14 @@ export default function Header() {
                     {/* Mobile Menu */}
                     {isMobileMenuOpen && (
                         <div className={`lg:hidden py-4 border-t ${
-                            isScrolled ? 'border-gray-700' : 'border-gray-200'
+                            isMounted && isScrolled ? 'border-gray-700' : 'border-gray-200'
                         }`}>
                         {navItems.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={`block py-3 transition-colors px-4 cursor-pointer ${
-                                    isScrolled
+                                    isMounted && isScrolled
                                         ? 'text-gray-300 hover:text-deep-electric-blue'
                                         : 'text-white hover:text-deep-electric-blue'
                                 }`}
@@ -323,7 +320,7 @@ export default function Header() {
                             </Link>
                         ))}
                         <div className={`pt-4 space-y-2 border-t ${
-                            isScrolled ? 'border-gray-700' : 'border-gray-200'
+                            isMounted && isScrolled ? 'border-gray-700' : 'border-gray-200'
                         }`}>
                             <Link
                                 href="/basic-course"
