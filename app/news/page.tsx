@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { Calendar, ArrowLeft, Newspaper } from 'lucide-react';
+import { Calendar, ArrowLeft, Newspaper, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 const Footer = dynamic(() => import('@/components/Footer'), {
@@ -32,14 +32,39 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default function NewsPage() {
     const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+
+    const categories = [
+        { value: 'all', label: '전체' },
+        { value: '공지사항', label: '공지사항' },
+        { value: '대회 소식', label: '대회 소식' },
+        { value: '교육 정보', label: '교육 정보' },
+        { value: '수업 스케치', label: '수업 스케치' },
+    ];
 
     useEffect(() => {
         const loadNews = async () => {
+            setIsLoading(true);
             try {
-                const response = await fetch('/api/news?sort=desc');
+                const params = new URLSearchParams({
+                    sort: 'desc',
+                    page: currentPage.toString(),
+                    limit: '6',
+                });
+                
+                if (selectedCategory !== 'all') {
+                    params.append('category', selectedCategory);
+                }
+
+                const response = await fetch(`/api/news?${params.toString()}`);
                 const result = await response.json();
                 if (result.success) {
                     setNewsItems(result.data || []);
+                    setTotalPages(result.totalPages || 1);
+                    setTotalCount(result.totalCount || 0);
                 }
             } catch (error) {
                 console.error('Failed to load news:', error);
@@ -49,7 +74,17 @@ export default function NewsPage() {
         };
 
         loadNews();
-    }, []);
+    }, [currentPage, selectedCategory]);
+
+    const handleCategoryChange = (category: string) => {
+        setSelectedCategory(category);
+        setCurrentPage(1); // 카테고리 변경 시 첫 페이지로
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -77,9 +112,35 @@ export default function NewsPage() {
                             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 sm:mb-6">
                                 소식 및 공지사항
                             </h1>
-                            <p className="text-base sm:text-lg text-gray-300">
+                            <p className="text-base sm:text-lg text-gray-300 mb-6">
                                 PAR Play의 최신 소식과 교육 정보를 확인하세요
                             </p>
+                            <p className="text-sm text-gray-400">
+                                총 {totalCount}개의 게시물
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Category Filter */}
+                    <div className="mb-8 sm:mb-12">
+                        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+                            {categories.map((category) => (
+                                <button
+                                    key={category.value}
+                                    onClick={() => handleCategoryChange(category.value)}
+                                    className={`
+                                        px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold text-sm sm:text-base
+                                        transition-all duration-300 transform hover:scale-105 active:scale-95
+                                        ${
+                                            selectedCategory === category.value
+                                                ? 'bg-gradient-to-r from-deep-electric-blue to-active-orange text-white shadow-lg'
+                                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'
+                                        }
+                                    `}
+                                >
+                                    {category.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
@@ -163,20 +224,87 @@ export default function NewsPage() {
                         </div>
                     )}
 
-                    {/* Pagination (추후 구현) */}
-                    <div className="mt-12 sm:mt-16 text-center">
-                        <div className="inline-flex gap-2">
-                            <button className="px-4 py-2 bg-deep-electric-blue text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                1
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-12 sm:mt-16 flex items-center justify-center gap-2 sm:gap-3">
+                            {/* Previous Button */}
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className={`
+                                    flex items-center gap-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl font-semibold
+                                    transition-all duration-300 transform hover:scale-105 active:scale-95
+                                    ${
+                                        currentPage === 1
+                                            ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                                            : 'bg-gray-800 text-white hover:bg-deep-electric-blue border border-gray-700'
+                                    }
+                                `}
+                            >
+                                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="hidden sm:inline">이전</span>
                             </button>
-                            <button className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                                2
-                            </button>
-                            <button className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                                3
+
+                            {/* Page Numbers */}
+                            <div className="flex items-center gap-2">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                    // 페이지가 많을 때 표시할 페이지 수 제한
+                                    const showPage = 
+                                        page === 1 ||
+                                        page === totalPages ||
+                                        (page >= currentPage - 1 && page <= currentPage + 1);
+
+                                    if (!showPage) {
+                                        // 생략 표시
+                                        if (page === currentPage - 2 || page === currentPage + 2) {
+                                            return (
+                                                <span key={page} className="px-2 text-gray-500">
+                                                    ...
+                                                </span>
+                                            );
+                                        }
+                                        return null;
+                                    }
+
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => handlePageChange(page)}
+                                            className={`
+                                                w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl font-bold text-sm sm:text-base
+                                                transition-all duration-300 transform hover:scale-110 active:scale-95
+                                                ${
+                                                    currentPage === page
+                                                        ? 'bg-gradient-to-r from-deep-electric-blue to-active-orange text-white shadow-lg'
+                                                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'
+                                                }
+                                            `}
+                                        >
+                                            {page}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Next Button */}
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className={`
+                                    flex items-center gap-1 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl font-semibold
+                                    transition-all duration-300 transform hover:scale-105 active:scale-95
+                                    ${
+                                        currentPage === totalPages
+                                            ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                                            : 'bg-gray-800 text-white hover:bg-deep-electric-blue border border-gray-700'
+                                    }
+                                `}
+                            >
+                                <span className="hidden sm:inline">다음</span>
+                                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
             <Footer />

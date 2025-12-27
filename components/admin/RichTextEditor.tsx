@@ -25,7 +25,9 @@ import {
     AlignLeft,
     AlignCenter,
     AlignRight,
-    Loader2
+    Loader2,
+    Code2,
+    Eye
 } from 'lucide-react';
 import { useState, useRef } from 'react';
 
@@ -43,6 +45,8 @@ export default function RichTextEditor({
     onImageUpload 
 }: RichTextEditorProps) {
     const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [isHtmlMode, setIsHtmlMode] = useState(false);
+    const [htmlContent, setHtmlContent] = useState(content);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const editor = useEditor({
@@ -396,12 +400,55 @@ export default function RichTextEditor({
                 >
                     <Redo className="w-4 h-4" />
                 </button>
+
+                <div className="w-px h-6 bg-gray-300 dark:bg-gray-500 mx-1" />
+
+                {/* HTML 모드 토글 */}
+                <button
+                    type="button"
+                    onClick={() => {
+                        if (isHtmlMode) {
+                            // HTML → Visual 모드
+                            editor?.commands.setContent(htmlContent);
+                            setIsHtmlMode(false);
+                        } else {
+                            // Visual → HTML 모드
+                            const currentHtml = editor?.getHTML() || '';
+                            setHtmlContent(currentHtml);
+                            setIsHtmlMode(true);
+                        }
+                    }}
+                    className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-200 ${
+                        isHtmlMode ? 'bg-deep-electric-blue text-white hover:bg-blue-700' : ''
+                    }`}
+                    title={isHtmlMode ? 'Visual 모드로 전환' : 'HTML 소스 편집'}
+                >
+                    {isHtmlMode ? <Eye className="w-4 h-4" /> : <Code2 className="w-4 h-4" />}
+                </button>
             </div>
 
             {/* 에디터 영역 */}
-            <div className="min-h-[300px] max-h-[600px] overflow-y-auto">
-                <EditorContent editor={editor} />
-            </div>
+            {isHtmlMode ? (
+                <div className="min-h-[300px] max-h-[600px] overflow-y-auto p-4">
+                    <textarea
+                        value={htmlContent}
+                        onChange={(e) => {
+                            setHtmlContent(e.target.value);
+                            onChange(e.target.value);
+                        }}
+                        className="w-full min-h-[300px] font-mono text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-none outline-none resize-none"
+                        placeholder="HTML 코드를 직접 입력하세요..."
+                        spellCheck={false}
+                    />
+                    <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-xs text-blue-700 dark:text-blue-300">
+                        💡 HTML 소스를 직접 편집할 수 있습니다. Visual 모드로 전환하면 미리보기가 가능합니다.
+                    </div>
+                </div>
+            ) : (
+                <div className="min-h-[300px] max-h-[600px] overflow-y-auto">
+                    <EditorContent editor={editor} />
+                </div>
+            )}
         </div>
     );
 }

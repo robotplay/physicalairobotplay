@@ -1,18 +1,20 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users } from 'lucide-react';
+import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users, DollarSign, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import RichTextEditor from './RichTextEditor';
+import toast from 'react-hot-toast';
 
-interface CourseData {
+export interface CourseData {
     _id: string;
     id: string;
     title: string;
     description: string;
     content: string; // 리치 HTML 콘텐츠
     duration: string;
-    students: string;
+    students: string; // 현재 수강생 수
+    capacity: number; // 정원
     level: string;
     thumbnail: string;
     category: string;
@@ -21,6 +23,8 @@ interface CourseData {
     platformType: 'zoom' | 'whale';
     schedule: { day: string, time: string }[];
     price: number; // 가격
+    teacherId?: string; // 강사 ID
+    teacherName?: string; // 강사 이름
     createdAt: string;
 }
 
@@ -53,6 +57,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         content: '', // 리치 HTML 콘텐츠
         duration: '4주',
         students: '0명',
+        capacity: 4, // 정원
         level: '입문',
         category: 'Basic Course',
         color: 'from-active-orange to-orange-600',
@@ -71,6 +76,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             content: '',
             duration: '4주',
             students: '0명',
+            capacity: 30,
             level: '입문',
             category: 'Basic Course',
             color: 'from-active-orange to-orange-600',
@@ -82,6 +88,11 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         });
         setSelectedCourse(null);
         setEditingId(null);
+        setUploadPreview(null);
+        // 파일 입력 리셋
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleEdit = (item: CourseData) => {
@@ -92,6 +103,7 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             content: item.content || '',
             duration: item.duration,
             students: item.students,
+            capacity: item.capacity || 4,
             level: item.level,
             category: item.category,
             color: item.color,
@@ -103,20 +115,47 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         });
         setSelectedCourse(null);
         setIsCreating(false);
+        setUploadPreview(null);
+        // 파일 입력 리셋
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleCancel = () => {
         setIsCreating(false);
         setEditingId(null);
         setUploadPreview(null);
+        // 파일 입력 리셋
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // 파일 크기 확인 (6MB 제한)
+            const maxSize = 6 * 1024 * 1024; // 6MB
+            if (file.size > maxSize) {
+                toast.error(`파일 크기는 6MB 이하여야 합니다.\n현재 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                e.target.value = ''; // 파일 선택 취소
+                return;
+            }
+
+            // 파일 타입 확인
+            if (!file.type.startsWith('image/')) {
+                toast.error('이미지 파일만 업로드 가능합니다.');
+                e.target.value = ''; // 파일 선택 취소
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 setUploadPreview(reader.result as string);
+            };
+            reader.onerror = () => {
+                toast.error('파일을 읽는 중 오류가 발생했습니다.');
             };
             reader.readAsDataURL(file);
         }
@@ -124,25 +163,79 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
 
     const handleImageUpload = async () => {
         const file = fileInputRef.current?.files?.[0];
-        if (!file) return;
+        if (!file) {
+            toast.error('파일을 선택해주세요.');
+            return;
+        }
 
         setIsUploading(true);
         const uploadFormData = new FormData();
         uploadFormData.append('file', file);
 
+        const loadingToast = toast.loading('이미지 업로드 중...');
+
         try {
+            console.log('[Image Upload] 업로드 시작:', {
+                fileName: file.name,
+                fileSize: file.size,
+                fileType: file.type,
+            });
+
             const response = await fetch('/api/news/upload', {
                 method: 'POST',
                 body: uploadFormData,
             });
+
+            console.log('[Image Upload] 응답 상태:', response.status, response.statusText);
+            console.log('[Image Upload] Content-Type:', response.headers.get('content-type'));
+
+            // 응답 상태 확인
+            if (!response.ok) {
+                // HTTP 에러 응답인 경우
+                let errorMessage = '업로드에 실패했습니다.';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || errorData.message || errorMessage;
+                } catch (e) {
+                    // JSON 파싱 실패 시 텍스트로 읽기 시도
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    errorMessage = `서버 오류 (${response.status}): ${response.statusText}`;
+                }
+                toast.error(errorMessage, { id: loadingToast });
+                return;
+            }
+
+            // 응답이 JSON인지 확인
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Non-JSON response:', text);
+                toast.error('서버에서 잘못된 응답을 받았습니다.', { id: loadingToast });
+                return;
+            }
+
             const result = await response.json();
+            
             if (result.success) {
                 setFormData({ ...formData, thumbnail: result.path });
                 setUploadPreview(null);
-                alert('이미지가 업로드되었습니다.');
+                // 파일 입력 리셋
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                toast.success(result.message || '이미지가 업로드되었습니다.', { id: loadingToast });
+            } else {
+                toast.error(result.error || '업로드 실패', { id: loadingToast });
             }
-        } catch {
-            alert('업로드 실패');
+        } catch (error: any) {
+            console.error('Upload error:', error);
+            // 네트워크 오류나 파싱 오류
+            if (error.message && error.message.includes('JSON')) {
+                toast.error('서버 응답을 처리할 수 없습니다. 서버 상태를 확인해주세요.', { id: loadingToast });
+            } else {
+                toast.error(error.message || '업로드 중 오류가 발생했습니다.', { id: loadingToast });
+            }
         } finally {
             setIsUploading(false);
         }
@@ -169,6 +262,9 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const loadingToast = toast.loading(editingId ? '온라인 강좌 수정 중...' : '온라인 강좌 추가 중...');
+
         try {
             const response = await fetch('/api/online-courses', {
                 method: 'POST',
@@ -177,25 +273,35 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             });
             const result = await response.json();
             if (result.success) {
-                alert(editingId ? '수정되었습니다.' : '추가되었습니다.');
+                toast.success(editingId ? '수정되었습니다.' : '추가되었습니다.', { id: loadingToast });
                 handleCancel();
                 onRefresh();
+            } else {
+                toast.error(result.error || '저장 실패', { id: loadingToast });
             }
-        } catch {
-            alert('저장 실패');
+        } catch (error) {
+            console.error('Save error:', error);
+            toast.error('저장 실패', { id: loadingToast });
         }
     };
 
     const handleDelete = async (id: string) => {
         if (!confirm('정말 삭제하시겠습니까?')) return;
+
+        const loadingToast = toast.loading('온라인 강좌 삭제 중...');
+
         try {
             const response = await fetch(`/api/online-courses?id=${id}`, { method: 'DELETE' });
-            if ((await response.json()).success) {
-                alert('삭제되었습니다.');
+            const result = await response.json();
+            if (result.success) {
+                toast.success('삭제되었습니다.', { id: loadingToast });
                 onRefresh();
+            } else {
+                toast.error(result.error || '삭제 실패', { id: loadingToast });
             }
-        } catch {
-            alert('삭제 실패');
+        } catch (error) {
+            console.error('Delete error:', error);
+            toast.error('삭제 실패', { id: loadingToast });
         }
     };
 
@@ -239,6 +345,30 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                                         <input type="text" value={formData.level} onChange={e => setFormData({ ...formData, level: e.target.value })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                                     </div>
                                 </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">정원 (명) *</label>
+                                        <input 
+                                            type="number" 
+                                            value={formData.capacity} 
+                                            onChange={e => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })} 
+                                            placeholder="4" 
+                                            min="1"
+                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">현재 수강생 수</label>
+                                        <input 
+                                            type="text" 
+                                            value={formData.students} 
+                                            onChange={e => setFormData({ ...formData, students: e.target.value })} 
+                                            placeholder="0명" 
+                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
+                                        />
+                                    </div>
+                                </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">화상 회의 플랫폼</label>
                                     <select value={formData.platformType} onChange={e => setFormData({ ...formData, platformType: e.target.value as 'zoom' | 'whale' })} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
@@ -265,7 +395,16 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                                     <div className="flex gap-2">
                                         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" id="course-img" />
                                         <label htmlFor="course-img" className="flex-1 px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center cursor-pointer hover:border-deep-electric-blue transition-colors text-gray-700 dark:text-gray-300">이미지 선택</label>
-                                        {fileInputRef.current?.files?.[0] && <button type="button" onClick={handleImageUpload} disabled={isUploading} className="px-4 py-2 bg-deep-electric-blue text-white rounded-lg">{isUploading ? '...' : '업로드'}</button>}
+                                        {uploadPreview && (
+                                            <button 
+                                                type="button" 
+                                                onClick={handleImageUpload} 
+                                                disabled={isUploading} 
+                                                className="px-4 py-2 bg-deep-electric-blue text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {isUploading ? '업로드 중...' : '업로드'}
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                                 <div>
@@ -293,16 +432,31 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                             <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={2} placeholder="강좌의 간단한 소개를 입력하세요 (한 줄 정도)" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">가격 (원) *</label>
-                            <input 
-                                type="number" 
-                                value={formData.price} 
-                                onChange={e => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })} 
-                                placeholder="0" 
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
-                                required
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">가격 (원) *</label>
+                                <input 
+                                    type="number" 
+                                    value={formData.price} 
+                                    onChange={e => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })} 
+                                    placeholder="0" 
+                                    min="0"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">정원 (명) *</label>
+                                <input 
+                                    type="number" 
+                                    value={formData.capacity} 
+                                    onChange={e => setFormData({ ...formData, capacity: parseInt(e.target.value) || 0 })} 
+                                    placeholder="30" 
+                                    min="1"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white" 
+                                    required
+                                />
+                            </div>
                         </div>
 
                         <div>
@@ -346,6 +500,169 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 </div>
             )}
 
+            {/* 강좌 상세 정보 모달 */}
+            {selectedCourse && !isCreating && !editingId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedCourse(null)}>
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-deep-electric-blue" onClick={(e) => e.stopPropagation()}>
+                        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between z-10">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">강좌 상세 정보</h3>
+                            <button
+                                onClick={() => setSelectedCourse(null)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                            </button>
+                        </div>
+                        
+                        <div className="p-6 space-y-6">
+                            {/* 썸네일 */}
+                            <div className="relative w-full h-64 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                                <Image 
+                                    src={selectedCourse.thumbnail} 
+                                    alt={selectedCourse.title} 
+                                    fill 
+                                    className="object-cover" 
+                                />
+                                <div className="absolute top-4 left-4">
+                                    <span className={`text-xs font-bold px-3 py-1 rounded-full bg-gradient-to-r ${selectedCourse.color} text-white`}>
+                                        {selectedCourse.category}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* 기본 정보 */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">기본 정보</h4>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">강좌 제목</label>
+                                            <p className="text-base text-gray-900 dark:text-white font-semibold">{selectedCourse.title}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">간단 소개</label>
+                                            <p className="text-base text-gray-900 dark:text-white">{selectedCourse.description || '없음'}</p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">기간</label>
+                                                <p className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                                    <Clock className="w-4 h-4" /> {selectedCourse.duration}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">레벨</label>
+                                                <p className="text-base text-gray-900 dark:text-white">{selectedCourse.level}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">수강 정보</h4>
+                                    <div className="space-y-3">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">가격</label>
+                                                <p className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                                    <DollarSign className="w-4 h-4" /> {selectedCourse.price?.toLocaleString() || 0}원
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">정원</label>
+                                                <p className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                                    <Users className="w-4 h-4" /> {selectedCourse.capacity || 4}명
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">현재 수강생</label>
+                                            <p className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                                                <Users className="w-4 h-4" /> {selectedCourse.students || '0명'}
+                                            </p>
+                                        </div>
+                                        {selectedCourse.teacherName && (
+                                            <div>
+                                                <label className="text-sm font-semibold text-gray-500 dark:text-gray-400">담당 강사</label>
+                                                <p className="text-base text-gray-900 dark:text-white">{selectedCourse.teacherName}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 회의 링크 */}
+                            {selectedCourse.meetingUrl && (
+                                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                        <label className="text-sm font-semibold text-blue-900 dark:text-blue-300">
+                                            {selectedCourse.platformType === 'zoom' ? 'Zoom' : '웨일온'} 회의 링크
+                                        </label>
+                                    </div>
+                                    <a 
+                                        href={selectedCourse.meetingUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+                                    >
+                                        {selectedCourse.meetingUrl}
+                                    </a>
+                                </div>
+                            )}
+
+                            {/* 수업 스케줄 */}
+                            {selectedCourse.schedule && selectedCourse.schedule.length > 0 && (
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <Calendar className="w-5 h-5" /> 수업 스케줄
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {selectedCourse.schedule.map((schedule, idx) => (
+                                            <div key={idx} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                    {schedule.day}요일 {schedule.time}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 상세 내용 */}
+                            {selectedCourse.content && (
+                                <div>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">상세 내용</h4>
+                                    <div 
+                                        className="prose prose-sm dark:prose-invert max-w-none bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
+                                        dangerouslySetInnerHTML={{ __html: selectedCourse.content }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* 액션 버튼 */}
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <button
+                                    onClick={() => {
+                                        setSelectedCourse(null);
+                                        handleEdit(selectedCourse);
+                                    }}
+                                    className="flex items-center gap-2 px-6 py-2 bg-deep-electric-blue text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                                >
+                                    <Edit className="w-4 h-4" /> 수정하기
+                                </button>
+                                <button
+                                    onClick={() => setSelectedCourse(null)}
+                                    className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                >
+                                    닫기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {courses.length === 0 ? (
                     <div className="lg:col-span-2 text-center py-16 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
@@ -357,7 +674,17 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                     </div>
                 ) : (
                     courses.map(course => (
-                        <div key={course._id} className={`bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md border-2 cursor-pointer hover:shadow-lg transition-all ${selectedCourse?._id === course._id ? 'border-deep-electric-blue' : 'border-gray-100 dark:border-gray-800'}`} onClick={() => setSelectedCourse(course)}>
+                        <div 
+                            key={course._id} 
+                            className={`
+                                bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md border-2 
+                                cursor-pointer hover:shadow-xl hover:border-deep-electric-blue/50 
+                                transition-all duration-300 transform hover:-translate-y-1
+                                ${selectedCourse?._id === course._id ? 'border-deep-electric-blue ring-2 ring-deep-electric-blue/20' : 'border-gray-100 dark:border-gray-800'}
+                            `} 
+                            onClick={() => setSelectedCourse(course)}
+                            title="클릭하여 상세 정보 보기"
+                        >
                             <div className="flex gap-4">
                                 <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 dark:border-gray-700">
                                     <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />

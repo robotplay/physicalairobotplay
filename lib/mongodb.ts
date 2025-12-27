@@ -14,7 +14,7 @@ let clientPromise: Promise<MongoClient> | null = null;
 if (uri) {
     if (process.env.NODE_ENV === 'development') {
         // 개발 환경에서는 전역 변수에 저장하여 재사용
-        let globalWithMongo = global as typeof globalThis & {
+        const globalWithMongo = global as typeof globalThis & {
             _mongoClientPromise?: Promise<MongoClient>;
         };
 
@@ -43,6 +43,7 @@ export async function getDatabase(): Promise<Db> {
 
 // 컬렉션 이름 상수
 export const COLLECTIONS = {
+    USERS: 'users',
     AIRPLANE_REGISTRATIONS: 'airplane_registrations',
     CONSULTATIONS: 'consultations',
     PAYMENTS: 'payments',

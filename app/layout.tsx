@@ -5,6 +5,8 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
 import Header from "@/components/Header";
 import { OrganizationSchema, WebSiteSchema } from "@/components/JsonLd";
+import ToastProvider from "@/components/ToastProvider";
+import FloatingConsultationButton from "@/components/FloatingConsultationButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -117,6 +119,8 @@ export default function RootLayout({
       >
         <Header />
         {children}
+        <FloatingConsultationButton />
+        <ToastProvider />
         <Analytics />
         <SpeedInsights />
       </body>

@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import { Lock, Eye, EyeOff, User } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminLogin() {
     const router = useRouter();
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
@@ -16,21 +18,34 @@ export default function AdminLogin() {
         setError('');
         setIsLoading(true);
 
-        // 간단한 비밀번호 검증 (실제로는 환경 변수나 API로 확인)
-        // 프로덕션에서는 서버 사이드에서 검증해야 합니다
-        const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '111111';
-        
-        setTimeout(() => {
-            if (password === adminPassword) {
-                // 세션 스토리지에 인증 정보 저장
-                sessionStorage.setItem('admin-authenticated', 'true');
-                sessionStorage.setItem('admin-login-time', Date.now().toString());
+        const loadingToast = toast.loading('로그인 중...');
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // JWT 인증 성공 - 쿠키에 토큰이 자동 설정됨
+                toast.success('로그인 성공!', { id: loadingToast });
                 router.push('/admin');
             } else {
-                setError('비밀번호가 올바르지 않습니다.');
+                toast.error(result.error || '로그인에 실패했습니다.', { id: loadingToast });
+                setError(result.error || '로그인에 실패했습니다.');
                 setIsLoading(false);
             }
-        }, 500);
+        } catch (error) {
+            console.error('Login failed:', error);
+            toast.error('로그인 중 오류가 발생했습니다.', { id: loadingToast });
+            setError('로그인 중 오류가 발생했습니다.');
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -51,20 +66,46 @@ export default function AdminLogin() {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
+                            <label htmlFor="username" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                아이디
+                            </label>
+                            <div className="relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                                    <User className="w-5 h-5 text-gray-400" />
+                                </div>
+                                <input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-deep-electric-blue focus:ring-2 focus:ring-deep-electric-blue/20 transition-all"
+                                    placeholder="관리자 아이디"
+                                    required
+                                    autoFocus
+                                    autoComplete="username"
+                                    disabled={isLoading}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
                             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 비밀번호
                             </label>
                             <div className="relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                                    <Lock className="w-5 h-5 text-gray-400" />
+                                </div>
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     id="password"
                                     name="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-deep-electric-blue focus:ring-2 focus:ring-deep-electric-blue/20 transition-all"
+                                    className="w-full pl-10 pr-12 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-deep-electric-blue focus:ring-2 focus:ring-deep-electric-blue/20 transition-all"
                                     placeholder="비밀번호를 입력하세요"
                                     required
-                                    autoFocus
                                     autoComplete="current-password"
                                     disabled={isLoading}
                                 />
@@ -92,7 +133,7 @@ export default function AdminLogin() {
 
                         <button
                             type="submit"
-                            disabled={isLoading || !password}
+                            disabled={isLoading || !username || !password}
                             className="w-full px-6 py-3 bg-gradient-to-r from-deep-electric-blue to-active-orange hover:from-blue-700 hover:to-orange-600 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 touch-manipulation cursor-pointer"
                         >
                             {isLoading ? (
@@ -111,7 +152,7 @@ export default function AdminLogin() {
 
                     <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                            💡 비밀번호는 .env.local 파일에서 관리됩니다
+                            💡 관리자 계정이 없다면 먼저 생성해주세요
                         </p>
                     </div>
                 </div>
