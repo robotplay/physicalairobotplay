@@ -88,6 +88,11 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         });
         setSelectedCourse(null);
         setEditingId(null);
+        setUploadPreview(null);
+        // 파일 입력 리셋
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleEdit = (item: CourseData) => {
@@ -110,20 +115,47 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         });
         setSelectedCourse(null);
         setIsCreating(false);
+        setUploadPreview(null);
+        // 파일 입력 리셋
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleCancel = () => {
         setIsCreating(false);
         setEditingId(null);
         setUploadPreview(null);
+        // 파일 입력 리셋
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // 파일 크기 확인 (6MB 제한)
+            const maxSize = 6 * 1024 * 1024; // 6MB
+            if (file.size > maxSize) {
+                toast.error(`파일 크기는 6MB 이하여야 합니다.\n현재 파일 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                e.target.value = ''; // 파일 선택 취소
+                return;
+            }
+
+            // 파일 타입 확인
+            if (!file.type.startsWith('image/')) {
+                toast.error('이미지 파일만 업로드 가능합니다.');
+                e.target.value = ''; // 파일 선택 취소
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 setUploadPreview(reader.result as string);
+            };
+            reader.onerror = () => {
+                toast.error('파일을 읽는 중 오류가 발생했습니다.');
             };
             reader.readAsDataURL(file);
         }
@@ -131,7 +163,10 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
 
     const handleImageUpload = async () => {
         const file = fileInputRef.current?.files?.[0];
-        if (!file) return;
+        if (!file) {
+            toast.error('파일을 선택해주세요.');
+            return;
+        }
 
         setIsUploading(true);
         const uploadFormData = new FormData();
@@ -144,17 +179,23 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 method: 'POST',
                 body: uploadFormData,
             });
+
             const result = await response.json();
+            
             if (result.success) {
                 setFormData({ ...formData, thumbnail: result.path });
                 setUploadPreview(null);
+                // 파일 입력 리셋
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
                 toast.success('이미지가 업로드되었습니다.', { id: loadingToast });
             } else {
                 toast.error(result.error || '업로드 실패', { id: loadingToast });
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Upload error:', error);
-            toast.error('업로드 실패', { id: loadingToast });
+            toast.error(error.message || '업로드 중 오류가 발생했습니다.', { id: loadingToast });
         } finally {
             setIsUploading(false);
         }
@@ -314,7 +355,16 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                                     <div className="flex gap-2">
                                         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" id="course-img" />
                                         <label htmlFor="course-img" className="flex-1 px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center cursor-pointer hover:border-deep-electric-blue transition-colors text-gray-700 dark:text-gray-300">이미지 선택</label>
-                                        {fileInputRef.current?.files?.[0] && <button type="button" onClick={handleImageUpload} disabled={isUploading} className="px-4 py-2 bg-deep-electric-blue text-white rounded-lg">{isUploading ? '...' : '업로드'}</button>}
+                                        {uploadPreview && (
+                                            <button 
+                                                type="button" 
+                                                onClick={handleImageUpload} 
+                                                disabled={isUploading} 
+                                                className="px-4 py-2 bg-deep-electric-blue text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {isUploading ? '업로드 중...' : '업로드'}
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                                 <div>
