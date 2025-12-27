@@ -175,10 +175,45 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         const loadingToast = toast.loading('이미지 업로드 중...');
 
         try {
+            console.log('[Image Upload] 업로드 시작:', {
+                fileName: file.name,
+                fileSize: file.size,
+                fileType: file.type,
+            });
+
             const response = await fetch('/api/news/upload', {
                 method: 'POST',
                 body: uploadFormData,
             });
+
+            console.log('[Image Upload] 응답 상태:', response.status, response.statusText);
+            console.log('[Image Upload] Content-Type:', response.headers.get('content-type'));
+
+            // 응답 상태 확인
+            if (!response.ok) {
+                // HTTP 에러 응답인 경우
+                let errorMessage = '업로드에 실패했습니다.';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || errorData.message || errorMessage;
+                } catch (e) {
+                    // JSON 파싱 실패 시 텍스트로 읽기 시도
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    errorMessage = `서버 오류 (${response.status}): ${response.statusText}`;
+                }
+                toast.error(errorMessage, { id: loadingToast });
+                return;
+            }
+
+            // 응답이 JSON인지 확인
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Non-JSON response:', text);
+                toast.error('서버에서 잘못된 응답을 받았습니다.', { id: loadingToast });
+                return;
+            }
 
             const result = await response.json();
             
@@ -189,13 +224,18 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
-                toast.success('이미지가 업로드되었습니다.', { id: loadingToast });
+                toast.success(result.message || '이미지가 업로드되었습니다.', { id: loadingToast });
             } else {
                 toast.error(result.error || '업로드 실패', { id: loadingToast });
             }
         } catch (error: any) {
             console.error('Upload error:', error);
-            toast.error(error.message || '업로드 중 오류가 발생했습니다.', { id: loadingToast });
+            // 네트워크 오류나 파싱 오류
+            if (error.message && error.message.includes('JSON')) {
+                toast.error('서버 응답을 처리할 수 없습니다. 서버 상태를 확인해주세요.', { id: loadingToast });
+            } else {
+                toast.error(error.message || '업로드 중 오류가 발생했습니다.', { id: loadingToast });
+            }
         } finally {
             setIsUploading(false);
         }
