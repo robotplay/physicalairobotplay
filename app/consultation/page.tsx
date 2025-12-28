@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Phone, Mail, User, MessageSquare, Send, CheckCircle, Clock, Award, Users, BookOpen, Sparkles } from 'lucide-react';
-import { trackConsultation } from '@/lib/analytics';
+import { trackConsultation, trackCampaign, trackPageView } from '@/lib/analytics';
 import ScrollAnimation from '@/components/ScrollAnimation';
 
 function ConsultationPageContent() {
@@ -18,11 +18,26 @@ function ConsultationPageContent() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [utmSource, setUtmSource] = useState<string | null>(null);
+    const [utmMedium, setUtmMedium] = useState<string | null>(null);
+    const [utmCampaign, setUtmCampaign] = useState<string | null>(null);
 
     // URL 파라미터에서 광고 추적 정보 가져오기
     useEffect(() => {
         const source = searchParams.get('utm_source') || searchParams.get('source') || null;
+        const medium = searchParams.get('utm_medium') || null;
+        const campaign = searchParams.get('utm_campaign') || null;
+        
         setUtmSource(source);
+        setUtmMedium(medium);
+        setUtmCampaign(campaign);
+        
+        // Google Analytics 페이지뷰 추적
+        trackPageView('/consultation', '상담 예약 페이지');
+        
+        // 광고 캠페인 추적
+        if (source || medium || campaign) {
+            trackCampaign(source || undefined, medium || undefined, campaign || undefined);
+        }
         
         // 상담 페이지 접근 추적
         trackConsultation('open', source || 'direct');
@@ -42,8 +57,13 @@ function ConsultationPageContent() {
 
         try {
             // UTM 소스 정보를 메시지에 추가
-            const messageWithSource = utmSource 
-                ? `${formData.message}\n\n[광고 유입: ${utmSource}]`
+            const utmInfo = [];
+            if (utmSource) utmInfo.push(`소스: ${utmSource}`);
+            if (utmMedium) utmInfo.push(`매체: ${utmMedium}`);
+            if (utmCampaign) utmInfo.push(`캠페인: ${utmCampaign}`);
+            
+            const messageWithSource = utmInfo.length > 0
+                ? `${formData.message}\n\n[광고 유입 정보]\n${utmInfo.join('\n')}`
                 : formData.message;
 
             const response = await fetch('/api/consultations', {
