@@ -6,11 +6,45 @@
 
 ## Step 1: 제품(Products) 추가
 
-### Instagram Graph API 추가
+### 방법 1: 대시보드 메인 화면에서 찾기
 
-1. **대시보드에서 제품 찾기**
-   - 대시보드 메인 화면 상단 또는 좌측 메뉴에서 "제품 추가" 또는 "Add Product" 버튼 찾기
-   - 또는 대시보드 중앙에 표시되는 제품 목록 확인
+1. **대시보드 메인 화면 확인**
+   - 대시보드 중앙 영역에 여러 카드/박스들이 표시됨
+   - "제품" 또는 "Products" 섹션 찾기
+   - 또는 "제품 추가" 또는 "Add Product" 버튼 찾기
+
+2. **제품 카드가 보이는 경우**
+   - Instagram, Pages 등의 제품 카드가 표시됨
+   - 각 카드에 "설정" 또는 "Set Up" 버튼 있음
+
+### 방법 2: 좌측 메뉴를 통한 접근 (권장)
+
+1. **좌측 메뉴 확인**
+   - 대시보드 좌측 사이드바 확인
+   - "제품" 또는 "Products" 메뉴 항목 찾기
+   - 또는 "제품 추가" 링크 찾기
+
+2. **제품 페이지로 이동**
+   - "제품" 메뉴 클릭
+   - 또는 우측 상단에 "제품 추가" 버튼이 있을 수 있음
+
+### 방법 3: 검색 기능 사용
+
+1. **대시보드 상단 검색창 사용**
+   - 대시보드 상단의 검색 아이콘 또는 검색창 클릭
+   - "Instagram" 또는 "Pages" 검색
+   - 검색 결과에서 해당 제품 클릭
+
+### 방법 4: URL로 직접 접근
+
+1. **제품 페이지 직접 접근**
+   - 브라우저 주소창에 다음 URL 입력:
+   ```
+   https://developers.facebook.com/apps/{your-app-id}/dashboard/
+   ```
+   - 또는 대시보드 URL 끝에 `/products` 추가
+
+### Instagram Graph API 추가
 
 2. **"Instagram Graph API" 찾기**
    - 제품 목록에서 "Instagram Graph API" 또는 "Instagram" 카드 찾기
@@ -31,8 +65,14 @@
 
 ### Facebook Pages API 추가
 
-1. **"Facebook Pages" 제품 찾기**
-   - 제품 목록에서 "Facebook Pages" 또는 "Pages" 카드 찾기
+**Facebook Pages 제품 찾기:**
+
+1. **Instagram Graph API와 동일한 방법으로 찾기**
+   - 대시보드 또는 제품 페이지에서 "Facebook Pages" 또는 "Pages" 찾기
+   - 또는 "Pages"로 검색
+
+2. **"Facebook Pages" 설정**
+   - "Facebook Pages" 카드 찾기
    - "설정" 또는 "Set Up" 버튼 클릭
 
 2. **기본 설정 완료**
