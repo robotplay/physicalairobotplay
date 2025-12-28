@@ -20,7 +20,7 @@ export default function FloatingConsultationButton() {
     const menuRef = useRef<HTMLDivElement>(null);
     
     // 카카오톡 채널 링크 (환경 변수 또는 기본값)
-    const kakaoChannelUrl = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_URL || 'https://pf.kakao.com/_parplay';
+    const kakaoChannelUrl = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_URL || 'https://pf.kakao.com/_RuUyn';
 
     // 외부 클릭 시 메뉴 닫기
     useEffect(() => {
