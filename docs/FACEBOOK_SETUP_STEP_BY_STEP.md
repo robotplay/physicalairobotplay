@@ -56,18 +56,31 @@
    - 선택한 이용 사례 목록에서 "Instagram에서 메시지 및 콘텐츠 관리" 클릭
    - 설정 페이지로 이동
 
-3. **Instagram 계정 연결**
-   - Instagram 계정 연결 안내 화면이 나타남
-   - **옵션 A: 나중에 연결** (권장)
-     - "건너뛰기" 또는 "Skip" 클릭
-     - 나중에 Facebook 페이지와 연결 후 진행
-   - **옵션 B: 지금 연결**
-     - Facebook 페이지가 있고 Instagram 비즈니스 계정이 연결되어 있다면 진행
-     - Instagram 계정 선택 후 연결
+3. **Instagram API 설정 페이지 확인**
+   - Instagram API가 선택되어 있음
+   - Instagram 앱 ID와 앱 시크릿 코드가 생성됨
+   - ✅ 이 화면이 맞습니다!
 
-4. **설정 완료**
-   - "완료" 또는 "Done" 클릭
-   - 대시보드로 돌아오면 Instagram Graph API가 추가됨
+4. **필수 권한 추가**
+   - 화면 중앙에 "① 1. 필수 메시지 권한 추가" 섹션 확인
+   - 필요한 권한들:
+     - `instagram_business_basic`
+     - `instagram_manage_comments`
+     - `instagram_business_manage_messages`
+   - 파란색 "Add all required permissions" 버튼 클릭
+   - 또는 "모든 필수 권한 추가" 버튼 클릭
+
+5. **권한 추가 완료**
+   - 권한이 추가되면 체크 표시로 변경됨
+   - 필요하면 추가 설정 진행
+
+6. **설정 저장**
+   - 설정이 완료되면 자동으로 저장됨
+   - 또는 "저장" 또는 "Save" 버튼 클릭
+
+**참고:**
+- Instagram 앱 ID와 시크릿 코드는 나중에 필요할 수 있으니 기록해두세요
+- 콘텐츠 게시만 필요하다면 메시지 권한은 선택사항일 수 있으나, 권장 권한이므로 추가하는 것이 좋습니다
 
 ### Facebook Pages API 추가
 
