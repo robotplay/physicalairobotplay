@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mail, Send, Users, TrendingUp, BarChart3, Plus, Eye, Loader2, X } from 'lucide-react';
+import { Send, Users, TrendingUp, Plus, Loader2, X, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface Subscriber {
@@ -43,6 +43,12 @@ export default function MarketingTab() {
     const [showCampaignModal, setShowCampaignModal] = useState(false);
     const [showSubscriberModal, setShowSubscriberModal] = useState(false);
     
+    // 구독자 폼 상태
+    const [subscriberForm, setSubscriberForm] = useState({
+        email: '',
+        name: '',
+    });
+    
     // 캠페인 폼 상태
     const [campaignForm, setCampaignForm] = useState({
         type: 'newsletter',
@@ -58,6 +64,7 @@ export default function MarketingTab() {
 
     useEffect(() => {
         loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeSubTab]);
 
     const loadData = async () => {
@@ -85,6 +92,70 @@ export default function MarketingTab() {
         } catch (error) {
             console.error('데이터 로드 오류:', error);
             toast.error('데이터를 불러오는 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleAddSubscriber = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!subscriberForm.email || !subscriberForm.email.includes('@')) {
+            toast.error('유효한 이메일 주소를 입력해주세요.');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/newsletter/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: subscriberForm.email,
+                    name: subscriberForm.name || undefined,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success('구독자가 추가되었습니다.');
+                setShowSubscriberModal(false);
+                setSubscriberForm({ email: '', name: '' });
+                loadData();
+            } else {
+                toast.error(result.error || '구독자 추가에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('구독자 추가 오류:', error);
+            toast.error('구독자 추가 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteCampaign = async (campaignId: string) => {
+        if (!confirm('정말 이 캠페인을 삭제하시겠습니까?')) {
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/api/marketing/campaigns?id=${campaignId}`, {
+                method: 'DELETE',
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success('캠페인이 삭제되었습니다.');
+                loadData();
+            } else {
+                toast.error(result.error || '캠페인 삭제에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('캠페인 삭제 오류:', error);
+            toast.error('캠페인 삭제 중 오류가 발생했습니다.');
         } finally {
             setIsLoading(false);
         }
@@ -297,21 +368,30 @@ export default function MarketingTab() {
                             {campaigns.map((campaign) => (
                                 <div key={campaign._id} className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
                                     <div className="flex justify-between items-start mb-4">
-                                        <div>
+                                        <div className="flex-1">
                                             <h4 className="text-lg font-bold text-gray-900 dark:text-white">{campaign.title}</h4>
                                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                                 {campaign.type === 'newsletter' ? '뉴스레터' : '프로모션'}
                                             </p>
                                         </div>
-                                        <span className={`px-3 py-1 text-sm rounded-full ${
-                                            campaign.status === 'completed'
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                                : campaign.status === 'sending'
-                                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                                        }`}>
-                                            {campaign.status === 'completed' ? '완료' : campaign.status === 'sending' ? '발송 중' : '실패'}
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`px-3 py-1 text-sm rounded-full ${
+                                                campaign.status === 'completed'
+                                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                    : campaign.status === 'sending'
+                                                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                            }`}>
+                                                {campaign.status === 'completed' ? '완료' : campaign.status === 'sending' ? '발송 중' : '실패'}
+                                            </span>
+                                            <button
+                                                onClick={() => handleDeleteCampaign(campaign._id)}
+                                                className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-red-500"
+                                                title="삭제"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                         <div>
@@ -391,6 +471,68 @@ export default function MarketingTab() {
                             ))}
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* 구독자 추가 모달 */}
+            {showSubscriberModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full">
+                        <div className="border-b border-gray-200 dark:border-gray-700 p-6 flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">구독자 추가</h3>
+                            <button
+                                onClick={() => {
+                                    setShowSubscriberModal(false);
+                                    setSubscriberForm({ email: '', name: '' });
+                                }}
+                                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleAddSubscriber} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">이메일 *</label>
+                                <input
+                                    type="email"
+                                    value={subscriberForm.email}
+                                    onChange={(e) => setSubscriberForm({ ...subscriberForm, email: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                    required
+                                    placeholder="example@email.com"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">이름 (선택)</label>
+                                <input
+                                    type="text"
+                                    value={subscriberForm.name}
+                                    onChange={(e) => setSubscriberForm({ ...subscriberForm, name: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                    placeholder="홍길동"
+                                />
+                            </div>
+                            <div className="flex gap-4 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowSubscriberModal(false);
+                                        setSubscriberForm({ email: '', name: '' });
+                                    }}
+                                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
+                                >
+                                    {isLoading ? '추가 중...' : '추가하기'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
 

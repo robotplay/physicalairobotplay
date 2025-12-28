@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 import { verifyAdminAuth } from '@/lib/auth-middleware';
 import { sendBulkEmail, createNewsletterEmailTemplate, createPromotionEmailTemplate } from '@/lib/email';
+import { ObjectId } from 'mongodb';
 
 // 캠페인 생성 및 발송
 export async function POST(request: NextRequest) {
@@ -144,7 +145,7 @@ export async function POST(request: NextRequest) {
                 status: 'sending',
             },
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('캠페인 생성 오류:', error);
         return NextResponse.json(
             { success: false, error: '캠페인 생성 중 오류가 발생했습니다.' },
@@ -206,10 +207,65 @@ export async function GET(request: NextRequest) {
                 },
             },
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('캠페인 목록 조회 오류:', error);
         return NextResponse.json(
             { success: false, error: '캠페인 목록 조회 중 오류가 발생했습니다.' },
+            { status: 500 }
+        );
+    }
+}
+
+// 캠페인 삭제
+export async function DELETE(request: NextRequest) {
+    try {
+        // 관리자 인증 확인
+        const authResult = await verifyAdminAuth(request);
+        if (!authResult.success) {
+            return NextResponse.json(
+                { success: false, error: '인증이 필요합니다.' },
+                { status: 401 }
+            );
+        }
+
+        const { searchParams } = new URL(request.url);
+        const campaignId = searchParams.get('id');
+
+        if (!campaignId) {
+            return NextResponse.json(
+                { success: false, error: '캠페인 ID가 필요합니다.' },
+                { status: 400 }
+            );
+        }
+
+        const db = await getDatabase();
+        const collection = db.collection(COLLECTIONS.EMAIL_CAMPAIGNS);
+        
+        if (!ObjectId.isValid(campaignId)) {
+            return NextResponse.json(
+                { success: false, error: '유효하지 않은 캠페인 ID입니다.' },
+                { status: 400 }
+            );
+        }
+
+        const result = await collection.deleteOne({ _id: new ObjectId(campaignId) });
+
+        if (result.deletedCount === 0) {
+            return NextResponse.json(
+                { success: false, error: '캠페인을 찾을 수 없습니다.' },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: '캠페인이 삭제되었습니다.',
+        });
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+        console.error('캠페인 삭제 오류:', error);
+        return NextResponse.json(
+            { success: false, error: '캠페인 삭제 중 오류가 발생했습니다.' },
             { status: 500 }
         );
     }
