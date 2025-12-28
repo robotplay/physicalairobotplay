@@ -76,110 +76,98 @@ export async function POST(request: NextRequest) {
         const campaignResult = await campaignsCollection.insertOne(campaignData);
         const campaignId = campaignResult.insertedId.toString();
 
-        // 이메일 발송 (비동기로 처리하여 즉시 응답)
-        // 각 수신자별로 개인화된 이메일 생성 및 발송
+        // 이메일 발송 (동기적으로 처리하여 상태 업데이트 보장)
+        // Vercel 서버리스 환경에서는 응답 후 함수가 종료되므로 동기 처리 필요
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://parplay.co.kr';
         
-        // 이메일 발송 함수 (각 수신자별로 unsubscribeUrl 개인화)
-        const sendPersonalizedEmails = async () => {
-            let success = 0;
-            let failed = 0;
-            const errors: string[] = [];
+        let success = 0;
+        let failed = 0;
+        const errors: string[] = [];
 
-            for (const email of recipients) {
-                try {
-                    // 수신자별로 unsubscribeUrl 개인화
-                    const unsubscribeUrl = `${siteUrl}/newsletter/unsubscribe?email=${encodeURIComponent(email)}`;
-                    
-                    let emailTemplate: { subject: string; html: string };
-                    if (type === 'newsletter') {
-                        emailTemplate = createNewsletterEmailTemplate({
-                            title,
-                            content,
-                            unsubscribeUrl,
-                        });
-                    } else {
-                        emailTemplate = createPromotionEmailTemplate({
-                            title,
-                            description: description || content,
-                            imageUrl,
-                            ctaText: ctaText || '자세히 보기',
-                            ctaUrl: ctaUrl || siteUrl,
-                            unsubscribeUrl,
-                        });
-                    }
-
-                    const sendResult = await sendEmail({ to: email, subject: emailTemplate.subject, html: emailTemplate.html });
-                    if (sendResult.success) {
-                        if (sendResult.simulated) {
-                            console.warn(`이메일 시뮬레이션 모드: ${email} (SMTP 설정 필요)`);
-                        }
-                        success++;
-                    } else {
-                        failed++;
-                        errors.push(`${email}: 이메일 전송 실패`);
-                    }
-                } catch (error: unknown) {
-                    failed++;
-                    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-                    errors.push(`${email}: ${errorMessage}`);
-                    console.error(`이메일 발송 실패 (${email}):`, error);
-                }
+        // 각 수신자별로 개인화된 이메일 생성 및 발송
+        for (const email of recipients) {
+            try {
+                // 수신자별로 unsubscribeUrl 개인화
+                const unsubscribeUrl = `${siteUrl}/newsletter/unsubscribe?email=${encodeURIComponent(email)}`;
                 
-                // API 레이트 리밋 방지를 위한 짧은 지연
-                if (recipients.indexOf(email) < recipients.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                let emailTemplate: { subject: string; html: string };
+                if (type === 'newsletter') {
+                    emailTemplate = createNewsletterEmailTemplate({
+                        title,
+                        content,
+                        unsubscribeUrl,
+                    });
+                } else {
+                    emailTemplate = createPromotionEmailTemplate({
+                        title,
+                        description: description || content,
+                        imageUrl,
+                        ctaText: ctaText || '자세히 보기',
+                        ctaUrl: ctaUrl || siteUrl,
+                        unsubscribeUrl,
+                    });
                 }
-            }
 
-            return { success, failed, errors };
-        };
-
-        sendPersonalizedEmails()
-            .then(async (result) => {
-                // 캠페인 상태 업데이트
-                const finalStatus = result.failed === 0 ? 'completed' : (result.success === 0 ? 'failed' : 'completed');
-                await campaignsCollection.updateOne(
-                    { _id: campaignResult.insertedId },
-                    {
-                        $set: {
-                            status: finalStatus,
-                            sentAt: new Date(),
-                            completedAt: new Date(),
-                            successCount: result.success,
-                            failedCount: result.failed,
-                            errors: result.errors.length > 0 ? result.errors : undefined,
-                        },
+                const sendResult = await sendEmail({ 
+                    to: email, 
+                    subject: emailTemplate.subject, 
+                    html: emailTemplate.html 
+                });
+                
+                if (sendResult.success) {
+                    if (sendResult.simulated) {
+                        console.warn(`이메일 시뮬레이션 모드: ${email} (SMTP 설정 필요)`);
                     }
-                );
-                console.log(`캠페인 발송 완료 (${campaignId}): 성공 ${result.success}건, 실패 ${result.failed}건`);
-                if (result.errors.length > 0) {
-                    console.error(`캠페인 발송 오류 (${campaignId}):`, result.errors);
+                    success++;
+                } else {
+                    failed++;
+                    errors.push(`${email}: 이메일 전송 실패`);
                 }
-            })
-            .catch(async (error: unknown) => {
-                // 캠페인 상태 업데이트 (실패)
+            } catch (error: unknown) {
+                failed++;
                 const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-                await campaignsCollection.updateOne(
-                    { _id: campaignResult.insertedId },
-                    {
-                        $set: {
-                            status: 'failed',
-                            completedAt: new Date(),
-                            error: errorMessage,
-                        },
-                    }
-                );
-                console.error(`캠페인 발송 실패 (${campaignId}):`, errorMessage);
-            });
+                errors.push(`${email}: ${errorMessage}`);
+                console.error(`이메일 발송 실패 (${email}):`, error);
+            }
+            
+            // API 레이트 리밋 방지를 위한 짧은 지연
+            if (recipients.indexOf(email) < recipients.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+
+        // 캠페인 상태 업데이트 (동기적으로 처리)
+        const finalStatus = failed === 0 ? 'completed' : (success === 0 ? 'failed' : 'completed');
+        await campaignsCollection.updateOne(
+            { _id: campaignResult.insertedId },
+            {
+                $set: {
+                    status: finalStatus,
+                    sentAt: new Date(),
+                    completedAt: new Date(),
+                    successCount: success,
+                    failedCount: failed,
+                    errors: errors.length > 0 ? errors : undefined,
+                },
+            }
+        );
+
+        console.log(`캠페인 발송 완료 (${campaignId}): 성공 ${success}건, 실패 ${failed}건`);
+        if (errors.length > 0) {
+            console.error(`캠페인 발송 오류 (${campaignId}):`, errors);
+        }
 
         return NextResponse.json({
             success: true,
-            message: '캠페인이 생성되었고 발송을 시작했습니다.',
+            message: finalStatus === 'failed' 
+                ? `캠페인 발송이 완료되었습니다. (실패: ${failed}건)` 
+                : `캠페인 발송이 완료되었습니다. (성공: ${success}건${failed > 0 ? `, 실패: ${failed}건` : ''})`,
             data: {
                 campaignId,
                 recipientCount: recipients.length,
-                status: 'sending',
+                status: finalStatus,
+                successCount: success,
+                failedCount: failed,
             },
         });
     } catch (error: unknown) {
