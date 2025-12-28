@@ -5,12 +5,22 @@ import { MessageCircle, Mail, X } from 'lucide-react';
 import ConsultationModal from './ConsultationModal';
 import NewsletterSubscribeModal from './NewsletterSubscribeModal';
 
+// 카카오톡 아이콘 SVG
+const KakaoIcon = ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3z"/>
+    </svg>
+);
+
 export default function FloatingConsultationButton() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
     const [isNewsletterModalOpen, setIsNewsletterModalOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    
+    // 카카오톡 채널 링크 (환경 변수 또는 기본값)
+    const kakaoChannelUrl = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_URL || 'https://pf.kakao.com/_parplay';
 
     // 외부 클릭 시 메뉴 닫기
     useEffect(() => {
@@ -41,6 +51,12 @@ export default function FloatingConsultationButton() {
     const handleNewsletterClick = () => {
         setIsMenuOpen(false);
         setIsNewsletterModalOpen(true);
+    };
+
+    const handleKakaoChannelClick = () => {
+        setIsMenuOpen(false);
+        // 카카오톡 채널 링크 열기 (새 탭에서 열기)
+        window.open(kakaoChannelUrl, '_blank', 'noopener,noreferrer');
     };
 
     return (
@@ -81,6 +97,23 @@ export default function FloatingConsultationButton() {
                                     </div>
                                     <div className="text-xs text-gray-500 dark:text-gray-400">
                                         최신 소식 받아보기
+                                    </div>
+                                </div>
+                            </button>
+                            <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
+                            <button
+                                onClick={handleKakaoChannelClick}
+                                className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+                            >
+                                <div className="w-10 h-10 bg-[#FEE500] rounded-full flex items-center justify-center flex-shrink-0">
+                                    <KakaoIcon className="w-6 h-6 text-[#000000]" />
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-gray-900 dark:text-white text-sm">
+                                        카카오톡 채널
+                                    </div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                                        @parplay 단톡방 참여
                                     </div>
                                 </div>
                             </button>
