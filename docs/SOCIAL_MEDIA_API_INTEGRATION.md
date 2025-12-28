@@ -120,22 +120,40 @@ Facebook과 Instagram에 실제로 포스팅하기 위해서는 각 플랫폼의
 
 #### Step 4: 제품 추가 (Products)
 
-앱 생성 후 제품 추가 페이지로 이동합니다. 다음 제품들을 추가해야 합니다:
+앱 대시보드에서 제품을 추가해야 합니다.
 
-**Facebook Login 추가:**
-1. "Facebook 로그인" 또는 "Facebook Login" 찾기
-2. "설정" 또는 "Set Up" 버튼 클릭
-3. "웹" 또는 "Web" 선택 (또는 건너뛰기 가능)
+**방법 1: 대시보드에서 직접 추가**
 
-**Instagram Graph API 추가:**
-1. "Instagram Graph API" 찾기
-2. "설정" 또는 "Set Up" 버튼 클릭
-3. Instagram 계정 연결 안내가 나오면 나중에 연결 가능 (Skip)
+1. **대시보드 화면에서 제품 찾기**
+   - 대시보드 메인 화면에서 "제품 추가" 또는 "Add Product" 버튼 찾기
+   - 또는 좌측 메뉴에서 "제품" 섹션 확인
 
-**Pages (선택사항, 하지만 권장):**
-1. "Facebook Pages" 찾기
-2. "설정" 또는 "Set Up" 클릭
-3. 페이지 관리 권한 설정
+2. **Instagram Graph API 추가:**
+   - 제품 목록에서 "Instagram Graph API" 찾기
+   - "설정" 또는 "Set Up" 버튼 클릭
+   - Instagram 계정 연결 안내가 나오면:
+     - "건너뛰기" 또는 "Skip" 클릭 (나중에 연결 가능)
+     - 또는 Instagram 계정이 이미 Facebook 페이지에 연결되어 있다면 연결 진행
+
+3. **Facebook Pages API 추가:**
+   - 제품 목록에서 "Facebook Pages" 또는 "Pages" 찾기
+   - "설정" 또는 "Set Up" 버튼 클릭
+   - 기본 설정 완료
+
+**방법 2: 좌측 메뉴를 통한 제품 추가**
+
+1. **좌측 메뉴에서 "제품" 또는 "Products" 섹션 확인**
+   - 대시보드 좌측 메뉴에서 제품 관련 항목 찾기
+
+2. **제품 추가 페이지로 이동**
+   - "제품 추가" 또는 "Add Product" 링크 클릭
+   - 위의 방법 1과 동일하게 진행
+
+**중요 참고사항:**
+
+- Instagram Graph API는 Facebook 페이지와 Instagram 비즈니스 계정이 연결되어 있어야 합니다
+- 연결이 안 되어 있다면 나중에 연결해도 됩니다
+- 우선 Facebook Pages API만 추가하고 진행해도 테스트는 가능합니다
 
 #### Step 5: 앱 설정 (App Settings)
 
