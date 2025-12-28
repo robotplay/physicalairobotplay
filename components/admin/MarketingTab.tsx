@@ -42,6 +42,7 @@ export default function MarketingTab() {
     const [isLoading, setIsLoading] = useState(false);
     const [showCampaignModal, setShowCampaignModal] = useState(false);
     const [showSubscriberModal, setShowSubscriberModal] = useState(false);
+    const [showSocialPostModal, setShowSocialPostModal] = useState(false);
     
     // 구독자 폼 상태
     const [subscriberForm, setSubscriberForm] = useState({
@@ -60,6 +61,18 @@ export default function MarketingTab() {
         ctaUrl: '',
         recipientType: 'all',
         testEmails: '',
+    });
+    
+    // 소셜 미디어 포스트 폼 상태
+    const [socialPostForm, setSocialPostForm] = useState({
+        contentType: 'custom',
+        contentId: '',
+        title: '',
+        description: '',
+        imageUrl: '',
+        linkUrl: '',
+        platforms: [] as string[],
+        autoPost: false,
     });
 
     useEffect(() => {
@@ -167,7 +180,17 @@ export default function MarketingTab() {
         setIsLoading(true);
 
         try {
-            const payload: any = {
+            const payload: {
+                type: string;
+                title: string;
+                content: string;
+                recipientType: string;
+                description?: string;
+                imageUrl?: string;
+                ctaText?: string;
+                ctaUrl?: string;
+                testEmails?: string[];
+            } = {
                 type: campaignForm.type,
                 title: campaignForm.title,
                 content: campaignForm.content,
@@ -217,6 +240,92 @@ export default function MarketingTab() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleCreateSocialPost = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            if (!socialPostForm.title || !socialPostForm.description) {
+                toast.error('제목과 설명을 입력해주세요.');
+                setIsLoading(false);
+                return;
+            }
+
+            if (socialPostForm.platforms.length === 0) {
+                toast.error('최소 하나 이상의 플랫폼을 선택해주세요.');
+                setIsLoading(false);
+                return;
+            }
+
+            const payload: {
+                contentType: string;
+                title: string;
+                description: string;
+                platforms: string[];
+                autoPost: boolean;
+                contentId?: string;
+                imageUrl?: string;
+                linkUrl?: string;
+            } = {
+                contentType: socialPostForm.contentType,
+                title: socialPostForm.title,
+                description: socialPostForm.description,
+                platforms: socialPostForm.platforms,
+                autoPost: socialPostForm.autoPost,
+            };
+
+            if (socialPostForm.contentId) {
+                payload.contentId = socialPostForm.contentId;
+            }
+            if (socialPostForm.imageUrl) {
+                payload.imageUrl = socialPostForm.imageUrl;
+            }
+            if (socialPostForm.linkUrl) {
+                payload.linkUrl = socialPostForm.linkUrl;
+            }
+
+            const response = await fetch('/api/marketing/social', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success(socialPostForm.autoPost ? '소셜 미디어에 포스팅되었습니다.' : '소셜 미디어 포스트가 생성되었습니다.');
+                setShowSocialPostModal(false);
+                setSocialPostForm({
+                    contentType: 'custom',
+                    contentId: '',
+                    title: '',
+                    description: '',
+                    imageUrl: '',
+                    linkUrl: '',
+                    platforms: [],
+                    autoPost: false,
+                });
+                loadData();
+            } else {
+                toast.error(result.error || '소셜 미디어 포스트 생성에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('소셜 미디어 포스트 생성 오류:', error);
+            toast.error('소셜 미디어 포스트 생성 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handlePlatformToggle = (platform: string) => {
+        setSocialPostForm(prev => ({
+            ...prev,
+            platforms: prev.platforms.includes(platform)
+                ? prev.platforms.filter(p => p !== platform)
+                : [...prev.platforms, platform],
+        }));
     };
 
     const formatDate = (dateString: string) => {
@@ -432,6 +541,13 @@ export default function MarketingTab() {
                 <div>
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">소셜 미디어 포스트</h3>
+                        <button
+                            onClick={() => setShowSocialPostModal(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                        >
+                            <Plus className="w-4 h-4" />
+                            새 포스트
+                        </button>
                     </div>
 
                     {isLoading ? (
@@ -672,6 +788,146 @@ export default function MarketingTab() {
                                     className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50"
                                 >
                                     {isLoading ? '생성 중...' : '캠페인 생성'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* 소셜 미디어 포스트 생성 모달 */}
+            {showSocialPostModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">새 소셜 미디어 포스트</h3>
+                            <button
+                                onClick={() => setShowSocialPostModal(false)}
+                                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleCreateSocialPost} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">컨텐츠 타입</label>
+                                <select
+                                    value={socialPostForm.contentType}
+                                    onChange={(e) => setSocialPostForm({ ...socialPostForm, contentType: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                    required
+                                >
+                                    <option value="news">뉴스</option>
+                                    <option value="course">강의</option>
+                                    <option value="custom">커스텀</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">컨텐츠 ID (선택)</label>
+                                <input
+                                    type="text"
+                                    value={socialPostForm.contentId}
+                                    onChange={(e) => setSocialPostForm({ ...socialPostForm, contentId: e.target.value })}
+                                    placeholder="연결된 뉴스 또는 강의 ID"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">제목 *</label>
+                                <input
+                                    type="text"
+                                    value={socialPostForm.title}
+                                    onChange={(e) => setSocialPostForm({ ...socialPostForm, title: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">설명 *</label>
+                                <textarea
+                                    value={socialPostForm.description}
+                                    onChange={(e) => setSocialPostForm({ ...socialPostForm, description: e.target.value })}
+                                    rows={6}
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">이미지 URL (선택)</label>
+                                <input
+                                    type="url"
+                                    value={socialPostForm.imageUrl}
+                                    onChange={(e) => setSocialPostForm({ ...socialPostForm, imageUrl: e.target.value })}
+                                    placeholder="https://example.com/image.jpg"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">링크 URL (선택)</label>
+                                <input
+                                    type="url"
+                                    value={socialPostForm.linkUrl}
+                                    onChange={(e) => setSocialPostForm({ ...socialPostForm, linkUrl: e.target.value })}
+                                    placeholder="https://example.com"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">플랫폼 선택 *</label>
+                                <div className="flex flex-wrap gap-3">
+                                    {['facebook', 'twitter', 'instagram', 'linkedin', 'youtube'].map((platform) => (
+                                        <button
+                                            key={platform}
+                                            type="button"
+                                            onClick={() => handlePlatformToggle(platform)}
+                                            className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+                                                socialPostForm.platforms.includes(platform)
+                                                    ? 'bg-purple-600 border-purple-600 text-white'
+                                                    : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400'
+                                            }`}
+                                        >
+                                            {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                    선택된 플랫폼: {socialPostForm.platforms.length > 0 ? socialPostForm.platforms.join(', ') : '없음'}
+                                </p>
+                            </div>
+
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id="autoPost"
+                                    checked={socialPostForm.autoPost}
+                                    onChange={(e) => setSocialPostForm({ ...socialPostForm, autoPost: e.target.checked })}
+                                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                />
+                                <label htmlFor="autoPost" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                    자동 포스팅 (현재는 시뮬레이션 모드)
+                                </label>
+                            </div>
+
+                            <div className="flex gap-4 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowSocialPostModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg disabled:opacity-50"
+                                >
+                                    {isLoading ? '생성 중...' : '포스트 생성'}
                                 </button>
                             </div>
                         </form>
