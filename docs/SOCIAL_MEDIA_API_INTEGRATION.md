@@ -58,6 +58,32 @@ Facebook과 Instagram에 실제로 포스팅하기 위해서는 각 플랫폼의
      - **"다른"** (Other) - 기타 용도
    - "만들기" 또는 "Next" 클릭
 
+3. **이용 사례 선택 (Use Cases)**
+   
+   이 단계에서는 앱이 어떤 용도로 사용될지 선택합니다.
+   
+   **권장 선택 (Facebook/Instagram 자동 포스팅용):**
+   
+   왼쪽 필터에서 **"Content Management (콘텐츠 관리)"** 선택
+   
+   또는 상단의 필터에서:
+   - **"Content Management (5)"** 클릭
+   - 또는 **"All (19)"** 선택 후 필요한 항목만 체크
+   
+   **체크해야 할 이용 사례:**
+   
+   ✅ **"Manage Instagram Content"** 또는 **"Instagram Content Publishing"** 
+      - Instagram에 콘텐츠를 게시하고 관리
+   
+   ✅ **"Manage Facebook Page Content"** 또는 **"Facebook Page Publishing"**
+      - Facebook 페이지에 포스트 게시 및 관리
+   
+   **선택사항:**
+   - Marketing API 관련 항목은 광고가 아니라면 선택하지 않아도 됩니다
+   - Facebook Login은 사용자 인증이 필요할 때만 선택
+   
+   - "Next" 또는 "다음" 버튼 클릭
+
 3. **앱 기본 정보 입력**
    - **앱 표시 이름**: 예) "피지컬 AI 교육 마케팅"
    - **앱 연락처 이메일**: 실제 이메일 주소 (앱 관련 알림 수신)
