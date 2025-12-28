@@ -578,3 +578,5 @@ git push origin main
 - 환경 변수 체크리스트: `/docs/ENV_VARS_CHECKLIST.md`
 - Vercel MongoDB 수정: `/docs/VERCEL_MONGODB_FIX.md`
 
+
+

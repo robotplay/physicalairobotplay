@@ -328,3 +328,5 @@ mongodb+srv://username:password@cluster.mongodb.net/academy-site?retryWrites=tru
 - 환경 변수 체크리스트: `/docs/ENV_VARS_CHECKLIST.md`
 - MongoDB Atlas 설정: `/docs/MONGODB_SETUP.md`
 
+
+

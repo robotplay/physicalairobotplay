@@ -175,3 +175,5 @@ mongodb+srv://academy-admin:hkjtop!%4034@academy-cluster...
 - 연결 문자열 가져오기: `/docs/MONGODB_CONNECTION_STRING_GUIDE.md`
 - Vercel 환경 변수 설정: `/docs/VERCEL_MONGODB_FIX.md`
 
+
+

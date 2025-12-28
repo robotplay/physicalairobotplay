@@ -280,3 +280,5 @@ mongodb+srv://academy-admin:hkjtop!%4034@academy-cluster.eekhbti.mongodb.net/aca
 - Vercel 연결 문자열의 비밀번호: `hkjtop!%4034` (인코딩됨)
 - 둘 다 같은 비밀번호지만, 연결 문자열에서는 `@`를 `%40`으로 인코딩해야 함
 
+
+
