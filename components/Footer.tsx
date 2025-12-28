@@ -1,11 +1,15 @@
 'use client';
 
-import { MapPin, Phone, Mail, Facebook, Instagram, ArrowUp, FileText } from "lucide-react";
+import { MapPin, Phone, Mail, Facebook, Instagram, ArrowUp, FileText, Mail as MailIcon, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import ScrollAnimation from './ScrollAnimation';
+import toast from 'react-hot-toast';
 
 export default function Footer() {
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [newsletterEmail, setNewsletterEmail] = useState('');
+    const [newsletterName, setNewsletterName] = useState('');
+    const [isSubscribing, setIsSubscribing] = useState(false);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -23,6 +27,42 @@ export default function Footer() {
         }
     };
 
+    const handleNewsletterSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!newsletterEmail || !newsletterEmail.includes('@')) {
+            toast.error('유효한 이메일 주소를 입력해주세요.');
+            return;
+        }
+
+        setIsSubscribing(true);
+        try {
+            const response = await fetch('/api/newsletter/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: newsletterEmail,
+                    name: newsletterName || undefined,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success('뉴스레터 구독이 완료되었습니다!');
+                setNewsletterEmail('');
+                setNewsletterName('');
+            } else {
+                toast.error(result.error || '구독에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('뉴스레터 구독 오류:', error);
+            toast.error('구독 처리 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubscribing(false);
+        }
+    };
+
     return (
         <footer className="bg-gray-900 text-white py-12 sm:py-16 md:py-20 border-t border-gray-800 relative overflow-hidden">
             {/* Animated background gradient */}
@@ -31,7 +71,7 @@ export default function Footer() {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 md:gap-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 md:gap-12">
                     {/* Brand */}
                     <ScrollAnimation direction="up" delay={100}>
                         <div className="group">
@@ -99,8 +139,55 @@ export default function Footer() {
                         </div>
                     </ScrollAnimation>
 
-                    {/* Map */}
+                    {/* Newsletter */}
                     <ScrollAnimation direction="up" delay={300}>
+                        <div>
+                            <h3 className="text-lg font-bold mb-6 text-gray-200">뉴스레터 구독</h3>
+                            <p className="text-gray-400 mb-4 text-sm leading-relaxed">
+                                최신 소식과 교육 정보를 이메일로 받아보세요.
+                            </p>
+                            <form onSubmit={handleNewsletterSubscribe} className="space-y-3">
+                                <input
+                                    type="text"
+                                    value={newsletterName}
+                                    onChange={(e) => setNewsletterName(e.target.value)}
+                                    placeholder="이름 (선택)"
+                                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent transition-all"
+                                />
+                                <input
+                                    type="email"
+                                    value={newsletterEmail}
+                                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                                    placeholder="이메일 주소"
+                                    required
+                                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent transition-all"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isSubscribing}
+                                    className="w-full px-4 py-2.5 bg-gradient-to-r from-deep-electric-blue to-active-orange hover:from-blue-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isSubscribing ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            구독 중...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <MailIcon className="w-4 h-4" />
+                                            구독하기
+                                        </>
+                                    )}
+                                </button>
+                            </form>
+                            <p className="text-xs text-gray-500 mt-3">
+                                언제든지 구독을 취소할 수 있습니다.
+                            </p>
+                        </div>
+                    </ScrollAnimation>
+
+                    {/* Map */}
+                    <ScrollAnimation direction="up" delay={400}>
                         <div className="space-y-4">
                             <h3 className="text-lg font-bold mb-4 text-gray-200">Location</h3>
                             <div className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 shadow-xl group hover:shadow-2xl transition-all">
@@ -137,7 +224,7 @@ export default function Footer() {
                     </ScrollAnimation>
                 </div>
 
-                <ScrollAnimation direction="fade" delay={400}>
+                <ScrollAnimation direction="fade" delay={500}>
                     <div className="border-t border-gray-800 mt-16 pt-8 text-center text-gray-600 text-sm">
                         &copy; {new Date().getFullYear()} Physical AI Robot Play. All rights reserved.
                     </div>

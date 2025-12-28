@@ -50,20 +50,7 @@ export const COLLECTIONS = {
     NEWS: 'news',
     ONLINE_COURSES: 'online_courses',
     ONLINE_ENROLLMENTS: 'online_enrollments',
+    NEWSLETTER_SUBSCRIBERS: 'newsletter_subscribers',
+    EMAIL_CAMPAIGNS: 'email_campaigns',
+    SOCIAL_POSTS: 'social_posts',
 } as const;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

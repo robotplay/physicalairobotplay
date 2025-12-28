@@ -35,6 +35,23 @@ export async function authenticate(request: NextRequest): Promise<{ user: AuthUs
 }
 
 /**
+ * 관리자 권한 체크 (간편 버전)
+ */
+export async function verifyAdminAuth(request: NextRequest): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
+    const { user, error } = await authenticate(request);
+
+    if (!user) {
+        return { success: false, error: error || '인증이 필요합니다.' };
+    }
+
+    if (user.role !== 'admin') {
+        return { success: false, error: '관리자 권한이 필요합니다.' };
+    }
+
+    return { success: true, user };
+}
+
+/**
  * 관리자 권한 체크
  */
 export async function requireAdmin(request: NextRequest): Promise<{ user: AuthUser | null; response: NextResponse | null }> {

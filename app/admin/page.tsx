@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings } from 'lucide-react';
+import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings, TrendingUp } from 'lucide-react';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import RegistrationsTab from '@/components/admin/RegistrationsTab';
@@ -10,6 +10,7 @@ import NewsTab from '@/components/admin/NewsTab';
 import OnlineCoursesTab, { CourseData } from '@/components/admin/OnlineCoursesTab';
 import TeachersTab from '@/components/admin/TeachersTab';
 import AccountSettingsTab from '@/components/admin/AccountSettingsTab';
+import MarketingTab from '@/components/admin/MarketingTab';
 
 interface ConsultationData {
     id: string;
@@ -77,7 +78,7 @@ interface TeacherData {
     createdAt: string;
 }
 
-type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'settings';
+type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'marketing' | 'settings';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -419,6 +420,24 @@ export default function AdminPage() {
                             </button>
                             <button
                                 onClick={() => {
+                                    setActiveTab('marketing');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'marketing'
+                                        ? 'border-pink-600 text-pink-600 dark:text-pink-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <TrendingUp className="w-4 h-4" />
+                                    마케팅
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
                                     setActiveTab('settings');
                                     setSelectedConsultation(null);
                                     setSelectedPayment(null);
@@ -712,6 +731,10 @@ export default function AdminPage() {
                             }
                         }}
                     />
+                )}
+
+                {activeTab === 'marketing' && (
+                    <MarketingTab />
                 )}
 
                 {activeTab === 'settings' && (

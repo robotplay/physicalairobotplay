@@ -258,7 +258,148 @@ export function createRegistrationEmailTemplate(data: {
     return { subject, html };
 }
 
+// 뉴스레터 이메일 템플릿
+export function createNewsletterEmailTemplate(data: {
+    title: string;
+    content: string;
+    unsubscribeUrl?: string;
+}): { subject: string; html: string } {
+    const subject = `[피지컬 AI 교육] ${data.title}`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://parplay.co.kr';
+    const unsubscribeUrl = data.unsubscribeUrl || `${siteUrl}/newsletter/unsubscribe`;
+    
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${data.title}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #00A3FF 0%, #FF4D4D 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 24px;">${data.title}</h1>
+    </div>
+    
+    <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
+        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="font-size: 16px; line-height: 1.8; color: #333;">
+                ${data.content}
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+            <p style="font-size: 14px; color: #666; margin: 0 0 10px 0;">
+                피지컬 AI 교육<br>
+                <a href="${siteUrl}" style="color: #00A3FF; text-decoration: none;">${siteUrl}</a>
+            </p>
+            <p style="font-size: 12px; color: #999; margin: 10px 0 0 0;">
+                <a href="${unsubscribeUrl}" style="color: #999; text-decoration: underline;">뉴스레터 구독 취소</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
 
+    return { subject, html };
+}
 
+// 프로모션 이메일 템플릿
+export function createPromotionEmailTemplate(data: {
+    title: string;
+    description: string;
+    imageUrl?: string;
+    ctaText: string;
+    ctaUrl: string;
+    unsubscribeUrl?: string;
+}): { subject: string; html: string } {
+    const subject = `[피지컬 AI 교육] ${data.title}`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://parplay.co.kr';
+    const unsubscribeUrl = data.unsubscribeUrl || `${siteUrl}/newsletter/unsubscribe`;
+    
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${data.title}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #00A3FF 0%, #FF4D4D 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 24px;">${data.title}</h1>
+    </div>
+    
+    <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
+        ${data.imageUrl ? `
+        <div style="margin-bottom: 20px; text-align: center;">
+            <img src="${data.imageUrl}" alt="${data.title}" style="max-width: 100%; height: auto; border-radius: 8px;">
+        </div>
+        ` : ''}
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="font-size: 16px; line-height: 1.8; color: #333; margin-bottom: 20px;">
+                ${data.description}
+            </p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="${data.ctaUrl}" style="display: inline-block; background: linear-gradient(135deg, #00A3FF 0%, #FF4D4D 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                    ${data.ctaText}
+                </a>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+            <p style="font-size: 14px; color: #666; margin: 0 0 10px 0;">
+                피지컬 AI 교육<br>
+                <a href="${siteUrl}" style="color: #00A3FF; text-decoration: none;">${siteUrl}</a>
+            </p>
+            <p style="font-size: 12px; color: #999; margin: 10px 0 0 0;">
+                <a href="${unsubscribeUrl}" style="color: #999; text-decoration: underline;">뉴스레터 구독 취소</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
 
+    return { subject, html };
+}
 
+// 대량 이메일 발송 함수 (배치 처리)
+export async function sendBulkEmail(
+    recipients: string[],
+    subject: string,
+    html: string,
+    batchSize: number = 10
+): Promise<{ success: number; failed: number; errors: string[] }> {
+    let success = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    // 배치 단위로 처리
+    for (let i = 0; i < recipients.length; i += batchSize) {
+        const batch = recipients.slice(i, i + batchSize);
+        
+        const promises = batch.map(async (email) => {
+            try {
+                await sendEmail({ to: email, subject, html });
+                success++;
+            } catch (error: any) {
+                failed++;
+                errors.push(`${email}: ${error.message}`);
+                console.error(`이메일 발송 실패 (${email}):`, error);
+            }
+        });
+
+        await Promise.all(promises);
+        
+        // API 레이트 리밋 방지를 위한 짧은 지연
+        if (i + batchSize < recipients.length) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
+
+    return { success, failed, errors };
+}
