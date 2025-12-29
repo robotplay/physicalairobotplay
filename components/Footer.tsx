@@ -4,12 +4,16 @@ import { MapPin, Phone, Mail, Facebook, Instagram, ArrowUp, FileText, Mail as Ma
 import { useState, useEffect } from "react";
 import ScrollAnimation from './ScrollAnimation';
 import toast from 'react-hot-toast';
+import PrivacyPolicyModal from './PrivacyPolicyModal';
+import TermsOfServiceModal from './TermsOfServiceModal';
 
 export default function Footer() {
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [newsletterEmail, setNewsletterEmail] = useState('');
     const [newsletterName, setNewsletterName] = useState('');
     const [isSubscribing, setIsSubscribing] = useState(false);
+    const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -225,8 +229,25 @@ export default function Footer() {
                 </div>
 
                 <ScrollAnimation direction="fade" delay={500}>
-                    <div className="border-t border-gray-800 mt-16 pt-8 text-center text-gray-600 text-sm">
-                        &copy; {new Date().getFullYear()} Physical AI Robot Play. All rights reserved.
+                    <div className="border-t border-gray-800 mt-16 pt-8">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-gray-400 text-sm mb-4">
+                            <button
+                                onClick={() => setIsTermsModalOpen(true)}
+                                className="hover:text-white transition-colors cursor-pointer"
+                            >
+                                이용약관
+                            </button>
+                            <span className="hidden sm:inline text-gray-600">|</span>
+                            <button
+                                onClick={() => setIsPrivacyModalOpen(true)}
+                                className="hover:text-white transition-colors cursor-pointer"
+                            >
+                                개인정보처리방침
+                            </button>
+                        </div>
+                        <div className="text-center text-gray-600 text-sm">
+                            &copy; {new Date().getFullYear()} Physical AI Robot Play. All rights reserved.
+                        </div>
                     </div>
                 </ScrollAnimation>
             </div>
@@ -241,6 +262,18 @@ export default function Footer() {
                     <ArrowUp className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
                 </button>
             )}
+
+            {/* Privacy Policy Modal */}
+            <PrivacyPolicyModal 
+                isOpen={isPrivacyModalOpen} 
+                onClose={() => setIsPrivacyModalOpen(false)} 
+            />
+
+            {/* Terms of Service Modal */}
+            <TermsOfServiceModal 
+                isOpen={isTermsModalOpen} 
+                onClose={() => setIsTermsModalOpen(false)} 
+            />
         </footer>
     );
 }
