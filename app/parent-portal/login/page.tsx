@@ -17,7 +17,14 @@ export default function ParentLoginPage() {
         e.preventDefault();
         setLoading(true);
 
-        console.log('Login attempt:', { studentId: formData.studentId, parentPhone: formData.parentPhone });
+        // 전화번호 정규화 (하이픈 제거)
+        const normalizedPhone = formData.parentPhone.replace(/[-\s]/g, '');
+        const loginData = {
+            studentId: formData.studentId.trim(),
+            parentPhone: normalizedPhone,
+        };
+
+        console.log('Login attempt:', loginData);
 
         try {
             const response = await fetch('/api/auth/parent-login', {
@@ -25,15 +32,23 @@ export default function ParentLoginPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
-                credentials: 'include', // 쿠키 포함
+                body: JSON.stringify(loginData),
+                credentials: 'include',
             });
 
             console.log('Response status:', response.status);
             console.log('Response ok:', response.ok);
 
-            const result = await response.json();
-            console.log('Response result:', result);
+            let result;
+            try {
+                result = await response.json();
+                console.log('Response result:', result);
+            } catch (jsonError) {
+                console.error('JSON parse error:', jsonError);
+                const text = await response.text();
+                console.error('Response text:', text);
+                throw new Error('서버 응답을 파싱할 수 없습니다.');
+            }
 
             if (!response.ok || !result.success) {
                 const errorMessage = result.error || '로그인 실패';
@@ -43,7 +58,7 @@ export default function ParentLoginPage() {
                 return;
             }
 
-            // 로그인 성공 - 즉시 리다이렉트 (replace로 히스토리 스택에 남기지 않음)
+            // 로그인 성공 - 즉시 리다이렉트
             console.log('Login successful, redirecting...');
             toast.success('로그인 성공', { duration: 1000 });
             

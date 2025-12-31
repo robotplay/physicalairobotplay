@@ -18,19 +18,39 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // 전화번호 정규화 (하이픈 제거)
+        const normalizedPhone = parentPhone.replace(/[-\s]/g, '');
+
         // MongoDB에서 학생 조회
         const db = await getDatabase();
         const studentsCollection = db.collection(COLLECTIONS.STUDENTS);
         
-        console.log('Searching for student:', { studentId, parentPhone });
+        console.log('Searching for student:', { studentId, parentPhone, normalizedPhone });
+        
+        // 정규화된 전화번호로 검색
         const student = await studentsCollection.findOne({ 
-            studentId,
-            parentPhone 
+            studentId: studentId.trim(),
+            $or: [
+                { parentPhone: normalizedPhone },
+                { parentPhone: parentPhone },
+                { parentPhone: parentPhone.replace(/-/g, '') },
+                { parentPhone: parentPhone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3') },
+            ]
         });
 
         console.log('Student found:', student ? 'Yes' : 'No');
 
         if (!student) {
+            // 디버깅: 해당 학생 ID로 검색
+            const studentById = await studentsCollection.findOne({ studentId: studentId.trim() });
+            if (studentById) {
+                console.log('Student found by ID, but phone mismatch:', {
+                    stored: studentById.parentPhone,
+                    requested: parentPhone,
+                    normalized: normalizedPhone
+                });
+            }
+            
             // 디버깅: 모든 학생 조회
             const allStudents = await studentsCollection.find({}).limit(5).toArray();
             console.log('Sample students:', allStudents.map(s => ({ 
