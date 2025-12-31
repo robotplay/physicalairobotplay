@@ -190,27 +190,6 @@ export default function ParentPortalPage() {
             </div>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
-                <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                                {student.name} 학생 포털
-                            </h1>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {student.grade} | 학부모: {student.parentName}
-                            </p>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all font-semibold"
-                        >
-                            <LogOut className="w-4 h-4" />
-                            로그아웃
-                        </button>
-                    </div>
-                </div>
-
                 {/* 탭 메뉴 */}
                 <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
                     <button
@@ -529,8 +508,8 @@ export default function ParentPortalPage() {
                         </div>
                     </>
                 )}
-            </div>
-        </main>
+            </main>
+        </div>
     );
 }
 
