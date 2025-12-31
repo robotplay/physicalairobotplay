@@ -182,29 +182,37 @@ export async function POST(request: NextRequest) {
             studentUpdates.push({ studentId, status });
         }
 
-        // 학생별 출석 통계 업데이트
-        for (const update of studentUpdates) {
-            const student = await studentsCollection.findOne({ studentId: update.studentId });
-            if (!student) continue;
+        // 학생별 출석 통계 업데이트 (전체 출석 기록 기반)
+        const uniqueStudentIds = [...new Set(studentUpdates.map(u => u.studentId))];
+        
+        for (const studentId of uniqueStudentIds) {
+            const student = await studentsCollection.findOne({ studentId });
+            if (!student) {
+                console.log(`Student not found: ${studentId}`);
+                continue;
+            }
 
-            // 해당 월의 출석 기록 조회
-            const startOfMonth = new Date(classDateObj.getFullYear(), classDateObj.getMonth(), 1);
-            const endOfMonth = new Date(classDateObj.getFullYear(), classDateObj.getMonth() + 1, 0, 23, 59, 59, 999);
-
-            const monthlyRecords = await attendanceCollection.find({
-                studentId: update.studentId,
-                classDate: { $gte: startOfMonth, $lte: endOfMonth },
+            // 전체 출석 기록 조회 (월별 제한 없이)
+            const allRecords = await attendanceCollection.find({
+                studentId: studentId,
             }).toArray();
 
-            const totalClasses = monthlyRecords.length;
-            const attendedClasses = monthlyRecords.filter(
+            const totalClasses = allRecords.length;
+            const attendedClasses = allRecords.filter(
                 (r: any) => r.status === 'present' || r.status === 'late'
             ).length;
             const attendanceRate = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
 
+            console.log(`Updating attendance for ${studentId}:`, {
+                name: student.name,
+                totalClasses,
+                attendedClasses,
+                attendanceRate,
+            });
+
             // 학생 출석 통계 업데이트
-            await studentsCollection.updateOne(
-                { studentId: update.studentId },
+            const updateResult = await studentsCollection.updateOne(
+                { studentId: studentId },
                 {
                     $set: {
                         'attendance.totalClasses': totalClasses,
@@ -214,6 +222,11 @@ export async function POST(request: NextRequest) {
                     },
                 }
             );
+
+            console.log(`Update result for ${studentId}:`, {
+                matchedCount: updateResult.matchedCount,
+                modifiedCount: updateResult.modifiedCount,
+            });
         }
 
         return successResponse(
