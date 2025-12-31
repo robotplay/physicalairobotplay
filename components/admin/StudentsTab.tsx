@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Mail, Phone, Edit, Trash2, Plus, X, Save, GraduationCap, BookOpen, Trophy, TrendingUp, Copy } from 'lucide-react';
+import { User, Mail, Phone, Edit, Trash2, Plus, X, Save, GraduationCap, BookOpen, Trophy, TrendingUp, Copy, MessageSquare, Image, Video, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface Student {
