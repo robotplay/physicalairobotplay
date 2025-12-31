@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { User, Mail, Phone, Edit, Trash2, Plus, X, Save, GraduationCap, BookOpen, Trophy, TrendingUp, Copy, MessageSquare, Image, Video, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
+import RichTextEditor from './RichTextEditor';
 
 interface Student {
     _id: string;
@@ -1041,14 +1042,31 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                         >
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                    포트폴리오 설명
+                                    포트폴리오 설명 (리치 텍스트 에디터)
                                 </label>
-                                <textarea
-                                    value={portfolioForm.description}
-                                    onChange={(e) => setPortfolioForm({ ...portfolioForm, description: e.target.value })}
-                                    rows={3}
-                                    placeholder="포트폴리오에 대한 설명을 작성해주세요."
-                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                <RichTextEditor
+                                    content={portfolioForm.description}
+                                    onChange={(htmlContent) => {
+                                        setPortfolioForm({ ...portfolioForm, description: htmlContent });
+                                    }}
+                                    placeholder="포트폴리오에 대한 설명을 입력하세요. 여러 이미지를 삽입할 수 있습니다."
+                                    onImageUpload={async (file: File) => {
+                                        // 이미지 업로드 API 호출 (포트폴리오용)
+                                        const uploadFormData = new FormData();
+                                        uploadFormData.append('file', file);
+
+                                        const response = await fetch('/api/news/upload', {
+                                            method: 'POST',
+                                            body: uploadFormData,
+                                        });
+
+                                        if (!response.ok) {
+                                            throw new Error('이미지 업로드 실패');
+                                        }
+
+                                        const result = await response.json();
+                                        return result.url || result.data?.url || '';
+                                    }}
                                 />
                             </div>
 

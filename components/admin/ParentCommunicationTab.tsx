@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { HelpCircle, Image, Mail, Plus, X, Save, Edit, Trash2, Eye, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
+import RichTextEditor from './RichTextEditor';
 
 interface FAQ {
     _id: string;
@@ -731,14 +732,31 @@ export default function ParentCommunicationTab() {
                                     </div>
                                     <div className="sm:col-span-2">
                                         <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                            내용 <span className="text-red-500">*</span>
+                                            내용 <span className="text-red-500">*</span> (리치 텍스트 에디터)
                                         </label>
-                                        <textarea
-                                            value={newsletterForm.content}
-                                            onChange={(e) => setNewsletterForm({ ...newsletterForm, content: e.target.value })}
-                                            required
-                                            rows={10}
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                        <RichTextEditor
+                                            content={newsletterForm.content}
+                                            onChange={(htmlContent) => {
+                                                setNewsletterForm({ ...newsletterForm, content: htmlContent });
+                                            }}
+                                            placeholder="뉴스레터 내용을 입력하세요. 여러 이미지를 삽입할 수 있습니다."
+                                            onImageUpload={async (file: File) => {
+                                                // 이미지 업로드 API 호출 (뉴스레터용)
+                                                const uploadFormData = new FormData();
+                                                uploadFormData.append('file', file);
+
+                                                const response = await fetch('/api/news/upload', {
+                                                    method: 'POST',
+                                                    body: uploadFormData,
+                                                });
+
+                                                if (!response.ok) {
+                                                    throw new Error('이미지 업로드 실패');
+                                                }
+
+                                                const result = await response.json();
+                                                return result.url || result.data?.url || '';
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -773,9 +791,10 @@ export default function ParentCommunicationTab() {
                                         <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
                                             {newsletter.year}년 {newsletter.month}월 - {newsletter.title}
                                         </h4>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
-                                            {newsletter.content}
-                                        </p>
+                                        <div 
+                                            className="text-sm text-gray-600 dark:text-gray-400 prose prose-sm dark:prose-invert max-w-none line-clamp-3"
+                                            dangerouslySetInnerHTML={{ __html: newsletter.content.replace(/<[^>]*>/g, '').substring(0, 200) + '...' }}
+                                        />
                                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                                             발송일: {formatDate(newsletter.sentAt)}
                                         </p>

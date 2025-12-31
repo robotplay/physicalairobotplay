@@ -550,10 +550,19 @@ export default function ParentPortalPage() {
                 {activeTab === 'portfolio' && (
                     <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">포트폴리오</h2>
-                        {student.portfolio.images.length === 0 && student.portfolio.videos.length === 0 ? (
+                        {student.portfolio.images.length === 0 && student.portfolio.videos.length === 0 && !student.portfolio.description ? (
                             <p className="text-gray-600 dark:text-gray-400">포트폴리오가 없습니다.</p>
                         ) : (
                             <div>
+                                {student.portfolio.description && (
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">포트폴리오 설명</h3>
+                                        <div 
+                                            className="prose prose-sm dark:prose-invert max-w-none bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
+                                            dangerouslySetInnerHTML={{ __html: student.portfolio.description }}
+                                        />
+                                    </div>
+                                )}
                                 {student.portfolio.images.length > 0 && (
                                     <div className="mb-6">
                                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">로봇 사진</h3>
@@ -631,9 +640,16 @@ export default function ParentPortalPage() {
                                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                             {newsletter.year}년 {newsletter.month}월 - {newsletter.title}
                                         </h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                                            {newsletter.content}
-                                        </p>
+                                        <div 
+                                            className="text-sm text-gray-600 dark:text-gray-400 prose prose-sm dark:prose-invert max-w-none"
+                                            style={{ 
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden'
+                                            }}
+                                            dangerouslySetInnerHTML={{ __html: newsletter.content }}
+                                        />
                                     </div>
                                 ))}
                             </div>
