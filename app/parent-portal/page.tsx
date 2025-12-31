@@ -70,15 +70,16 @@ export default function ParentPortalPage() {
 
             if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
                 setIsAuthenticated(true);
-                loadData(result.user.studentId);
+                await loadData(result.user.studentId);
+                setLoading(false);
                 return;
             }
-            router.push('/parent-portal/login');
+            // 인증 실패 시 로그인 페이지로 리다이렉트
+            window.location.href = '/parent-portal/login';
         } catch (error) {
             console.error('Auth check failed:', error);
-            router.push('/parent-portal/login');
-        } finally {
-            setLoading(false);
+            // 에러 발생 시 로그인 페이지로 리다이렉트
+            window.location.href = '/parent-portal/login';
         }
     };
 
@@ -134,6 +135,8 @@ export default function ParentPortalPage() {
             }
         } catch (error) {
             console.error('Failed to load data:', error);
+            // 데이터 로드 실패 시 로그인 페이지로 리다이렉트
+            window.location.href = '/parent-portal/login';
         }
     };
 
@@ -149,16 +152,23 @@ export default function ParentPortalPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
-                <div className="w-16 h-16 border-4 border-deep-electric-blue border-t-transparent rounded-full animate-spin"></div>
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-deep-electric-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600 dark:text-gray-400">인증 중...</p>
+                </div>
             </div>
         );
     }
 
     if (!isAuthenticated || !student) {
+        // 인증되지 않았거나 학생 정보가 없으면 로그인 페이지로 리다이렉트
+        if (typeof window !== 'undefined') {
+            window.location.href = '/parent-portal/login';
+        }
         return (
             <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
                 <div className="text-center">
-                    <p className="text-gray-600 dark:text-gray-400">인증 중...</p>
+                    <p className="text-gray-600 dark:text-gray-400">로그인 페이지로 이동 중...</p>
                 </div>
             </div>
         );
