@@ -90,6 +90,8 @@ export async function PUT(
         const {
             name,
             grade,
+            class: studentClass,
+            level,
             parentName,
             parentPhone,
             parentEmail,
@@ -117,6 +119,8 @@ export async function PUT(
 
         if (name !== undefined) updateData.name = name;
         if (grade !== undefined) updateData.grade = grade;
+        if (studentClass !== undefined) updateData.class = studentClass;
+        if (level !== undefined) updateData.level = level;
         if (parentName !== undefined) updateData.parentName = parentName;
         if (parentPhone !== undefined) updateData.parentPhone = parentPhone;
         if (parentEmail !== undefined) updateData.parentEmail = parentEmail;

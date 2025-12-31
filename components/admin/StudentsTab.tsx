@@ -9,6 +9,8 @@ interface Student {
     studentId: string;
     name: string;
     grade: string;
+    class?: string; // 반 (예: "월요일 1반", "토요일 대회1반")
+    level?: 'basic' | 'advanced' | 'competition'; // 교육수준: 기초, 심화, 대회
     parentName: string;
     parentPhone: string;
     parentEmail: string;
@@ -58,6 +60,8 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
     const [formData, setFormData] = useState({
         name: '',
         grade: '',
+        class: '',
+        level: '' as 'basic' | 'advanced' | 'competition' | '',
         parentName: '',
         parentPhone: '',
         parentEmail: '',
@@ -79,6 +83,8 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
         setFormData({
             name: '',
             grade: '',
+            class: '',
+            level: '',
             parentName: '',
             parentPhone: '',
             parentEmail: '',
@@ -93,6 +99,8 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
         setFormData({
             name: student.name,
             grade: student.grade,
+            class: student.class || '',
+            level: student.level || '',
             parentName: student.parentName,
             parentPhone: student.parentPhone,
             parentEmail: student.parentEmail || '',
@@ -108,6 +116,8 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
         setFormData({
             name: '',
             grade: '',
+            class: '',
+            level: '',
             parentName: '',
             parentPhone: '',
             parentEmail: '',
@@ -322,6 +332,64 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    반 <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    value={formData.class}
+                                    onChange={(e) => setFormData({ ...formData, class: e.target.value })}
+                                    required
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                >
+                                    <option value="">선택하세요</option>
+                                    <optgroup label="월요일">
+                                        <option value="월요일 1반">월요일 1반</option>
+                                        <option value="월요일 2반">월요일 2반</option>
+                                        <option value="월요일 3반">월요일 3반</option>
+                                    </optgroup>
+                                    <optgroup label="화요일">
+                                        <option value="화요일 1반">화요일 1반</option>
+                                        <option value="화요일 2반">화요일 2반</option>
+                                        <option value="화요일 3반">화요일 3반</option>
+                                    </optgroup>
+                                    <optgroup label="수요일">
+                                        <option value="수요일 1반">수요일 1반</option>
+                                        <option value="수요일 2반">수요일 2반</option>
+                                        <option value="수요일 3반">수요일 3반</option>
+                                    </optgroup>
+                                    <optgroup label="목요일">
+                                        <option value="목요일 1반">목요일 1반</option>
+                                        <option value="목요일 2반">목요일 2반</option>
+                                        <option value="목요일 3반">목요일 3반</option>
+                                    </optgroup>
+                                    <optgroup label="금요일">
+                                        <option value="금요일 1반">금요일 1반</option>
+                                        <option value="금요일 2반">금요일 2반</option>
+                                        <option value="금요일 3반">금요일 3반</option>
+                                    </optgroup>
+                                    <optgroup label="토요일">
+                                        <option value="토요일 대회1반">토요일 대회1반</option>
+                                        <option value="토요일 대회2반">토요일 대회2반</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    교육수준 <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    value={formData.level}
+                                    onChange={(e) => setFormData({ ...formData, level: e.target.value as 'basic' | 'advanced' | 'competition' | '' })}
+                                    required
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                >
+                                    <option value="">선택하세요</option>
+                                    <option value="basic">기초</option>
+                                    <option value="advanced">심화</option>
+                                    <option value="competition">대회</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                     학부모 이름 <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -424,6 +492,11 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                         <p className="text-sm text-gray-600 dark:text-gray-400">
                                             {student.grade}
                                         </p>
+                                        {student.class && (
+                                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                                {student.class}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
@@ -456,6 +529,26 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                                     <User className="w-4 h-4 text-deep-electric-blue" />
                                     <span>{student.parentName}</span>
+                                </div>
+
+                                {/* 반 및 교육수준 */}
+                                <div className="flex gap-2 flex-wrap">
+                                    {student.class && (
+                                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-semibold">
+                                            {student.class}
+                                        </span>
+                                    )}
+                                    {student.level && (
+                                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                            student.level === 'basic' 
+                                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                                : student.level === 'advanced'
+                                                ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                                                : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                                        }`}>
+                                            {student.level === 'basic' ? '기초' : student.level === 'advanced' ? '심화' : '대회'}
+                                        </span>
+                                    )}
                                 </div>
 
                                 {/* 통계 */}
@@ -540,6 +633,20 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                         <label className="text-sm text-gray-600 dark:text-gray-400">학년</label>
                                         <p className="font-semibold text-gray-900 dark:text-white">{selectedStudent.grade}</p>
                                     </div>
+                                    {selectedStudent.class && (
+                                        <div>
+                                            <label className="text-sm text-gray-600 dark:text-gray-400">반</label>
+                                            <p className="font-semibold text-gray-900 dark:text-white">{selectedStudent.class}</p>
+                                        </div>
+                                    )}
+                                    {selectedStudent.level && (
+                                        <div>
+                                            <label className="text-sm text-gray-600 dark:text-gray-400">교육수준</label>
+                                            <p className="font-semibold text-gray-900 dark:text-white">
+                                                {selectedStudent.level === 'basic' ? '기초' : selectedStudent.level === 'advanced' ? '심화' : '대회'}
+                                            </p>
+                                        </div>
+                                    )}
                                     <div>
                                         <label className="text-sm text-gray-600 dark:text-gray-400">학부모명</label>
                                         <p className="font-semibold text-gray-900 dark:text-white">{selectedStudent.parentName}</p>

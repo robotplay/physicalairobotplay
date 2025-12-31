@@ -101,6 +101,8 @@ export async function POST(request: NextRequest) {
         const {
             name,
             grade,
+            class: studentClass,
+            level,
             parentName,
             parentPhone,
             parentEmail,
@@ -109,10 +111,10 @@ export async function POST(request: NextRequest) {
         } = body;
 
         // 필수 필드 검증
-        if (!name || !grade || !parentName || !parentPhone) {
+        if (!name || !grade || !studentClass || !level || !parentName || !parentPhone) {
             return badRequestResponse(
                 '필수 항목을 입력해주세요.',
-                '학생명, 학년, 학부모명, 학부모 연락처는 필수입니다.'
+                '학생명, 학년, 반, 교육수준, 학부모명, 학부모 연락처는 필수입니다.'
             );
         }
 
@@ -127,6 +129,8 @@ export async function POST(request: NextRequest) {
             studentId,
             name,
             grade,
+            class: studentClass,
+            level,
             parentName,
             parentPhone,
             parentEmail: parentEmail || '',
