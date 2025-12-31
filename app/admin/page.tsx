@@ -130,7 +130,9 @@ export default function AdminPage() {
         // JWT 기반 인증 확인
         const checkAuth = async () => {
             try {
-                const response = await fetch('/api/auth/me');
+                const response = await fetch('/api/auth/me', {
+                    credentials: 'include',
+                });
                 const result = await response.json();
                 
                 if (result.success && result.user) {
@@ -173,7 +175,9 @@ export default function AdminPage() {
         // MongoDB에서 결제 내역 불러오기
         const loadPayments = async () => {
             try {
-                const response = await fetch('/api/payments');
+                const response = await fetch('/api/payments', {
+                    credentials: 'include',
+                });
                 const result = await response.json();
                 if (result.success) {
                     setPayments(result.data || []);
@@ -186,7 +190,9 @@ export default function AdminPage() {
         // MongoDB에서 신청서 불러오기
         const loadRegistrations = async () => {
             try {
-                const response = await fetch('/api/airplane-registrations');
+                const response = await fetch('/api/airplane-registrations', {
+                    credentials: 'include',
+                });
                 const result = await response.json();
                 if (result.success) {
                     setRegistrations(result.data || []);
@@ -201,7 +207,9 @@ export default function AdminPage() {
         // MongoDB에서 공지사항 불러오기
         const loadNews = async () => {
             try {
-                const response = await fetch('/api/news');
+                const response = await fetch('/api/news', {
+                    credentials: 'include',
+                });
                 const result = await response.json();
                 if (result.success) {
                     setNews(result.data || []);
@@ -214,7 +222,9 @@ export default function AdminPage() {
         // MongoDB에서 온라인 강좌 불러오기
         const loadOnlineCourses = async () => {
             try {
-                const response = await fetch('/api/online-courses');
+                const response = await fetch('/api/online-courses', {
+                    credentials: 'include',
+                });
                 const result = await response.json();
                 if (result.success) {
                     setOnlineCourses(result.data || []);
@@ -227,7 +237,9 @@ export default function AdminPage() {
         // MongoDB에서 강사 목록 불러오기
         const loadTeachers = async () => {
             try {
-                const response = await fetch('/api/users?role=teacher');
+                const response = await fetch('/api/users?role=teacher', {
+                    credentials: 'include',
+                });
                 const result = await response.json();
                 if (result.success && result.data) {
                     setTeachers(result.data.users || []);
@@ -240,7 +252,9 @@ export default function AdminPage() {
         // MongoDB에서 학생 목록 불러오기
         const loadStudents = async () => {
             try {
-                const response = await fetch('/api/students');
+                const response = await fetch('/api/students', {
+                    credentials: 'include',
+                });
                 const result = await response.json();
                 if (result.success && result.data) {
                     setStudents(result.data.students || []);
@@ -340,7 +354,10 @@ export default function AdminPage() {
                             <button
                                 onClick={async () => {
                                     try {
-                                        await fetch('/api/auth/logout', { method: 'POST' });
+                                        await fetch('/api/auth/logout', { 
+                                            method: 'POST',
+                                            credentials: 'include',
+                                        });
                                         router.push('/admin/login');
                                     } catch (error) {
                                         console.error('Logout failed:', error);
@@ -823,7 +840,9 @@ export default function AdminPage() {
                         news={news}
                         onRefresh={async () => {
                             try {
-                                const response = await fetch('/api/news');
+                                const response = await fetch('/api/news', {
+                                    credentials: 'include',
+                                });
                                 const result = await response.json();
                                 if (result.success) {
                                     setNews(result.data || []);
@@ -840,7 +859,9 @@ export default function AdminPage() {
                         courses={onlineCourses}
                         onRefresh={async () => {
                             try {
-                                const response = await fetch('/api/online-courses');
+                                const response = await fetch('/api/online-courses', {
+                                    credentials: 'include',
+                                });
                                 const result = await response.json();
                                 if (result.success) {
                                     setOnlineCourses(result.data || []);
@@ -857,7 +878,9 @@ export default function AdminPage() {
                         teachers={teachers}
                         onRefresh={async () => {
                             try {
-                                const response = await fetch('/api/users?role=teacher');
+                                const response = await fetch('/api/users?role=teacher', {
+                                    credentials: 'include',
+                                });
                                 const result = await response.json();
                                 if (result.success && result.data) {
                                     setTeachers(result.data.users || []);
@@ -874,7 +897,9 @@ export default function AdminPage() {
                         students={students}
                         onRefresh={async () => {
                             try {
-                                const response = await fetch('/api/students');
+                                const response = await fetch('/api/students', {
+                                    credentials: 'include',
+                                });
                                 const result = await response.json();
                                 if (result.success && result.data) {
                                     setStudents(result.data.students || []);
