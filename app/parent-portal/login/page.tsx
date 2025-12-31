@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { User, Phone, LogIn } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ParentLoginPage() {
-    const router = useRouter();
     const [formData, setFormData] = useState({
         studentId: '',
         parentPhone: '',

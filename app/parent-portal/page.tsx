@@ -59,10 +59,6 @@ export default function ParentPortalPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'feedback' | 'portfolio'>('overview');
 
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
     const checkAuth = async () => {
         try {
             console.log('Checking authentication...');
@@ -106,6 +102,10 @@ export default function ParentPortalPage() {
             window.location.href = '/parent-portal/login';
         }
     };
+
+    useEffect(() => {
+        checkAuth();
+    }, []);
 
     const loadData = async (studentId: string, authUser?: any) => {
         try {
