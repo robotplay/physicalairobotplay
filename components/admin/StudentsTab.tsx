@@ -56,7 +56,7 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [gradeFilter, setGradeFilter] = useState<string>('');
+    const [classFilter, setClassFilter] = useState<string>('');
     const [formData, setFormData] = useState({
         name: '',
         grade: '',
@@ -74,8 +74,8 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
             student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             student.parentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             student.parentPhone.includes(searchTerm);
-        const matchesGrade = !gradeFilter || student.grade === gradeFilter;
-        return matchesSearch && matchesGrade;
+        const matchesClass = !classFilter || student.class === classFilter;
+        return matchesSearch && matchesClass;
     });
 
     const handleCreate = () => {
@@ -463,10 +463,10 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                 <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-xl shadow-lg">
                     <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                        {searchTerm || gradeFilter ? '검색 결과가 없습니다' : '등록된 학생이 없습니다'}
+                        {searchTerm || classFilter ? '검색 결과가 없습니다' : '등록된 학생이 없습니다'}
                     </h3>
                     <p className="text-gray-600 dark:text-gray-300">
-                        {searchTerm || gradeFilter ? '다른 검색어를 시도해보세요' : '새 학생을 등록해주세요'}
+                        {searchTerm || classFilter ? '다른 검색어를 시도해보세요' : '새 학생을 등록해주세요'}
                     </p>
                 </div>
             ) : (
