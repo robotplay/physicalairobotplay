@@ -67,6 +67,20 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
         parentEmail: '',
         learningNotes: '',
     });
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [showPortfolioModal, setShowPortfolioModal] = useState(false);
+    const [feedbackForm, setFeedbackForm] = useState({
+        courseId: '',
+        content: '',
+        strengths: [''],
+        improvements: [''],
+        nextSteps: '',
+    });
+    const [portfolioForm, setPortfolioForm] = useState({
+        images: [] as string[],
+        videos: [] as string[],
+        description: '',
+    });
 
     // 필터링된 학생 목록
     const filteredStudents = students.filter((student) => {
@@ -734,7 +748,403 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                             <div className="text-sm text-gray-600 dark:text-gray-400">
                                 등록일: {formatDate(selectedStudent.createdAt)}
                             </div>
+
+                            {/* 액션 버튼 */}
+                            <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <button
+                                    onClick={() => {
+                                        setShowFeedbackModal(true);
+                                        setFeedbackForm({
+                                            courseId: '',
+                                            content: '',
+                                            strengths: [''],
+                                            improvements: [''],
+                                            nextSteps: '',
+                                        });
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-all font-semibold text-sm"
+                                >
+                                    <MessageSquare className="w-4 h-4" />
+                                    강사 피드백 작성
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowPortfolioModal(true);
+                                        setPortfolioForm({
+                                            images: selectedStudent.portfolio?.images || [],
+                                            videos: selectedStudent.portfolio?.videos || [],
+                                            description: selectedStudent.portfolio?.description || '',
+                                        });
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all font-semibold text-sm"
+                                >
+                                    <Image className="w-4 h-4" />
+                                    포트폴리오 관리
+                                </button>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 강사 피드백 작성 모달 */}
+            {showFeedbackModal && selectedStudent && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                {selectedStudent.name} 학생 피드백 작성
+                            </h3>
+                            <button
+                                onClick={() => setShowFeedbackModal(false)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                            </button>
+                        </div>
+
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                try {
+                                    const response = await fetch('/api/student-feedback', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            studentId: selectedStudent.studentId,
+                                            courseId: feedbackForm.courseId || 'general',
+                                            content: feedbackForm.content,
+                                            strengths: feedbackForm.strengths.filter(s => s.trim()),
+                                            improvements: feedbackForm.improvements.filter(i => i.trim()),
+                                            nextSteps: feedbackForm.nextSteps,
+                                        }),
+                                    });
+
+                                    const result = await response.json();
+                                    if (result.success) {
+                                        toast.success('피드백이 작성되었습니다.');
+                                        setShowFeedbackModal(false);
+                                        onRefresh();
+                                    } else {
+                                        toast.error(result.error || '피드백 작성에 실패했습니다.');
+                                    }
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                    toast.error('피드백 작성 중 오류가 발생했습니다.');
+                                }
+                            }}
+                            className="space-y-4"
+                        >
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    과목/과정
+                                </label>
+                                <input
+                                    type="text"
+                                    value={feedbackForm.courseId}
+                                    onChange={(e) => setFeedbackForm({ ...feedbackForm, courseId: e.target.value })}
+                                    placeholder="예: 기초과정, 심화과정, 대회준비"
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    피드백 내용 <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    value={feedbackForm.content}
+                                    onChange={(e) => setFeedbackForm({ ...feedbackForm, content: e.target.value })}
+                                    required
+                                    rows={5}
+                                    placeholder="학생의 학습 상황, 수업 참여도, 이해도 등을 작성해주세요."
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    강점
+                                </label>
+                                {feedbackForm.strengths.map((strength, index) => (
+                                    <div key={index} className="flex gap-2 mb-2">
+                                        <input
+                                            type="text"
+                                            value={strength}
+                                            onChange={(e) => {
+                                                const newStrengths = [...feedbackForm.strengths];
+                                                newStrengths[index] = e.target.value;
+                                                setFeedbackForm({ ...feedbackForm, strengths: newStrengths });
+                                            }}
+                                            placeholder="강점을 입력하세요"
+                                            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                        />
+                                        {feedbackForm.strengths.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newStrengths = feedbackForm.strengths.filter((_, i) => i !== index);
+                                                    setFeedbackForm({ ...feedbackForm, strengths: newStrengths });
+                                                }}
+                                                className="px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={() => setFeedbackForm({ ...feedbackForm, strengths: [...feedbackForm.strengths, ''] })}
+                                    className="text-sm text-deep-electric-blue hover:underline"
+                                >
+                                    + 강점 추가
+                                </button>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    개선점
+                                </label>
+                                {feedbackForm.improvements.map((improvement, index) => (
+                                    <div key={index} className="flex gap-2 mb-2">
+                                        <input
+                                            type="text"
+                                            value={improvement}
+                                            onChange={(e) => {
+                                                const newImprovements = [...feedbackForm.improvements];
+                                                newImprovements[index] = e.target.value;
+                                                setFeedbackForm({ ...feedbackForm, improvements: newImprovements });
+                                            }}
+                                            placeholder="개선점을 입력하세요"
+                                            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                        />
+                                        {feedbackForm.improvements.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newImprovements = feedbackForm.improvements.filter((_, i) => i !== index);
+                                                    setFeedbackForm({ ...feedbackForm, improvements: newImprovements });
+                                                }}
+                                                className="px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={() => setFeedbackForm({ ...feedbackForm, improvements: [...feedbackForm.improvements, ''] })}
+                                    className="text-sm text-deep-electric-blue hover:underline"
+                                >
+                                    + 개선점 추가
+                                </button>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    다음 단계
+                                </label>
+                                <textarea
+                                    value={feedbackForm.nextSteps}
+                                    onChange={(e) => setFeedbackForm({ ...feedbackForm, nextSteps: e.target.value })}
+                                    rows={3}
+                                    placeholder="다음 수업에서 집중할 부분이나 추천 학습 내용을 작성해주세요."
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                />
+                            </div>
+
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFeedbackModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-semibold"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-all font-semibold"
+                                >
+                                    피드백 저장
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* 포트폴리오 관리 모달 */}
+            {showPortfolioModal && selectedStudent && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                {selectedStudent.name} 학생 포트폴리오 관리
+                            </h3>
+                            <button
+                                onClick={() => setShowPortfolioModal(false)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                            </button>
+                        </div>
+
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                try {
+                                    const response = await fetch(`/api/students/${selectedStudent._id}`, {
+                                        method: 'PUT',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            portfolio: portfolioForm,
+                                        }),
+                                    });
+
+                                    const result = await response.json();
+                                    if (result.success) {
+                                        toast.success('포트폴리오가 업데이트되었습니다.');
+                                        setShowPortfolioModal(false);
+                                        onRefresh();
+                                        // 선택된 학생 정보도 업데이트
+                                        const updatedStudents = await fetch('/api/students').then(r => r.json());
+                                        if (updatedStudents.success) {
+                                            const updated = updatedStudents.data.students.find((s: Student) => s._id === selectedStudent._id);
+                                            if (updated) setSelectedStudent(updated);
+                                        }
+                                    } else {
+                                        toast.error(result.error || '포트폴리오 업데이트에 실패했습니다.');
+                                    }
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                    toast.error('포트폴리오 업데이트 중 오류가 발생했습니다.');
+                                }
+                            }}
+                            className="space-y-6"
+                        >
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    포트폴리오 설명
+                                </label>
+                                <textarea
+                                    value={portfolioForm.description}
+                                    onChange={(e) => setPortfolioForm({ ...portfolioForm, description: e.target.value })}
+                                    rows={3}
+                                    placeholder="포트폴리오에 대한 설명을 작성해주세요."
+                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    로봇 사진 URL
+                                </label>
+                                <div className="space-y-2">
+                                    {portfolioForm.images.map((image, index) => (
+                                        <div key={index} className="flex gap-2">
+                                            <input
+                                                type="url"
+                                                value={image}
+                                                onChange={(e) => {
+                                                    const newImages = [...portfolioForm.images];
+                                                    newImages[index] = e.target.value;
+                                                    setPortfolioForm({ ...portfolioForm, images: newImages });
+                                                }}
+                                                placeholder="https://example.com/image.jpg"
+                                                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newImages = portfolioForm.images.filter((_, i) => i !== index);
+                                                    setPortfolioForm({ ...portfolioForm, images: newImages });
+                                                }}
+                                                className="px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => setPortfolioForm({ ...portfolioForm, images: [...portfolioForm.images, ''] })}
+                                        className="text-sm text-deep-electric-blue hover:underline flex items-center gap-1"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        이미지 URL 추가
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                                    이미지 URL을 입력하세요. (예: https://example.com/image.jpg)
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    영상 URL
+                                </label>
+                                <div className="space-y-2">
+                                    {portfolioForm.videos.map((video, index) => (
+                                        <div key={index} className="flex gap-2">
+                                            <input
+                                                type="url"
+                                                value={video}
+                                                onChange={(e) => {
+                                                    const newVideos = [...portfolioForm.videos];
+                                                    newVideos[index] = e.target.value;
+                                                    setPortfolioForm({ ...portfolioForm, videos: newVideos });
+                                                }}
+                                                placeholder="https://example.com/video.mp4"
+                                                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newVideos = portfolioForm.videos.filter((_, i) => i !== index);
+                                                    setPortfolioForm({ ...portfolioForm, videos: newVideos });
+                                                }}
+                                                className="px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => setPortfolioForm({ ...portfolioForm, videos: [...portfolioForm.videos, ''] })}
+                                        className="text-sm text-deep-electric-blue hover:underline flex items-center gap-1"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        영상 URL 추가
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                                    영상 URL을 입력하세요. (예: https://example.com/video.mp4)
+                                </p>
+                            </div>
+
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPortfolioModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-semibold"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all font-semibold"
+                                >
+                                    포트폴리오 저장
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
