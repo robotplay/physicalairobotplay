@@ -31,11 +31,25 @@ export default function AdminLogin() {
             });
 
             const result = await response.json();
+            
+            console.log('Login response:', {
+                status: response.status,
+                ok: response.ok,
+                success: result.success,
+                error: result.error,
+                headers: Object.fromEntries(response.headers.entries()),
+            });
 
             if (result.success) {
                 // JWT 인증 성공 - 쿠키에 토큰이 자동 설정됨
                 toast.success('로그인 성공!', { id: loadingToast });
-                router.push('/admin');
+                
+                // 쿠키 설정 완료를 위한 충분한 지연 후 리다이렉트
+                // 전체 페이지 리로드를 통해 쿠키 반영 보장
+                setTimeout(() => {
+                    console.log('Redirecting to /admin');
+                    window.location.href = '/admin';
+                }, 500);
             } else {
                 toast.error(result.error || '로그인에 실패했습니다.', { id: loadingToast });
                 setError(result.error || '로그인에 실패했습니다.');
