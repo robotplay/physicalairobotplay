@@ -53,4 +53,13 @@ export const COLLECTIONS = {
     NEWSLETTER_SUBSCRIBERS: 'newsletter_subscribers',
     EMAIL_CAMPAIGNS: 'email_campaigns',
     SOCIAL_POSTS: 'social_posts',
+    STUDENTS: 'students',
+    FAQ: 'faq',
+    CLASS_GALLERY: 'class_gallery',
+    MONTHLY_NEWSLETTERS: 'monthly_newsletters',
+    COMPETITIONS: 'competitions',
+    CURRICULUM: 'curriculum',
+    STUDENT_FEEDBACK: 'student_feedback',
+    ANALYTICS: 'analytics',
+    IMPROVEMENT_IDEAS: 'improvement_ideas',
 } as const;
