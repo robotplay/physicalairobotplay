@@ -247,25 +247,42 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
                     />
-                    {/* 학년 필터 */}
+                    {/* 반 필터 */}
                     <select
-                        value={gradeFilter}
-                        onChange={(e) => setGradeFilter(e.target.value)}
+                        value={classFilter}
+                        onChange={(e) => setClassFilter(e.target.value)}
                         className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
                     >
-                        <option value="">전체 학년</option>
-                        <option value="초1">초1</option>
-                        <option value="초2">초2</option>
-                        <option value="초3">초3</option>
-                        <option value="초4">초4</option>
-                        <option value="초5">초5</option>
-                        <option value="초6">초6</option>
-                        <option value="중1">중1</option>
-                        <option value="중2">중2</option>
-                        <option value="중3">중3</option>
-                        <option value="고1">고1</option>
-                        <option value="고2">고2</option>
-                        <option value="고3">고3</option>
+                        <option value="">전체 반</option>
+                        <optgroup label="월요일">
+                            <option value="월요일 1반">월요일 1반</option>
+                            <option value="월요일 2반">월요일 2반</option>
+                            <option value="월요일 3반">월요일 3반</option>
+                        </optgroup>
+                        <optgroup label="화요일">
+                            <option value="화요일 1반">화요일 1반</option>
+                            <option value="화요일 2반">화요일 2반</option>
+                            <option value="화요일 3반">화요일 3반</option>
+                        </optgroup>
+                        <optgroup label="수요일">
+                            <option value="수요일 1반">수요일 1반</option>
+                            <option value="수요일 2반">수요일 2반</option>
+                            <option value="수요일 3반">수요일 3반</option>
+                        </optgroup>
+                        <optgroup label="목요일">
+                            <option value="목요일 1반">목요일 1반</option>
+                            <option value="목요일 2반">목요일 2반</option>
+                            <option value="목요일 3반">목요일 3반</option>
+                        </optgroup>
+                        <optgroup label="금요일">
+                            <option value="금요일 1반">금요일 1반</option>
+                            <option value="금요일 2반">금요일 2반</option>
+                            <option value="금요일 3반">금요일 3반</option>
+                        </optgroup>
+                        <optgroup label="토요일">
+                            <option value="토요일 대회1반">토요일 대회1반</option>
+                            <option value="토요일 대회2반">토요일 대회2반</option>
+                        </optgroup>
                     </select>
                     <button
                         onClick={handleCreate}
