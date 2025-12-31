@@ -148,21 +148,27 @@ export default function ParentPortalPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
                 <div className="w-16 h-16 border-4 border-deep-electric-blue border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     if (!isAuthenticated || !student) {
-        return null;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+                <div className="text-center">
+                    <p className="text-gray-600 dark:text-gray-400">인증 중...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-black pt-24 sm:pt-28 pb-8 sm:pb-12">
+        <main className="min-h-screen bg-white dark:bg-gray-900 pt-24 sm:pt-28 pb-8 sm:pb-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="mb-8">
+                <div className="mb-8 bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
