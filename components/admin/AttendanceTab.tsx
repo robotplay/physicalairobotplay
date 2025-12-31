@@ -20,7 +20,11 @@ interface AttendanceRecord {
     notes?: string;
 }
 
-export default function AttendanceTab() {
+interface AttendanceTabProps {
+    onRefresh?: () => void;
+}
+
+export default function AttendanceTab({ onRefresh }: AttendanceTabProps = {}) {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedClass, setSelectedClass] = useState('');
     const [students, setStudents] = useState<Student[]>([]);
@@ -150,6 +154,14 @@ export default function AttendanceTab() {
             
             // 저장 후 출석 기록 다시 불러오기
             await loadAttendanceRecords();
+            
+            // 학생 목록도 다시 불러와서 출석률 업데이트 반영
+            await loadStudents();
+            
+            // 부모 컴포넌트의 학생 목록도 새로고침 (출석률 반영)
+            if (onRefresh) {
+                onRefresh();
+            }
         } catch (error) {
             toast.error(error instanceof Error ? error.message : '오류가 발생했습니다.', { id: loadingToast });
         } finally {

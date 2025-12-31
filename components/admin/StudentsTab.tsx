@@ -998,6 +998,13 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                             onSubmit={async (e) => {
                                 e.preventDefault();
                                 try {
+                                    // 빈 URL 필터링
+                                    const filteredPortfolio = {
+                                        images: portfolioForm.images.filter(url => url.trim() !== ''),
+                                        videos: portfolioForm.videos.filter(url => url.trim() !== ''),
+                                        description: portfolioForm.description,
+                                    };
+                                    
                                     const response = await fetch(`/api/students/${selectedStudent._id}`, {
                                         method: 'PUT',
                                         headers: {
@@ -1005,7 +1012,7 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                         },
                                         credentials: 'include',
                                         body: JSON.stringify({
-                                            portfolio: portfolioForm,
+                                            portfolio: filteredPortfolio,
                                         }),
                                     });
 

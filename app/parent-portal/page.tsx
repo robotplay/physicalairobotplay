@@ -559,11 +559,34 @@ export default function ParentPortalPage() {
                                     <div>
                                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">영상</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {student.portfolio.videos.map((video, index) => (
-                                                <div key={index} className="aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                                                    <video src={video} controls className="w-full h-full object-cover" />
-                                                </div>
-                                            ))}
+                                            {student.portfolio.videos.map((video, index) => {
+                                                // Google Drive 링크 처리
+                                                const isGoogleDrive = video.includes('drive.google.com');
+                                                let embedUrl = video;
+                                                
+                                                if (isGoogleDrive) {
+                                                    // Google Drive 링크를 embed 형식으로 변환
+                                                    const fileIdMatch = video.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                                                    if (fileIdMatch) {
+                                                        embedUrl = `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+                                                    }
+                                                }
+                                                
+                                                return (
+                                                    <div key={index} className="aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                                        {isGoogleDrive ? (
+                                                            <iframe
+                                                                src={embedUrl}
+                                                                className="w-full h-full"
+                                                                allow="autoplay"
+                                                                allowFullScreen
+                                                            />
+                                                        ) : (
+                                                            <video src={video} controls className="w-full h-full object-cover" />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}

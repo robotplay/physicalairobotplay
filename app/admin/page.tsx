@@ -912,7 +912,21 @@ export default function AdminPage() {
                 )}
 
                 {activeTab === 'attendance' && (
-                    <AttendanceTab />
+                    <AttendanceTab 
+                        onRefresh={async () => {
+                            try {
+                                const response = await fetch('/api/students', {
+                                    credentials: 'include',
+                                });
+                                const result = await response.json();
+                                if (result.success && result.data) {
+                                    setStudents(result.data.students || []);
+                                }
+                            } catch (error) {
+                                console.error('Failed to refresh students:', error);
+                            }
+                        }}
+                    />
                 )}
 
                 {activeTab === 'parent-communication' && (
