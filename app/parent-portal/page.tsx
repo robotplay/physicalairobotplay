@@ -242,31 +242,31 @@ export default function ParentPortalPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-900">
-            {/* 상단 고정 헤더 */}
-            <div className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+        <div className="min-h-screen bg-white dark:bg-gray-900 pt-20 sm:pt-24">
+            {/* 상단 고정 헤더 (메인 Header 아래에 배치) */}
+            <div className="sticky top-16 sm:top-20 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white truncate">
                                 {student.name} 학생 포털
                             </h1>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
                                 {student.grade} | 학부모: {student.parentName}
                             </p>
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all font-semibold text-sm"
+                            className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all font-semibold text-xs sm:text-sm flex-shrink-0"
                         >
-                            <LogOut className="w-4 h-4" />
+                            <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
                             로그아웃
                         </button>
                     </div>
                 </div>
             </div>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
                 {/* 탭 메뉴 */}
                 <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
                     <button
