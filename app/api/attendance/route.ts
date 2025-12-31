@@ -30,14 +30,28 @@ async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
     return { authorized: true, user: payload };
 }
 
-// GET - 출석 기록 조회
+// GET - 출석 기록 조회 (admin, teacher, parent 모두 가능)
 export async function GET(request: NextRequest) {
     try {
+        // 인증 확인 (parent도 조회 가능)
+        const cookieStore = await cookies();
+        const token = cookieStore.get('auth-token')?.value;
+        let payload = null;
+        
+        if (token) {
+            payload = await verifyToken(token);
+        }
+
         const { searchParams } = new URL(request.url);
-        const studentId = searchParams.get('studentId');
+        let studentId = searchParams.get('studentId');
         const classDate = searchParams.get('classDate'); // YYYY-MM-DD 형식
         const studentClass = searchParams.get('class'); // 반 필터
         const month = searchParams.get('month'); // YYYY-MM 형식
+
+        // parent 역할인 경우 자신의 자녀만 조회 가능
+        if (payload && payload.role === 'parent' && payload.studentId) {
+            studentId = payload.studentId;
+        }
 
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.ATTENDANCE);
