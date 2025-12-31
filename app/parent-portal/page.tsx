@@ -75,16 +75,24 @@ export default function ParentPortalPage() {
             console.log('Auth response result:', result);
 
             if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
-                console.log('Authentication successful, loading data...');
+                console.log('Authentication successful, loading data for studentId:', result.user.studentId);
                 setIsAuthenticated(true);
                 await loadData(result.user.studentId);
                 setLoading(false);
                 return;
             }
             
-            console.log('Authentication failed, redirecting to login...');
-            // 인증 실패 시 로그인 페이지로 리다이렉트
-            window.location.href = '/parent-portal/login';
+            console.log('Authentication failed:', {
+                success: result.success,
+                hasUser: !!result.user,
+                role: result.user?.role,
+                studentId: result.user?.studentId
+            });
+            
+            // 인증 실패 시 로그인 페이지로 리다이렉트 (약간의 지연)
+            setTimeout(() => {
+                window.location.href = '/parent-portal/login';
+            }, 500);
         } catch (error) {
             console.error('Auth check failed:', error);
             // 에러 발생 시 로그인 페이지로 리다이렉트
