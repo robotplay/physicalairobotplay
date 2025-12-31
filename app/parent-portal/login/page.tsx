@@ -33,7 +33,11 @@ export default function ParentLoginPage() {
             }
 
             toast.success('로그인 성공');
-            router.push('/parent-portal');
+            
+            // 쿠키 설정을 위한 짧은 지연 후 리다이렉트
+            setTimeout(() => {
+                window.location.href = '/parent-portal';
+            }, 500);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : '로그인에 실패했습니다.');
         } finally {
