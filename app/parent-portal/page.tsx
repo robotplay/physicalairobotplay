@@ -128,30 +128,41 @@ export default function ParentPortalPage() {
             }
 
             // 뉴스레터
-            const newsletterResponse = await fetch('/api/newsletters');
+            const newsletterResponse = await fetch('/api/newsletters', {
+                credentials: 'include',
+            });
             const newsletterResult = await newsletterResponse.json();
             if (newsletterResult.success) {
                 setNewsletters(newsletterResult.data.newsletters || []);
             }
 
             // 갤러리 (학부모용)
-            const galleryResponse = await fetch('/api/gallery?visibility=parents-only');
+            const galleryResponse = await fetch('/api/gallery?visibility=parents-only', {
+                credentials: 'include',
+            });
             const galleryResult = await galleryResponse.json();
             if (galleryResult.success) {
                 setGalleries(galleryResult.data.galleries || []);
             }
 
-            // 출석 기록 (최근 1개월)
-            const now = new Date();
-            const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            const attendanceResponse = await fetch(`/api/attendance?studentId=${studentId}&month=${month}`);
+            // 출석 기록 (전체 기록 조회 - 월별 제한 없음)
+            const attendanceResponse = await fetch(`/api/attendance?studentId=${studentId}`, {
+                credentials: 'include',
+            });
             const attendanceResult = await attendanceResponse.json();
             if (attendanceResult.success) {
-                setAttendanceRecords(attendanceResult.data.records || []);
+                // 최신순으로 정렬 (이미 API에서 정렬되지만 확실히 하기 위해)
+                const sortedRecords = (attendanceResult.data.records || []).sort((a: AttendanceRecord, b: AttendanceRecord) => {
+                    return new Date(b.classDate).getTime() - new Date(a.classDate).getTime();
+                });
+                setAttendanceRecords(sortedRecords);
+                console.log('Attendance records loaded:', sortedRecords.length, 'records');
             }
 
             // 강사 피드백
-            const feedbackResponse = await fetch(`/api/student-feedback?studentId=${studentId}`);
+            const feedbackResponse = await fetch(`/api/student-feedback?studentId=${studentId}`, {
+                credentials: 'include',
+            });
             const feedbackResult = await feedbackResponse.json();
             if (feedbackResult.success) {
                 setFeedbacks(feedbackResult.data.feedbacks || []);
