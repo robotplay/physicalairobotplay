@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Phone, LogIn } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -12,11 +12,38 @@ export default function ParentLoginPage() {
         parentPhone: '',
     });
     const [loading, setLoading] = useState(false);
+    const [checkingAuth, setCheckingAuth] = useState(true);
 
-    // 페이지 로드 확인
-    if (typeof window !== 'undefined') {
-        console.log('Parent login page loaded');
-    }
+    // 페이지 로드 시 인증 상태 확인
+    useEffect(() => {
+        console.log('=== PARENT LOGIN PAGE LOADED ===');
+        const checkAuth = async () => {
+            try {
+                console.log('Checking if already authenticated...');
+                const response = await fetch('/api/auth/me', {
+                    credentials: 'include',
+                });
+                
+                const result = await response.json();
+                console.log('Auth check result:', result);
+                
+                // 이미 로그인된 경우 포털로 리다이렉트
+                if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
+                    console.log('Already authenticated, redirecting to portal...');
+                    window.location.href = '/parent-portal';
+                    return;
+                }
+                
+                console.log('Not authenticated, showing login form');
+                setCheckingAuth(false);
+            } catch (error) {
+                console.error('Auth check error:', error);
+                setCheckingAuth(false);
+            }
+        };
+        
+        checkAuth();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -89,6 +116,22 @@ export default function ParentLoginPage() {
             setLoading(false);
         }
     };
+
+    // 인증 체크 중이면 로딩 표시
+    if (checkingAuth) {
+        return (
+            <main className="min-h-screen bg-gray-50 dark:bg-black pt-24 sm:pt-28 pb-8 sm:pb-12">
+                <div className="max-w-md mx-auto px-4 sm:px-6">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                        <div className="text-center">
+                            <div className="w-16 h-16 border-4 border-deep-electric-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-gray-600 dark:text-gray-400">인증 상태 확인 중...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className="min-h-screen bg-gray-50 dark:bg-black pt-24 sm:pt-28 pb-8 sm:pb-12">
