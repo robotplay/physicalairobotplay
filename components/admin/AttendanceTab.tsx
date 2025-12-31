@@ -148,18 +148,19 @@ export default function AttendanceTab() {
         }
     };
 
-    const getStatusIcon = (status: string) => {
+    const getStatusIcon = (status: string, isSelected: boolean = false) => {
+        const baseClasses = isSelected ? 'w-5 h-5' : 'w-4 h-4';
         switch (status) {
             case 'present':
-                return <CheckCircle className="w-5 h-5 text-green-600" />;
+                return <CheckCircle className={`${baseClasses} ${isSelected ? 'text-green-700 dark:text-green-300' : 'text-green-600 dark:text-green-500'}`} />;
             case 'absent':
-                return <XCircle className="w-5 h-5 text-red-600" />;
+                return <XCircle className={`${baseClasses} ${isSelected ? 'text-red-700 dark:text-red-300' : 'text-red-600 dark:text-red-500'}`} />;
             case 'late':
-                return <Clock className="w-5 h-5 text-yellow-600" />;
+                return <Clock className={`${baseClasses} ${isSelected ? 'text-yellow-700 dark:text-yellow-300' : 'text-yellow-600 dark:text-yellow-500'}`} />;
             case 'excused':
-                return <Clock className="w-5 h-5 text-blue-600" />;
+                return <Clock className={`${baseClasses} ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-blue-600 dark:text-blue-500'}`} />;
             default:
-                return <CheckCircle className="w-5 h-5 text-gray-400" />;
+                return <CheckCircle className={`${baseClasses} text-gray-400`} />;
         }
     };
 
@@ -263,26 +264,29 @@ export default function AttendanceTab() {
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        {(['present', 'absent', 'late', 'excused'] as const).map((status) => (
-                                            <button
-                                                key={status}
-                                                onClick={() => handleStatusChange(student.studentId, status)}
-                                                className={`px-3 py-2 rounded-lg transition-all font-semibold text-sm ${
-                                                    record.status === status
-                                                        ? status === 'present'
-                                                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                                                            : status === 'absent'
-                                                            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                                                            : status === 'late'
-                                                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
-                                                            : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                                }`}
-                                            >
-                                                {getStatusIcon(status)}
-                                                <span className="ml-1">{getStatusLabel(status)}</span>
-                                            </button>
-                                        ))}
+                                        {(['present', 'absent', 'late', 'excused'] as const).map((status) => {
+                                            const isSelected = record.status === status;
+                                            return (
+                                                <button
+                                                    key={status}
+                                                    onClick={() => handleStatusChange(student.studentId, status)}
+                                                    className={`px-4 py-2.5 rounded-lg transition-all font-semibold text-sm flex items-center gap-1.5 ${
+                                                        isSelected
+                                                            ? status === 'present'
+                                                                ? 'bg-green-500 dark:bg-green-600 text-white border-2 border-green-600 dark:border-green-500 shadow-lg shadow-green-500/30 scale-105'
+                                                                : status === 'absent'
+                                                                ? 'bg-red-500 dark:bg-red-600 text-white border-2 border-red-600 dark:border-red-500 shadow-lg shadow-red-500/30 scale-105'
+                                                                : status === 'late'
+                                                                ? 'bg-yellow-500 dark:bg-yellow-600 text-white border-2 border-yellow-600 dark:border-yellow-500 shadow-lg shadow-yellow-500/30 scale-105'
+                                                                : 'bg-blue-500 dark:bg-blue-600 text-white border-2 border-blue-600 dark:border-blue-500 shadow-lg shadow-blue-500/30 scale-105'
+                                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 border-2 border-transparent opacity-60'
+                                                    }`}
+                                                >
+                                                    {getStatusIcon(status, isSelected)}
+                                                    <span>{getStatusLabel(status)}</span>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             );
