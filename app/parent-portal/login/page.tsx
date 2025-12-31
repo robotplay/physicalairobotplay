@@ -17,12 +17,24 @@ export default function ParentLoginPage() {
     // 페이지 로드 시 인증 상태 확인
     useEffect(() => {
         console.log('=== PARENT LOGIN PAGE LOADED ===');
+        let isMounted = true;
+        
         const checkAuth = async () => {
             try {
                 console.log('Checking if already authenticated...');
-                const response = await fetch('/api/auth/me', {
+                
+                // 타임아웃 설정 (5초)
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('인증 확인 시간 초과')), 5000);
+                });
+                
+                const fetchPromise = fetch('/api/auth/me', {
                     credentials: 'include',
                 });
+                
+                const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+                
+                if (!isMounted) return;
                 
                 const result = await response.json();
                 console.log('Auth check result:', result);
@@ -35,14 +47,23 @@ export default function ParentLoginPage() {
                 }
                 
                 console.log('Not authenticated, showing login form');
-                setCheckingAuth(false);
+                if (isMounted) {
+                    setCheckingAuth(false);
+                }
             } catch (error) {
                 console.error('Auth check error:', error);
-                setCheckingAuth(false);
+                // 에러가 발생해도 로그인 폼 표시
+                if (isMounted) {
+                    setCheckingAuth(false);
+                }
             }
         };
         
         checkAuth();
+        
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -94,7 +115,7 @@ export default function ParentLoginPage() {
             if (!response.ok || !result.success) {
                 const errorMessage = result.error || '로그인 실패';
                 console.error('Login failed:', errorMessage);
-                toast.error(errorMessage);
+                toast.error(errorMessage, { duration: 3000 });
                 setLoading(false);
                 return;
             }

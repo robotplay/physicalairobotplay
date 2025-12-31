@@ -66,9 +66,17 @@ export default function ParentPortalPage() {
     const checkAuth = async () => {
         try {
             console.log('Checking authentication...');
-            const response = await fetch('/api/auth/me', {
-                credentials: 'include', // 쿠키 포함
+            
+            // 타임아웃 설정 (10초)
+            const timeoutPromise = new Promise<never>((_, reject) => {
+                setTimeout(() => reject(new Error('인증 확인 시간 초과')), 10000);
             });
+            
+            const fetchPromise = fetch('/api/auth/me', {
+                credentials: 'include',
+            });
+            
+            const response = await Promise.race([fetchPromise, timeoutPromise]);
             
             console.log('Auth response status:', response.status);
             const result = await response.json();
@@ -77,8 +85,6 @@ export default function ParentPortalPage() {
             if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
                 console.log('Authentication successful, loading data for studentId:', result.user.studentId);
                 
-                // /api/auth/me에서 이미 학생 정보를 가져올 수 있으므로, 별도 API 호출 없이 사용
-                // 하지만 전체 학생 정보가 필요하므로 별도 API 호출 필요
                 setIsAuthenticated(true);
                 await loadData(result.user.studentId, result.user);
                 setLoading(false);
@@ -92,10 +98,8 @@ export default function ParentPortalPage() {
                 studentId: result.user?.studentId
             });
             
-            // 인증 실패 시 로그인 페이지로 리다이렉트 (약간의 지연)
-            setTimeout(() => {
-                window.location.href = '/parent-portal/login';
-            }, 500);
+            // 인증 실패 시 로그인 페이지로 리다이렉트
+            window.location.href = '/parent-portal/login';
         } catch (error) {
             console.error('Auth check failed:', error);
             // 에러 발생 시 로그인 페이지로 리다이렉트
