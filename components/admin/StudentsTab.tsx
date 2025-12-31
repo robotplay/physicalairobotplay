@@ -514,6 +514,9 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                                 {student.class}
                                             </p>
                                         )}
+                                        <p className="text-xs text-gray-500 dark:text-gray-500 font-mono mt-1">
+                                            ID: {student.studentId}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
@@ -642,6 +645,22 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                     기본 정보
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
+                                    <div className="col-span-2">
+                                        <label className="text-sm text-gray-600 dark:text-gray-400">학생 ID</label>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="font-semibold text-gray-900 dark:text-white font-mono">{selectedStudent.studentId}</p>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(selectedStudent.studentId);
+                                                    toast.success('학생 ID가 복사되었습니다.');
+                                                }}
+                                                className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded transition-colors"
+                                            >
+                                                복사
+                                            </button>
+                                        </div>
+                                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">학부모 포털 로그인 시 사용됩니다</p>
+                                    </div>
                                     <div>
                                         <label className="text-sm text-gray-600 dark:text-gray-400">학생명</label>
                                         <p className="font-semibold text-gray-900 dark:text-white">{selectedStudent.name}</p>
