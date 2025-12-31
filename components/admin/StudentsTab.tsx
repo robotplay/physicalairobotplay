@@ -812,6 +812,7 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                         headers: {
                                             'Content-Type': 'application/json',
                                         },
+                                        credentials: 'include',
                                         body: JSON.stringify({
                                             studentId: selectedStudent.studentId,
                                             courseId: feedbackForm.courseId || 'general',
@@ -1002,6 +1003,7 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                         headers: {
                                             'Content-Type': 'application/json',
                                         },
+                                        credentials: 'include',
                                         body: JSON.stringify({
                                             portfolio: portfolioForm,
                                         }),
@@ -1013,7 +1015,9 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                         setShowPortfolioModal(false);
                                         onRefresh();
                                         // 선택된 학생 정보도 업데이트
-                                        const updatedStudents = await fetch('/api/students').then(r => r.json());
+                                        const updatedStudents = await fetch('/api/students', {
+                                            credentials: 'include',
+                                        }).then(r => r.json());
                                         if (updatedStudents.success) {
                                             const updated = updatedStudents.data.students.find((s: Student) => s._id === selectedStudent._id);
                                             if (updated) setSelectedStudent(updated);
