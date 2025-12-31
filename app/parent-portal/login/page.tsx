@@ -24,6 +24,7 @@ export default function ParentLoginPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(formData),
+                credentials: 'include', // 쿠키 포함
             });
 
             const result = await response.json();
@@ -32,15 +33,14 @@ export default function ParentLoginPage() {
                 throw new Error(result.error || '로그인 실패');
             }
 
-            toast.success('로그인 성공');
+            // 로그인 성공 - 즉시 리다이렉트 (replace로 히스토리 스택에 남기지 않음)
+            toast.success('로그인 성공', { duration: 1000 });
             
-            // 쿠키 설정을 위한 짧은 지연 후 리다이렉트
-            setTimeout(() => {
-                window.location.href = '/parent-portal';
-            }, 500);
+            // 강제 리다이렉트
+            window.location.replace('/parent-portal');
         } catch (error) {
+            console.error('Login error:', error);
             toast.error(error instanceof Error ? error.message : '로그인에 실패했습니다.');
-        } finally {
             setLoading(false);
         }
     };
