@@ -12,7 +12,7 @@ export interface User {
     name: string;
     email: string;
     phone: string;
-    role: 'admin' | 'teacher' | 'student';
+    role: 'admin' | 'teacher' | 'student' | 'parent';
     teacherId?: string;
     status: 'active' | 'inactive';
 }
@@ -20,8 +20,9 @@ export interface User {
 export interface JWTPayload {
     userId: string;
     username: string;
-    role: 'admin' | 'teacher' | 'student';
+    role: 'admin' | 'teacher' | 'student' | 'parent';
     name: string;
+    studentId?: string; // parent 역할일 때 사용
     [key: string]: unknown; // jose의 JWTPayload와 호환되도록 인덱스 시그니처 추가
 }
 
@@ -56,8 +57,8 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
 }
 
 // 역할 체크
-export function hasPermission(userRole: string, requiredRole: 'admin' | 'teacher' | 'student'): boolean {
-    const roleHierarchy = { admin: 3, teacher: 2, student: 1 };
+export function hasPermission(userRole: string, requiredRole: 'admin' | 'teacher' | 'student' | 'parent'): boolean {
+    const roleHierarchy = { admin: 4, teacher: 3, student: 2, parent: 1 };
     return roleHierarchy[userRole as keyof typeof roleHierarchy] >= roleHierarchy[requiredRole];
 }
 

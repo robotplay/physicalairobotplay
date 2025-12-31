@@ -44,12 +44,23 @@ export default function ParentPortalPage() {
             const response = await fetch('/api/auth/me');
             const result = await response.json();
 
-            if (result.success && result.user && result.user.role === 'parent') {
-                setIsAuthenticated(true);
-                loadData(result.user.studentId);
-            } else {
-                router.push('/parent-portal/login');
+            if (result.success && result.user) {
+                // parent 역할은 JWT payload에서 직접 확인
+                const token = document.cookie.split('; ').find(row => row.startsWith('auth-token='))?.split('=')[1];
+                if (token) {
+                    try {
+                        const payload = JSON.parse(atob(token.split('.')[1]));
+                        if (payload.role === 'parent' && payload.studentId) {
+                            setIsAuthenticated(true);
+                            loadData(payload.studentId);
+                            return;
+                        }
+                    } catch (e) {
+                        // JWT 파싱 실패 시 계속 진행
+                    }
+                }
             }
+            router.push('/parent-portal/login');
         } catch (error) {
             console.error('Auth check failed:', error);
             router.push('/parent-portal/login');
