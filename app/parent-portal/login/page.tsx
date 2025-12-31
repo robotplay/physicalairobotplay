@@ -17,6 +17,21 @@ export default function ParentLoginPage() {
         console.log('=== PARENT LOGIN PAGE LOADED ===');
         let isMounted = true;
         
+        // URL에서 로그아웃 파라미터 확인
+        const urlParams = new URLSearchParams(window.location.search);
+        const isLogout = urlParams.get('logout') === 'true';
+        
+        if (isLogout) {
+            // 로그아웃 직후이므로 인증 체크 스킵
+            console.log('Logout parameter detected, skipping auth check');
+            if (isMounted) {
+                setCheckingAuth(false);
+            }
+            // URL에서 쿼리 파라미터 제거
+            window.history.replaceState({}, '', '/parent-portal/login');
+            return;
+        }
+        
         const checkAuth = async () => {
             try {
                 console.log('Checking if already authenticated...');

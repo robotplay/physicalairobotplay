@@ -228,12 +228,8 @@ export default function ParentPortalPage() {
             
             // 성공 여부와 관계없이 즉시 로그인 페이지로 리다이렉트
             // 쿠키 삭제는 서버에서 처리되므로 클라이언트에서는 바로 리다이렉트
-            if (result.success) {
-                toast.success('로그아웃되었습니다.', { duration: 500 });
-            }
-            
-            // 지연 없이 즉시 리다이렉트 (전체 페이지 리로드)
-            window.location.href = '/parent-portal/login';
+            // 로그아웃 상태임을 명시하기 위해 쿼리 파라미터 추가
+            window.location.href = '/parent-portal/login?logout=true';
         } catch (error) {
             console.error('Logout failed:', error);
             // 에러가 발생해도 로그인 페이지로 즉시 이동
