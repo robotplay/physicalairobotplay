@@ -21,18 +21,28 @@ export default function ParentLoginPage() {
             try {
                 console.log('Checking if already authenticated...');
                 
-                // 타임아웃 설정 (5초)
+                // 타임아웃 설정 (3초로 단축 - 빠른 응답을 위해)
                 const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('인증 확인 시간 초과')), 5000);
+                    setTimeout(() => reject(new Error('인증 확인 시간 초과')), 3000);
                 });
                 
                 const fetchPromise = fetch('/api/auth/me', {
                     credentials: 'include',
+                    cache: 'no-store', // 캐시 사용 안 함
                 });
                 
                 const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
                 
                 if (!isMounted) return;
+                
+                // 응답이 401 또는 403이면 인증되지 않은 것으로 간주
+                if (response.status === 401 || response.status === 403) {
+                    console.log('Not authenticated (401/403), showing login form');
+                    if (isMounted) {
+                        setCheckingAuth(false);
+                    }
+                    return;
+                }
                 
                 const result = await response.json();
                 console.log('Auth check result:', result);
@@ -50,7 +60,7 @@ export default function ParentLoginPage() {
                 }
             } catch (error) {
                 console.error('Auth check error:', error);
-                // 에러가 발생해도 로그인 폼 표시
+                // 에러가 발생해도 로그인 폼 표시 (로그아웃 직후일 수 있음)
                 if (isMounted) {
                     setCheckingAuth(false);
                 }
