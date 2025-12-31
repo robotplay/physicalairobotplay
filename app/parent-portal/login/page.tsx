@@ -13,8 +13,15 @@ export default function ParentLoginPage() {
     });
     const [loading, setLoading] = useState(false);
 
+    // 페이지 로드 확인
+    if (typeof window !== 'undefined') {
+        console.log('Parent login page loaded');
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('=== LOGIN FORM SUBMITTED ===');
+        console.log('Form data:', formData);
         setLoading(true);
 
         // 전화번호 정규화 (하이픈 제거)
@@ -24,9 +31,14 @@ export default function ParentLoginPage() {
             parentPhone: normalizedPhone,
         };
 
+        console.log('=== LOGIN ATTEMPT ===');
         console.log('Login attempt:', loginData);
 
         try {
+            console.log('=== FETCHING API ===');
+            console.log('URL: /api/auth/parent-login');
+            console.log('Data:', loginData);
+            
             const response = await fetch('/api/auth/parent-login', {
                 method: 'POST',
                 headers: {
@@ -36,8 +48,10 @@ export default function ParentLoginPage() {
                 credentials: 'include',
             });
 
+            console.log('=== API RESPONSE ===');
             console.log('Response status:', response.status);
             console.log('Response ok:', response.ok);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
             let result;
             try {
