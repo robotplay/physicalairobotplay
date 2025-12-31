@@ -310,7 +310,9 @@ export default function ParentCommunicationTab() {
 
     const handleSubmitNewsletter = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newsletterForm.title || !newsletterForm.content) {
+        // HTML 태그를 제거한 순수 텍스트로 검증
+        const textContent = newsletterForm.content.replace(/<[^>]*>/g, '').trim();
+        if (!newsletterForm.title || !textContent) {
             toast.error('제목과 내용을 입력해주세요.');
             return;
         }
@@ -792,8 +794,14 @@ export default function ParentCommunicationTab() {
                                             {newsletter.year}년 {newsletter.month}월 - {newsletter.title}
                                         </h4>
                                         <div 
-                                            className="text-sm text-gray-600 dark:text-gray-400 prose prose-sm dark:prose-invert max-w-none line-clamp-3"
-                                            dangerouslySetInnerHTML={{ __html: newsletter.content.replace(/<[^>]*>/g, '').substring(0, 200) + '...' }}
+                                            className="text-sm text-gray-600 dark:text-gray-400 prose prose-sm dark:prose-invert max-w-none"
+                                            style={{ 
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 3,
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden'
+                                            }}
+                                            dangerouslySetInnerHTML={{ __html: newsletter.content }}
                                         />
                                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                                             발송일: {formatDate(newsletter.sentAt)}
