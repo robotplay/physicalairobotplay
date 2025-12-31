@@ -30,12 +30,24 @@ async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
     return { authorized: true, user: payload };
 }
 
-// GET - 피드백 목록 조회
+// GET - 피드백 목록 조회 (teacher 또는 parent)
 export async function GET(request: NextRequest) {
     try {
-        const auth = await checkAuth('teacher');
-        if (!auth.authorized) {
-            return unauthorizedResponse(auth.error);
+        const cookieStore = await cookies();
+        const token = cookieStore.get('auth-token')?.value;
+
+        if (!token) {
+            return unauthorizedResponse('인증되지 않았습니다.');
+        }
+
+        const payload = await verifyToken(token);
+        if (!payload) {
+            return unauthorizedResponse('유효하지 않은 토큰입니다.');
+        }
+
+        // teacher 또는 parent 권한 확인
+        if (payload.role !== 'teacher' && payload.role !== 'parent' && payload.role !== 'admin') {
+            return unauthorizedResponse('권한이 없습니다.');
         }
 
         const { searchParams } = new URL(request.url);
