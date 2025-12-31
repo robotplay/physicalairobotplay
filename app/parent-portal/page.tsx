@@ -209,10 +209,31 @@ export default function ParentPortalPage() {
 
     const handleLogout = async () => {
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            router.push('/parent-portal/login');
+            console.log('Logging out...');
+            const response = await fetch('/api/auth/logout', { 
+                method: 'POST',
+                credentials: 'include',
+            });
+            
+            const result = await response.json();
+            console.log('Logout response:', result);
+            
+            if (result.success) {
+                toast.success('로그아웃되었습니다.');
+                // 쿠키 삭제를 위한 전체 페이지 리로드
+                setTimeout(() => {
+                    window.location.href = '/parent-portal/login';
+                }, 300);
+            } else {
+                toast.error(result.error || '로그아웃에 실패했습니다.');
+            }
         } catch (error) {
             console.error('Logout failed:', error);
+            toast.error('로그아웃 중 오류가 발생했습니다.');
+            // 에러가 발생해도 로그인 페이지로 이동
+            setTimeout(() => {
+                window.location.href = '/parent-portal/login';
+            }, 500);
         }
     };
 
