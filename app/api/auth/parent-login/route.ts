@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 30, // 30일
+            path: '/', // 모든 경로에서 접근 가능
         });
 
         return NextResponse.json({
