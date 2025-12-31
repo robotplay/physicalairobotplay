@@ -1,12 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Lock, Eye, EyeOff, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function AdminLogin() {
-    const router = useRouter();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);

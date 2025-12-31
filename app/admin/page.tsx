@@ -130,24 +130,35 @@ export default function AdminPage() {
         // JWT 기반 인증 확인
         const checkAuth = async () => {
             try {
+                console.log('Checking authentication...');
                 const response = await fetch('/api/auth/me', {
                     credentials: 'include',
                 });
+                
+                console.log('Auth check response:', {
+                    status: response.status,
+                    ok: response.ok,
+                });
+                
                 const result = await response.json();
+                console.log('Auth check result:', result);
                 
                 if (result.success && result.user) {
                     // 관리자 권한 확인
                     if (result.user.role === 'admin') {
+                        console.log('Admin authenticated:', result.user.username);
                         setIsAuthenticated(true);
                     } else {
-                        router.push('/admin/login');
+                        console.log('Not admin role:', result.user.role);
+                        window.location.href = '/admin/login';
                     }
                 } else {
-                    router.push('/admin/login');
+                    console.log('Auth failed:', result.error);
+                    window.location.href = '/admin/login';
                 }
             } catch (error) {
                 console.error('Auth check failed:', error);
-                router.push('/admin/login');
+                window.location.href = '/admin/login';
             }
         };
 

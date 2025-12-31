@@ -63,6 +63,12 @@ export async function POST(request: NextRequest) {
             maxAge: 60 * 60 * 24, // 24시간
             path: '/',
         });
+        
+        console.log('Auth token set in cookie:', {
+            hasToken: !!token,
+            tokenLength: token.length,
+            environment: process.env.NODE_ENV,
+        });
 
         // 사용자 정보 반환 (비밀번호 제외)
         const { password: _, ...userWithoutPassword } = user;
