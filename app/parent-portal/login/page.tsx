@@ -60,12 +60,16 @@ export default function ParentLoginPage() {
 
             // 로그인 성공 - 즉시 리다이렉트
             console.log('Login successful, redirecting...');
-            toast.success('로그인 성공', { duration: 1000 });
             
-            // 강제 리다이렉트
+            // 토스트 메시지 표시 후 리다이렉트
+            toast.success('로그인 성공', { duration: 500 });
+            
+            // 쿠키 설정을 위한 짧은 지연 후 강제 리다이렉트
             setTimeout(() => {
-                window.location.replace('/parent-portal');
-            }, 100);
+                console.log('Redirecting to /parent-portal');
+                // window.location.replace 대신 href 사용 (더 확실함)
+                window.location.href = '/parent-portal';
+            }, 300);
         } catch (error) {
             console.error('Login error:', error);
             const errorMessage = error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다.';

@@ -65,15 +65,24 @@ export default function ParentPortalPage() {
 
     const checkAuth = async () => {
         try {
-            const response = await fetch('/api/auth/me');
+            console.log('Checking authentication...');
+            const response = await fetch('/api/auth/me', {
+                credentials: 'include', // 쿠키 포함
+            });
+            
+            console.log('Auth response status:', response.status);
             const result = await response.json();
+            console.log('Auth response result:', result);
 
             if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
+                console.log('Authentication successful, loading data...');
                 setIsAuthenticated(true);
                 await loadData(result.user.studentId);
                 setLoading(false);
                 return;
             }
+            
+            console.log('Authentication failed, redirecting to login...');
             // 인증 실패 시 로그인 페이지로 리다이렉트
             window.location.href = '/parent-portal/login';
         } catch (error) {
