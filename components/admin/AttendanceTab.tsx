@@ -46,7 +46,9 @@ export default function AttendanceTab() {
 
     const loadStudents = async () => {
         try {
-            const response = await fetch('/api/students');
+            const response = await fetch('/api/students', {
+                credentials: 'include',
+            });
             const result = await response.json();
             if (result.success) {
                 const classStudents = result.data.students.filter(
@@ -73,7 +75,10 @@ export default function AttendanceTab() {
     const loadAttendanceRecords = async () => {
         try {
             const response = await fetch(
-                `/api/attendance?classDate=${selectedDate}&class=${encodeURIComponent(selectedClass)}`
+                `/api/attendance?classDate=${selectedDate}&class=${encodeURIComponent(selectedClass)}`,
+                {
+                    credentials: 'include',
+                }
             );
             const result = await response.json();
             if (result.success && result.data.records.length > 0) {
@@ -127,6 +132,7 @@ export default function AttendanceTab() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     classDate: selectedDate,
                     studentClass: selectedClass,
@@ -141,6 +147,9 @@ export default function AttendanceTab() {
             }
 
             toast.success('출석 기록이 저장되었습니다.', { id: loadingToast });
+            
+            // 저장 후 출석 기록 다시 불러오기
+            await loadAttendanceRecords();
         } catch (error) {
             toast.error(error instanceof Error ? error.message : '오류가 발생했습니다.', { id: loadingToast });
         } finally {
