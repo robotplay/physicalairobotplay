@@ -59,9 +59,16 @@ export async function GET(request: NextRequest) {
         const collection = db.collection(COLLECTIONS.STUDENT_FEEDBACK);
 
         const query: any = {};
-        if (studentId) {
-            query.studentId = studentId;
+        
+        // parent 역할인 경우 자신의 자녀만 조회 가능
+        if (payload.role === 'parent' && payload.studentId) {
+            query.studentId = payload.studentId;
+        } else {
+            if (studentId) {
+                query.studentId = studentId;
+            }
         }
+        
         if (teacherId) {
             query.teacherId = teacherId;
         }
