@@ -76,8 +76,11 @@ export default function ParentPortalPage() {
 
             if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
                 console.log('Authentication successful, loading data for studentId:', result.user.studentId);
+                
+                // /api/auth/me에서 이미 학생 정보를 가져올 수 있으므로, 별도 API 호출 없이 사용
+                // 하지만 전체 학생 정보가 필요하므로 별도 API 호출 필요
                 setIsAuthenticated(true);
-                await loadData(result.user.studentId);
+                await loadData(result.user.studentId, result.user);
                 setLoading(false);
                 return;
             }
@@ -100,26 +103,65 @@ export default function ParentPortalPage() {
         }
     };
 
-    const loadData = async (studentId: string) => {
+    const loadData = async (studentId: string, authUser?: any) => {
         try {
-            // 학생 정보
-            const studentsResponse = await fetch('/api/students');
-            const studentsResult = await studentsResponse.json();
-            if (studentsResult.success) {
-                const foundStudent = studentsResult.data.students.find(
-                    (s: Student) => s.studentId === studentId
-                );
-                if (foundStudent) {
-                    setStudent(foundStudent);
+            console.log('Loading data for studentId:', studentId);
+            
+            // 학생 정보 - /api/students/[id] 대신 직접 DB에서 가져오거나
+            // /api/auth/me에서 받은 정보 사용
+            // 하지만 전체 학생 정보가 필요하므로 새로운 API 엔드포인트 사용
+            const studentResponse = await fetch(`/api/students/by-id/${studentId}`, {
+                credentials: 'include',
+            });
+            
+            if (studentResponse.ok) {
+                const studentResult = await studentResponse.json();
+                if (studentResult.success) {
+                    console.log('Student data loaded:', studentResult.data);
+                    setStudent(studentResult.data);
                 } else {
-                    console.error('Student not found:', studentId);
+                    console.error('Failed to load student:', studentResult.error);
+                    // authUser에서 기본 정보라도 사용
+                    if (authUser) {
+                        setStudent({
+                            _id: authUser.userId,
+                            studentId: authUser.studentId,
+                            name: authUser.studentName || '',
+                            grade: '',
+                            parentName: authUser.name || '',
+                            parentPhone: '',
+                            parentEmail: '',
+                            portfolio: { images: [], videos: [], description: '' },
+                            competitions: [],
+                            attendance: { totalClasses: 0, attendedClasses: 0, rate: 0 },
+                            projects: [],
+                        } as Student);
+                    } else {
+                        window.location.href = '/parent-portal/login';
+                        return;
+                    }
+                }
+            } else {
+                console.error('Failed to load student, status:', studentResponse.status);
+                // authUser에서 기본 정보라도 사용
+                if (authUser) {
+                    setStudent({
+                        _id: authUser.userId,
+                        studentId: authUser.studentId,
+                        name: authUser.studentName || '',
+                        grade: '',
+                        parentName: authUser.name || '',
+                        parentPhone: '',
+                        parentEmail: '',
+                        portfolio: { images: [], videos: [], description: '' },
+                        competitions: [],
+                        attendance: { totalClasses: 0, attendedClasses: 0, rate: 0 },
+                        projects: [],
+                    } as Student);
+                } else {
                     window.location.href = '/parent-portal/login';
                     return;
                 }
-            } else {
-                console.error('Failed to load students:', studentsResult.error);
-                window.location.href = '/parent-portal/login';
-                return;
             }
 
             // FAQ
