@@ -17,6 +17,8 @@ export default function ParentLoginPage() {
         e.preventDefault();
         setLoading(true);
 
+        console.log('Login attempt:', { studentId: formData.studentId, parentPhone: formData.parentPhone });
+
         try {
             const response = await fetch('/api/auth/parent-login', {
                 method: 'POST',
@@ -27,20 +29,32 @@ export default function ParentLoginPage() {
                 credentials: 'include', // 쿠키 포함
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+
             const result = await response.json();
+            console.log('Response result:', result);
 
             if (!response.ok || !result.success) {
-                throw new Error(result.error || '로그인 실패');
+                const errorMessage = result.error || '로그인 실패';
+                console.error('Login failed:', errorMessage);
+                toast.error(errorMessage);
+                setLoading(false);
+                return;
             }
 
             // 로그인 성공 - 즉시 리다이렉트 (replace로 히스토리 스택에 남기지 않음)
+            console.log('Login successful, redirecting...');
             toast.success('로그인 성공', { duration: 1000 });
             
             // 강제 리다이렉트
-            window.location.replace('/parent-portal');
+            setTimeout(() => {
+                window.location.replace('/parent-portal');
+            }, 100);
         } catch (error) {
             console.error('Login error:', error);
-            toast.error(error instanceof Error ? error.message : '로그인에 실패했습니다.');
+            const errorMessage = error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다.';
+            toast.error(errorMessage);
             setLoading(false);
         }
     };

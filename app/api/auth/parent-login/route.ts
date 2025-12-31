@@ -8,7 +8,10 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { studentId, parentPhone } = body;
 
+        console.log('Parent login attempt:', { studentId, parentPhone });
+
         if (!studentId || !parentPhone) {
+            console.log('Missing credentials');
             return NextResponse.json(
                 { success: false, error: '학생 ID와 학부모 연락처를 입력해주세요.' },
                 { status: 400 }
@@ -19,12 +22,23 @@ export async function POST(request: NextRequest) {
         const db = await getDatabase();
         const studentsCollection = db.collection(COLLECTIONS.STUDENTS);
         
+        console.log('Searching for student:', { studentId, parentPhone });
         const student = await studentsCollection.findOne({ 
             studentId,
             parentPhone 
         });
 
+        console.log('Student found:', student ? 'Yes' : 'No');
+
         if (!student) {
+            // 디버깅: 모든 학생 조회
+            const allStudents = await studentsCollection.find({}).limit(5).toArray();
+            console.log('Sample students:', allStudents.map(s => ({ 
+                studentId: s.studentId, 
+                parentPhone: s.parentPhone,
+                name: s.name 
+            })));
+            
             return NextResponse.json(
                 { success: false, error: '학생 정보를 찾을 수 없습니다. 학생 ID와 학부모 연락처를 확인해주세요.' },
                 { status: 401 }
