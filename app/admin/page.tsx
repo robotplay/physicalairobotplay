@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings, TrendingUp, GraduationCap, BarChart3, Trophy, BookOpen } from 'lucide-react';
+import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings, TrendingUp, GraduationCap, BarChart3, Trophy, BookOpen, CheckCircle2 } from 'lucide-react';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import RegistrationsTab from '@/components/admin/RegistrationsTab';
@@ -14,6 +14,7 @@ import MarketingTab from '@/components/admin/MarketingTab';
 import StudentsTab from '@/components/admin/StudentsTab';
 import ParentCommunicationTab from '@/components/admin/ParentCommunicationTab';
 import AnalyticsTab from '@/components/admin/AnalyticsTab';
+import AttendanceTab from '@/components/admin/AttendanceTab';
 
 interface ConsultationData {
     id: string;
@@ -107,7 +108,7 @@ interface StudentData {
     updatedAt: string;
 }
 
-type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'students' | 'parent-communication' | 'competitions' | 'analytics' | 'marketing' | 'settings';
+type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'students' | 'attendance' | 'parent-communication' | 'competitions' | 'analytics' | 'marketing' | 'settings';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -479,6 +480,24 @@ export default function AdminPage() {
                                 <div className="flex items-center gap-2 whitespace-nowrap">
                                     <GraduationCap className="w-4 h-4" />
                                     학생 관리 ({students.length})
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('attendance');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'attendance'
+                                        ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    출결 관리
                                 </div>
                             </button>
                             <button
@@ -865,6 +884,10 @@ export default function AdminPage() {
                             }
                         }}
                     />
+                )}
+
+                {activeTab === 'attendance' && (
+                    <AttendanceTab />
                 )}
 
                 {activeTab === 'parent-communication' && (

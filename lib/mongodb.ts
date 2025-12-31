@@ -62,4 +62,6 @@ export const COLLECTIONS = {
     STUDENT_FEEDBACK: 'student_feedback',
     ANALYTICS: 'analytics',
     IMPROVEMENT_IDEAS: 'improvement_ideas',
+    ATTENDANCE: 'attendance',
+    CONSULTATION_SCHEDULES: 'consultation_schedules',
 } as const;
