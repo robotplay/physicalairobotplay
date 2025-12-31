@@ -26,10 +26,36 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // 사용자 정보 조회
         const db = await getDatabase();
+
+        // parent 역할인 경우 STUDENTS 컬렉션에서 조회
+        if (payload.role === 'parent') {
+            const studentsCollection = db.collection(COLLECTIONS.STUDENTS);
+            const student = await studentsCollection.findOne({ _id: new ObjectId(payload.userId) });
+
+            if (!student) {
+                return NextResponse.json(
+                    { success: false, error: '학생 정보를 찾을 수 없습니다.' },
+                    { status: 404 }
+                );
+            }
+
+            return NextResponse.json({
+                success: true,
+                user: {
+                    _id: student._id.toString(),
+                    userId: student._id.toString(),
+                    username: `parent-${student.studentId}`,
+                    role: 'parent',
+                    name: student.parentName,
+                    studentId: student.studentId,
+                    studentName: student.name,
+                },
+            });
+        }
+
+        // 일반 사용자 (admin, teacher, student)는 USERS 컬렉션에서 조회
         const collection = db.collection(COLLECTIONS.USERS);
-        
         const user = await collection.findOne({ _id: new ObjectId(payload.userId) });
 
         if (!user) {
