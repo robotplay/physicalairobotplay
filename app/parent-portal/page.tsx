@@ -94,7 +94,15 @@ export default function ParentPortalPage() {
                 );
                 if (foundStudent) {
                     setStudent(foundStudent);
+                } else {
+                    console.error('Student not found:', studentId);
+                    window.location.href = '/parent-portal/login';
+                    return;
                 }
+            } else {
+                console.error('Failed to load students:', studentsResult.error);
+                window.location.href = '/parent-portal/login';
+                return;
             }
 
             // FAQ
