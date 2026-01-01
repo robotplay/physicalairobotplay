@@ -125,10 +125,15 @@ export default function ParentCommunicationTab() {
 
     const loadNewsletters = async () => {
         try {
-            const response = await fetch('/api/newsletters');
+            const response = await fetch('/api/newsletters', {
+                credentials: 'include',
+                cache: 'no-store', // 캐시 사용 안 함
+            });
             const result = await response.json();
             if (result.success) {
-                setNewsletters(result.data.newsletters || []);
+                const loadedNewsletters = result.data.newsletters || [];
+                setNewsletters(loadedNewsletters);
+                console.log(`[Load Newsletters] Loaded ${loadedNewsletters.length} newsletters`);
             }
         } catch (error) {
             console.error('Failed to load newsletters:', error);
@@ -378,22 +383,35 @@ export default function ParentCommunicationTab() {
         }
 
         const loadingToast = toast.loading('뉴스레터 삭제 중...');
+        
+        // 낙관적 업데이트: 즉시 UI에서 제거
+        const previousNewsletters = newsletters;
+        setNewsletters(prev => prev.filter(n => n._id !== id));
+        
         try {
             const response = await fetch(`/api/newsletters/${id}`, {
                 method: 'DELETE',
                 credentials: 'include',
+                cache: 'no-store', // 캐시 사용 안 함
             });
 
             const result = await response.json();
 
             if (!response.ok || !result.success) {
+                // 실패 시 롤백
+                setNewsletters(previousNewsletters);
                 throw new Error(result.error || '삭제 실패');
             }
 
             toast.success('뉴스레터가 삭제되었습니다.', { id: loadingToast });
+            
+            // 삭제 성공 후 최신 목록으로 동기화
             await loadNewsletters();
         } catch (error) {
+            console.error('Delete newsletter error:', error);
             toast.error(error instanceof Error ? error.message : '오류가 발생했습니다.', { id: loadingToast });
+            // 에러 발생 시 목록 새로고침
+            await loadNewsletters();
         }
     };
 
