@@ -856,13 +856,44 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                     피드백 내용 <span className="text-red-500">*</span>
                                 </label>
-                                <textarea
-                                    value={feedbackForm.content}
-                                    onChange={(e) => setFeedbackForm({ ...feedbackForm, content: e.target.value })}
-                                    required
-                                    rows={5}
-                                    placeholder="학생의 학습 상황, 수업 참여도, 이해도 등을 작성해주세요."
-                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                <RichTextEditor
+                                    content={feedbackForm.content}
+                                    onChange={(htmlContent) => {
+                                        setFeedbackForm({ ...feedbackForm, content: htmlContent });
+                                    }}
+                                    placeholder="학생의 학습 상황, 수업 참여도, 이해도 등을 작성해주세요. 이미지를 삽입할 수 있습니다."
+                                    onImageUpload={async (file: File) => {
+                                        // 이미지 업로드 API 호출
+                                        const uploadFormData = new FormData();
+                                        uploadFormData.append('file', file);
+
+                                        const response = await fetch('/api/news/upload', {
+                                            method: 'POST',
+                                            body: uploadFormData,
+                                        });
+
+                                        if (!response.ok) {
+                                            const errorData = await response.json().catch(() => ({}));
+                                            throw new Error(errorData.error || '이미지 업로드 실패');
+                                        }
+
+                                        const result = await response.json();
+                                        
+                                        // API는 path를 반환 (Base64 데이터 URL)
+                                        if (!result.success) {
+                                            throw new Error(result.error || '이미지 업로드 실패');
+                                        }
+                                        
+                                        // path가 있으면 사용, 없으면 url 또는 data.url 시도
+                                        const imageUrl = result.path || result.url || result.data?.url || result.data?.path || '';
+                                        
+                                        if (!imageUrl) {
+                                            throw new Error('이미지 URL을 받을 수 없습니다.');
+                                        }
+                                        
+                                        console.log('[Feedback Image Upload] Success:', imageUrl.substring(0, 50) + '...');
+                                        return imageUrl;
+                                    }}
                                 />
                             </div>
 
