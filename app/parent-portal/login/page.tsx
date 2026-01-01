@@ -169,9 +169,11 @@ export default function ParentLoginPage() {
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && !loading && formData.studentId.trim() && formData.parentPhone.trim()) {
             e.preventDefault();
+            // 폼 제출 직접 호출
+            const formEvent = new Event('submit', { bubbles: true, cancelable: true });
             const form = e.currentTarget.closest('form');
-            if (form) {
-                form.requestSubmit();
+            if (form && form.dispatchEvent(formEvent)) {
+                handleSubmit(formEvent as unknown as React.FormEvent);
             }
         }
     };
