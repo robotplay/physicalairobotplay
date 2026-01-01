@@ -637,7 +637,11 @@ export default function ParentPortalPage() {
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">월간 뉴스레터</h2>
                             <div className="space-y-4">
                                 {newsletters.slice(0, 3).map((newsletter) => (
-                                    <div key={newsletter._id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0">
+                                    <div 
+                                        key={newsletter._id} 
+                                        className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg p-3 -mx-3 transition-colors"
+                                        onClick={() => setSelectedNewsletter(newsletter)}
+                                    >
                                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                             {newsletter.year}년 {newsletter.month}월 - {newsletter.title}
                                         </h3>
@@ -651,12 +655,53 @@ export default function ParentPortalPage() {
                                             }}
                                             dangerouslySetInnerHTML={{ __html: newsletter.content }}
                                         />
+                                        <p className="text-xs text-blue-500 dark:text-blue-400 mt-2 font-medium">전체 내용 보기 →</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </>
                 )}
+
+            {/* 뉴스레터 모달 */}
+            {selectedNewsletter && (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                    onClick={() => setSelectedNewsletter(null)}
+                >
+                    <div 
+                        className="relative bg-white dark:bg-gray-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* 헤더 */}
+                        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {selectedNewsletter.year}년 {selectedNewsletter.month}월 - {selectedNewsletter.title}
+                                </h2>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    발송일: {new Date(selectedNewsletter.sentAt).toLocaleDateString('ko-KR')}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setSelectedNewsletter(null)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                aria-label="닫기"
+                            >
+                                <X className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                            </button>
+                        </div>
+
+                        {/* 내용 */}
+                        <div className="overflow-y-auto max-h-[calc(90vh-120px)] px-6 py-6">
+                            <div 
+                                className="prose prose-lg dark:prose-invert max-w-none text-gray-900 dark:text-gray-100"
+                                dangerouslySetInnerHTML={{ __html: selectedNewsletter.content }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
             </main>
         </div>
     );
