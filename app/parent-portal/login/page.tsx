@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { User, Phone, LogIn } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { logger } from '@/lib/logger';
 
 export default function ParentLoginPage() {
     const [formData, setFormData] = useState({
@@ -14,7 +15,7 @@ export default function ParentLoginPage() {
 
     // 페이지 로드 시 인증 상태 확인
     useEffect(() => {
-        console.log('=== PARENT LOGIN PAGE LOADED ===');
+        logger.log('=== PARENT LOGIN PAGE LOADED ===');
         let isMounted = true;
         
         // URL에서 로그아웃 파라미터 확인
@@ -23,7 +24,7 @@ export default function ParentLoginPage() {
         
         if (isLogout) {
             // 로그아웃 직후이므로 인증 체크 스킵
-            console.log('Logout parameter detected, skipping auth check');
+            logger.log('Logout parameter detected, skipping auth check');
             if (isMounted) {
                 setCheckingAuth(false);
             }
@@ -34,7 +35,7 @@ export default function ParentLoginPage() {
         
         const checkAuth = async () => {
             try {
-                console.log('Checking if already authenticated...');
+                logger.log('Checking if already authenticated...');
                 
                 // 타임아웃 설정 (3초로 단축 - 빠른 응답을 위해)
                 const timeoutPromise = new Promise((_, reject) => {
@@ -52,7 +53,7 @@ export default function ParentLoginPage() {
                 
                 // 응답이 401 또는 403이면 인증되지 않은 것으로 간주
                 if (response.status === 401 || response.status === 403) {
-                    console.log('Not authenticated (401/403), showing login form');
+                    logger.log('Not authenticated (401/403), showing login form');
                     if (isMounted) {
                         setCheckingAuth(false);
                     }
@@ -60,21 +61,21 @@ export default function ParentLoginPage() {
                 }
                 
                 const result = await response.json();
-                console.log('Auth check result:', result);
+                logger.log('Auth check result:', result);
                 
                 // 이미 로그인된 경우 포털로 리다이렉트
                 if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
-                    console.log('Already authenticated, redirecting to portal...');
+                    logger.log('Already authenticated, redirecting to portal...');
                     window.location.href = '/parent-portal';
                     return;
                 }
                 
-                console.log('Not authenticated, showing login form');
+                logger.log('Not authenticated, showing login form');
                 if (isMounted) {
                     setCheckingAuth(false);
                 }
             } catch (error) {
-                console.error('Auth check error:', error);
+                logger.error('Auth check error:', error);
                 // 에러가 발생해도 로그인 폼 표시 (로그아웃 직후일 수 있음)
                 if (isMounted) {
                     setCheckingAuth(false);
@@ -94,7 +95,7 @@ export default function ParentLoginPage() {
         
         // 중복 제출 방지
         if (loading) {
-            console.log('[Parent Login] Already submitting, ignoring...');
+            logger.log('[Parent Login] Already submitting, ignoring...');
             return;
         }
         
@@ -104,7 +105,7 @@ export default function ParentLoginPage() {
             return;
         }
         
-        console.log('[Parent Login] Form submitted');
+        logger.log('[Parent Login] Form submitted');
         setLoading(true);
 
         // 전화번호 정규화 (하이픈 제거)
@@ -114,7 +115,7 @@ export default function ParentLoginPage() {
             parentPhone: normalizedPhone,
         };
 
-        console.log('[Parent Login] Login attempt:', loginData);
+        logger.log('[Parent Login] Login attempt:', loginData);
 
         try {
             const response = await fetch('/api/auth/parent-login', {
@@ -127,38 +128,38 @@ export default function ParentLoginPage() {
                 cache: 'no-store',
             });
 
-            console.log('[Parent Login] Response status:', response.status);
+            logger.log('[Parent Login] Response status:', response.status);
 
             let result;
             try {
                 result = await response.json();
-                console.log('[Parent Login] Response result:', result);
+                logger.log('[Parent Login] Response result:', result);
             } catch (jsonError) {
-                console.error('[Parent Login] JSON parse error:', jsonError);
+                logger.error('[Parent Login] JSON parse error:', jsonError);
                 const text = await response.text();
-                console.error('[Parent Login] Response text:', text);
+                logger.error('[Parent Login] Response text:', text);
                 throw new Error('서버 응답을 파싱할 수 없습니다.');
             }
 
             if (!response.ok || !result.success) {
                 const errorMessage = result.error || '로그인 실패';
-                console.error('[Parent Login] Login failed:', errorMessage);
+                logger.error('[Parent Login] Login failed:', errorMessage);
                 toast.error(errorMessage, { duration: 3000 });
                 setLoading(false);
                 return;
             }
 
             // 로그인 성공
-            console.log('[Parent Login] Login successful, redirecting...');
+            logger.log('[Parent Login] Login successful, redirecting...');
             toast.success('로그인 성공', { duration: 800 });
             
             // 쿠키 설정 완료를 위한 충분한 지연 후 리다이렉트
             setTimeout(() => {
-                console.log('[Parent Login] Redirecting to /parent-portal');
+                logger.log('[Parent Login] Redirecting to /parent-portal');
                 window.location.href = '/parent-portal';
             }, 800);
         } catch (error) {
-            console.error('[Parent Login] Error:', error);
+            logger.error('[Parent Login] Error:', error);
             const errorMessage = error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다.';
             toast.error(errorMessage);
             setLoading(false);

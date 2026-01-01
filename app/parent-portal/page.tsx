@@ -4,6 +4,26 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Image, Mail, LogOut, Calendar, Trophy, BookOpen, CheckCircle, XCircle, Clock, MessageSquare, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { sanitizeHtml } from '@/lib/sanitize';
+import { logger } from '@/lib/logger';
+
+interface Competition {
+    competitionId: string;
+    competitionName: string;
+    year: number;
+    month: number;
+    result: 'participated' | 'award' | 'winner';
+    award?: string;
+    teamMembers?: string[];
+}
+
+interface Project {
+    projectId: string;
+    projectName: string;
+    completionRate: number;
+    status: 'in-progress' | 'completed';
+    completedAt?: string;
+}
 
 interface Student {
     _id: string;
@@ -20,13 +40,13 @@ interface Student {
         videos: string[];
         description: string;
     };
-    competitions: any[];
+    competitions: Competition[];
     attendance: {
         totalClasses: number;
         attendedClasses: number;
         rate: number;
     };
-    projects: any[];
+    projects: Project[];
 }
 
 interface AttendanceRecord {
@@ -47,22 +67,73 @@ interface Feedback {
     teacherName?: string;
 }
 
+interface FAQ {
+    _id: string;
+    faqId: string;
+    category: 'general' | 'enrollment' | 'curriculum' | 'competition' | 'payment';
+    question: string;
+    answer: string;
+    order: number;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface Newsletter {
+    _id: string;
+    newsletterId: string;
+    month: number;
+    year: number;
+    title: string;
+    content: string;
+    highlights: string[];
+    studentSpotlights: string[];
+    competitionResults: string[];
+    photos: string[];
+    sentAt: string;
+    createdAt: string;
+}
+
+interface Gallery {
+    _id: string;
+    galleryId: string;
+    courseId: string;
+    classDate: string;
+    title: string;
+    description: string;
+    images: string[];
+    videos: string[];
+    tags: string[];
+    visibility: 'public' | 'parents-only' | 'private';
+    createdAt: string;
+}
+
+interface AuthUser {
+    _id: string;
+    userId: string;
+    username: string;
+    role: 'admin' | 'teacher' | 'student' | 'parent';
+    name: string;
+    studentId?: string;
+    studentName?: string;
+}
+
 export default function ParentPortalPage() {
     const router = useRouter();
     const [student, setStudent] = useState<Student | null>(null);
-    const [faqs, setFaqs] = useState<any[]>([]);
-    const [newsletters, setNewsletters] = useState<any[]>([]);
-    const [galleries, setGalleries] = useState<any[]>([]);
+    const [faqs, setFaqs] = useState<FAQ[]>([]);
+    const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
+    const [galleries, setGalleries] = useState<Gallery[]>([]);
     const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'feedback' | 'portfolio'>('overview');
-    const [selectedNewsletter, setSelectedNewsletter] = useState<any | null>(null);
+    const [selectedNewsletter, setSelectedNewsletter] = useState<Newsletter | null>(null);
 
-    const loadData = async (studentId: string, authUser?: any) => {
+    const loadData = async (studentId: string, authUser?: AuthUser) => {
         try {
-            console.log('Loading data for studentId:', studentId);
+            logger.log('Loading data for studentId:', studentId);
             
             // 학생 정보 - /api/students/[id] 대신 직접 DB에서 가져오거나
             // /api/auth/me에서 받은 정보 사용
@@ -74,10 +145,10 @@ export default function ParentPortalPage() {
             if (studentResponse.ok) {
                 const studentResult = await studentResponse.json();
                 if (studentResult.success) {
-                    console.log('Student data loaded:', studentResult.data);
+                    logger.log('Student data loaded:', studentResult.data);
                     setStudent(studentResult.data);
                 } else {
-                    console.error('Failed to load student:', studentResult.error);
+                    logger.error('Failed to load student:', studentResult.error);
                     // authUser에서 기본 정보라도 사용
                     if (authUser) {
                         setStudent({
@@ -99,7 +170,7 @@ export default function ParentPortalPage() {
                     }
                 }
             } else {
-                console.error('Failed to load student, status:', studentResponse.status);
+                logger.error('Failed to load student, status:', studentResponse.status);
                 // authUser에서 기본 정보라도 사용
                 if (authUser) {
                     setStudent({
@@ -157,7 +228,7 @@ export default function ParentPortalPage() {
                     return new Date(b.classDate).getTime() - new Date(a.classDate).getTime();
                 });
                 setAttendanceRecords(sortedRecords);
-                console.log('Attendance records loaded:', sortedRecords.length, 'records');
+                logger.log('Attendance records loaded:', sortedRecords.length, 'records');
             }
 
             // 강사 피드백
@@ -169,7 +240,7 @@ export default function ParentPortalPage() {
                 setFeedbacks(feedbackResult.data.feedbacks || []);
             }
         } catch (error) {
-            console.error('Failed to load data:', error);
+            logger.error('Failed to load data:', error);
             // 데이터 로드 실패 시 로그인 페이지로 리다이렉트
             window.location.href = '/parent-portal/login';
         }
@@ -177,7 +248,7 @@ export default function ParentPortalPage() {
 
     const checkAuth = async () => {
         try {
-            console.log('Checking authentication...');
+            logger.log('Checking authentication...');
             
             // 타임아웃 설정 (10초)
             const timeoutPromise = new Promise<never>((_, reject) => {
@@ -190,12 +261,12 @@ export default function ParentPortalPage() {
             
             const response = await Promise.race([fetchPromise, timeoutPromise]);
             
-            console.log('Auth response status:', response.status);
+            logger.log('Auth response status:', response.status);
             const result = await response.json();
-            console.log('Auth response result:', result);
+            logger.log('Auth response result:', result);
 
             if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
-                console.log('Authentication successful, loading data for studentId:', result.user.studentId);
+                logger.log('Authentication successful, loading data for studentId:', result.user.studentId);
                 
                 setIsAuthenticated(true);
                 await loadData(result.user.studentId, result.user);
@@ -203,7 +274,7 @@ export default function ParentPortalPage() {
                 return;
             }
             
-            console.log('Authentication failed:', {
+            logger.log('Authentication failed:', {
                 success: result.success,
                 hasUser: !!result.user,
                 role: result.user?.role,
@@ -214,7 +285,7 @@ export default function ParentPortalPage() {
             setLoading(false);
             window.location.href = '/parent-portal/login';
         } catch (error) {
-            console.error('Auth check failed:', error);
+            logger.error('Auth check failed:', error);
             // 에러 발생 시 로그인 페이지로 리다이렉트
             setLoading(false);
             window.location.href = '/parent-portal/login';
@@ -227,7 +298,7 @@ export default function ParentPortalPage() {
 
     const handleLogout = async () => {
         try {
-            console.log('Logging out...');
+            logger.log('Logging out...');
             
             // 로그아웃 API 호출
             const response = await fetch('/api/auth/logout', { 
@@ -236,14 +307,14 @@ export default function ParentPortalPage() {
             });
             
             const result = await response.json();
-            console.log('Logout response:', result);
+            logger.log('Logout response:', result);
             
             // 성공 여부와 관계없이 즉시 로그인 페이지로 리다이렉트
             // 쿠키 삭제는 서버에서 처리되므로 클라이언트에서는 바로 리다이렉트
             // 로그아웃 상태임을 명시하기 위해 쿼리 파라미터 추가
             window.location.href = '/parent-portal/login?logout=true';
         } catch (error) {
-            console.error('Logout failed:', error);
+            logger.error('Logout failed:', error);
             // 에러가 발생해도 로그인 페이지로 즉시 이동
             window.location.href = '/parent-portal/login';
         }
@@ -260,11 +331,14 @@ export default function ParentPortalPage() {
         );
     }
 
-    if (!isAuthenticated || !student) {
-        // 인증되지 않았거나 학생 정보가 없으면 로그인 페이지로 리다이렉트
-        if (typeof window !== 'undefined') {
-            window.location.href = '/parent-portal/login';
+    // 인증되지 않았거나 학생 정보가 없으면 로그인 페이지로 리다이렉트
+    useEffect(() => {
+        if (!isAuthenticated || !student) {
+            router.push('/parent-portal/login');
         }
+    }, [isAuthenticated, student, router]);
+
+    if (!isAuthenticated || !student) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
                 <div className="text-center">
@@ -430,7 +504,7 @@ export default function ParentPortalPage() {
                                             </div>
                                             <div
                                                 className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 mb-2 prose-img:max-w-full prose-img:rounded-lg prose-img:my-2"
-                                                dangerouslySetInnerHTML={{ __html: feedback.content }}
+                                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(feedback.content) }}
                                             />
                                             {feedback.strengths.length > 0 && (
                                                 <div className="mt-2">
@@ -515,7 +589,7 @@ export default function ParentPortalPage() {
                                         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-3">
                                             <div
                                                 className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 prose-img:max-w-full prose-img:rounded-lg prose-img:my-4"
-                                                dangerouslySetInnerHTML={{ __html: feedback.content }}
+                                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(feedback.content) }}
                                             />
                                         </div>
                                         {feedback.strengths.length > 0 && (
@@ -564,7 +638,7 @@ export default function ParentPortalPage() {
                                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">포트폴리오 설명</h3>
                                         <div 
                                             className="prose prose-sm dark:prose-invert max-w-none bg-gray-50 dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
-                                            dangerouslySetInnerHTML={{ __html: student.portfolio.description }}
+                                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(student.portfolio.description) }}
                                         />
                                     </div>
                                 )}
@@ -657,7 +731,7 @@ export default function ParentPortalPage() {
                                                 WebkitBoxOrient: 'vertical',
                                                 overflow: 'hidden'
                                             }}
-                                            dangerouslySetInnerHTML={{ __html: newsletter.content }}
+                                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(newsletter.content) }}
                                         />
                                         <p className="text-xs text-blue-500 dark:text-blue-400 mt-2 font-medium">전체 내용 보기 →</p>
                                     </div>
@@ -703,7 +777,7 @@ export default function ParentPortalPage() {
                                 style={{
                                     // 이미지 스타일링 개선
                                 }}
-                                dangerouslySetInnerHTML={{ __html: selectedNewsletter.content }}
+                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedNewsletter.content) }}
                             />
                         </div>
                     </div>

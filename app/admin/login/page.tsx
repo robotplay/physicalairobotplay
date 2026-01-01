@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Lock, Eye, EyeOff, User } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { logger } from '@/lib/logger';
 
 export default function AdminLogin() {
     const [username, setUsername] = useState('');
@@ -16,7 +17,7 @@ export default function AdminLogin() {
         
         // 중복 제출 방지
         if (isLoading) {
-            console.log('[Admin Login] Already submitting, ignoring...');
+            logger.log('[Admin Login] Already submitting, ignoring...');
             return;
         }
         
@@ -32,7 +33,7 @@ export default function AdminLogin() {
         const loadingToast = toast.loading('로그인 중...');
 
         try {
-            console.log('[Admin Login] Submitting login request...');
+            logger.log('[Admin Login] Submitting login request...');
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -45,7 +46,7 @@ export default function AdminLogin() {
 
             const result = await response.json();
             
-            console.log('[Admin Login] Response:', {
+            logger.log('[Admin Login] Response:', {
                 status: response.status,
                 ok: response.ok,
                 success: result.success,
@@ -59,7 +60,7 @@ export default function AdminLogin() {
                 // 쿠키 설정 완료를 위한 충분한 지연 후 리다이렉트
                 // 전체 페이지 리로드를 통해 쿠키 반영 보장
                 setTimeout(() => {
-                    console.log('[Admin Login] Redirecting to /admin');
+                    logger.log('[Admin Login] Redirecting to /admin');
                     window.location.href = '/admin';
                 }, 800);
             } else {
@@ -68,7 +69,7 @@ export default function AdminLogin() {
                 setIsLoading(false);
             }
         } catch (error) {
-            console.error('[Admin Login] Error:', error);
+            logger.error('[Admin Login] Error:', error);
             toast.error('로그인 중 오류가 발생했습니다.', { id: loadingToast });
             setError('로그인 중 오류가 발생했습니다.');
             setIsLoading(false);
