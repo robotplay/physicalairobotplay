@@ -75,15 +75,14 @@ export default function AdminLogin() {
         }
     };
     
-    // 엔터 키 핸들러
+    // 엔터 키 핸들러 - 폼 제출 버튼 클릭
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && !isLoading && username.trim() && password.trim()) {
             e.preventDefault();
-            // 폼 제출 직접 호출
-            const formEvent = new Event('submit', { bubbles: true, cancelable: true });
-            const form = e.currentTarget.closest('form');
-            if (form && form.dispatchEvent(formEvent)) {
-                handleSubmit(formEvent as unknown as React.FormEvent);
+            // 제출 버튼 클릭으로 폼 제출
+            const submitButton = e.currentTarget.closest('form')?.querySelector('button[type="submit"]') as HTMLButtonElement;
+            if (submitButton && !submitButton.disabled) {
+                submitButton.click();
             }
         }
     };
