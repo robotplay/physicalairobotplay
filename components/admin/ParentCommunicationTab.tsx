@@ -828,11 +828,26 @@ export default function ParentCommunicationTab() {
                                                 });
 
                                                 if (!response.ok) {
-                                                    throw new Error('이미지 업로드 실패');
+                                                    const errorData = await response.json().catch(() => ({}));
+                                                    throw new Error(errorData.error || '이미지 업로드 실패');
                                                 }
 
                                                 const result = await response.json();
-                                                return result.url || result.data?.url || '';
+                                                
+                                                // API는 path를 반환 (Base64 데이터 URL)
+                                                if (!result.success) {
+                                                    throw new Error(result.error || '이미지 업로드 실패');
+                                                }
+                                                
+                                                // path가 있으면 사용, 없으면 url 또는 data.url 시도
+                                                const imageUrl = result.path || result.url || result.data?.url || result.data?.path || '';
+                                                
+                                                if (!imageUrl) {
+                                                    throw new Error('이미지 URL을 받을 수 없습니다.');
+                                                }
+                                                
+                                                console.log('[Newsletter Image Upload] Success:', imageUrl.substring(0, 50) + '...');
+                                                return imageUrl;
                                             }}
                                         />
                                     </div>
