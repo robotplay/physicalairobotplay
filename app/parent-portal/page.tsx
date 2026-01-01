@@ -320,6 +320,13 @@ export default function ParentPortalPage() {
         }
     };
 
+    // 인증되지 않았거나 학생 정보가 없으면 로그인 페이지로 리다이렉트
+    useEffect(() => {
+        if (!loading && (!isAuthenticated || !student)) {
+            router.push('/parent-portal/login');
+        }
+    }, [loading, isAuthenticated, student, router]);
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
@@ -330,13 +337,6 @@ export default function ParentPortalPage() {
             </div>
         );
     }
-
-    // 인증되지 않았거나 학생 정보가 없으면 로그인 페이지로 리다이렉트
-    useEffect(() => {
-        if (!isAuthenticated || !student) {
-            router.push('/parent-portal/login');
-        }
-    }, [isAuthenticated, student, router]);
 
     if (!isAuthenticated || !student) {
         return (
