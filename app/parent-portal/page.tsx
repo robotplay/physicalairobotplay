@@ -428,7 +428,10 @@ export default function ParentPortalPage() {
                                                     {new Date(feedback.date).toLocaleDateString('ko-KR')}
                                                 </p>
                                             </div>
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{feedback.content}</p>
+                                            <div
+                                                className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 mb-2 prose-img:max-w-full prose-img:rounded-lg prose-img:my-2"
+                                                dangerouslySetInnerHTML={{ __html: feedback.content }}
+                                            />
                                             {feedback.strengths.length > 0 && (
                                                 <div className="mt-2">
                                                     <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-1">강점</p>
@@ -510,9 +513,10 @@ export default function ParentPortalPage() {
                                             </p>
                                         </div>
                                         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-3">
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                                {feedback.content}
-                                            </p>
+                                            <div
+                                                className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 prose-img:max-w-full prose-img:rounded-lg prose-img:my-4"
+                                                dangerouslySetInnerHTML={{ __html: feedback.content }}
+                                            />
                                         </div>
                                         {feedback.strengths.length > 0 && (
                                             <div className="mb-3">
