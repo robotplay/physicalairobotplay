@@ -128,36 +128,49 @@ export default function AdminPage() {
 
     useEffect(() => {
         // JWT 기반 인증 확인
-        const checkAuth = async () => {
+        const checkAuth = async (retryCount = 0) => {
             try {
-                console.log('Checking authentication...');
+                console.log(`[Admin Auth] Checking authentication... (attempt ${retryCount + 1})`);
                 const response = await fetch('/api/auth/me', {
                     credentials: 'include',
+                    cache: 'no-store', // 캐시 사용 안 함
                 });
                 
-                console.log('Auth check response:', {
+                console.log('[Admin Auth] Response:', {
                     status: response.status,
                     ok: response.ok,
                 });
                 
                 const result = await response.json();
-                console.log('Auth check result:', result);
+                console.log('[Admin Auth] Result:', result);
                 
                 if (result.success && result.user) {
                     // 관리자 권한 확인
                     if (result.user.role === 'admin') {
-                        console.log('Admin authenticated:', result.user.username);
+                        console.log('[Admin Auth] Admin authenticated:', result.user.username);
                         setIsAuthenticated(true);
                     } else {
-                        console.log('Not admin role:', result.user.role);
+                        console.log('[Admin Auth] Not admin role:', result.user.role);
                         window.location.href = '/admin/login';
                     }
                 } else {
-                    console.log('Auth failed:', result.error);
+                    // 인증 실패 시 재시도 (최대 2회, 로그인 직후 쿠키 설정 지연 대응)
+                    if (retryCount < 2 && response.status === 401) {
+                        console.log(`[Admin Auth] Auth failed, retrying in 500ms... (${retryCount + 1}/2)`);
+                        setTimeout(() => checkAuth(retryCount + 1), 500);
+                        return;
+                    }
+                    console.log('[Admin Auth] Auth failed:', result.error);
                     window.location.href = '/admin/login';
                 }
             } catch (error) {
-                console.error('Auth check failed:', error);
+                console.error('[Admin Auth] Auth check failed:', error);
+                // 네트워크 오류 시에도 재시도
+                if (retryCount < 2) {
+                    console.log(`[Admin Auth] Network error, retrying in 500ms... (${retryCount + 1}/2)`);
+                    setTimeout(() => checkAuth(retryCount + 1), 500);
+                    return;
+                }
                 window.location.href = '/admin/login';
             }
         };

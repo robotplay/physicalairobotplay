@@ -47,7 +47,7 @@ export default function AdminLogin() {
                 setTimeout(() => {
                     console.log('Redirecting to /admin');
                     window.location.href = '/admin';
-                }, 500);
+                }, 1000);
             } else {
                 toast.error(result.error || '로그인에 실패했습니다.', { id: loadingToast });
                 setError(result.error || '로그인에 실패했습니다.');
