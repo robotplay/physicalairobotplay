@@ -91,8 +91,20 @@ export default function ParentLoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('=== LOGIN FORM SUBMITTED ===');
-        console.log('Form data:', formData);
+        
+        // 중복 제출 방지
+        if (loading) {
+            console.log('[Parent Login] Already submitting, ignoring...');
+            return;
+        }
+        
+        // 입력값 검증
+        if (!formData.studentId.trim() || !formData.parentPhone.trim()) {
+            toast.error('학생 ID와 학부모 연락처를 입력해주세요.');
+            return;
+        }
+        
+        console.log('[Parent Login] Form submitted');
         setLoading(true);
 
         // 전화번호 정규화 (하이픈 제거)
@@ -102,14 +114,9 @@ export default function ParentLoginPage() {
             parentPhone: normalizedPhone,
         };
 
-        console.log('=== LOGIN ATTEMPT ===');
-        console.log('Login attempt:', loginData);
+        console.log('[Parent Login] Login attempt:', loginData);
 
         try {
-            console.log('=== FETCHING API ===');
-            console.log('URL: /api/auth/parent-login');
-            console.log('Data:', loginData);
-            
             const response = await fetch('/api/auth/parent-login', {
                 method: 'POST',
                 headers: {
@@ -117,47 +124,55 @@ export default function ParentLoginPage() {
                 },
                 body: JSON.stringify(loginData),
                 credentials: 'include',
+                cache: 'no-store',
             });
 
-            console.log('=== API RESPONSE ===');
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
-            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+            console.log('[Parent Login] Response status:', response.status);
 
             let result;
             try {
                 result = await response.json();
-                console.log('Response result:', result);
+                console.log('[Parent Login] Response result:', result);
             } catch (jsonError) {
-                console.error('JSON parse error:', jsonError);
+                console.error('[Parent Login] JSON parse error:', jsonError);
                 const text = await response.text();
-                console.error('Response text:', text);
+                console.error('[Parent Login] Response text:', text);
                 throw new Error('서버 응답을 파싱할 수 없습니다.');
             }
 
             if (!response.ok || !result.success) {
                 const errorMessage = result.error || '로그인 실패';
-                console.error('Login failed:', errorMessage);
+                console.error('[Parent Login] Login failed:', errorMessage);
                 toast.error(errorMessage, { duration: 3000 });
                 setLoading(false);
                 return;
             }
 
             // 로그인 성공
-            console.log('Login successful, redirecting...');
+            console.log('[Parent Login] Login successful, redirecting...');
             toast.success('로그인 성공', { duration: 800 });
             
             // 쿠키 설정 완료를 위한 충분한 지연 후 리다이렉트
             setTimeout(() => {
-                console.log('Redirecting to /parent-portal');
-                // 전체 페이지 리로드를 통해 쿠키 반영 보장
+                console.log('[Parent Login] Redirecting to /parent-portal');
                 window.location.href = '/parent-portal';
-            }, 1000);
+            }, 800);
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('[Parent Login] Error:', error);
             const errorMessage = error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다.';
             toast.error(errorMessage);
             setLoading(false);
+        }
+    };
+    
+    // 엔터 키 핸들러
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && !loading && formData.studentId.trim() && formData.parentPhone.trim()) {
+            e.preventDefault();
+            const form = e.currentTarget.closest('form');
+            if (form) {
+                form.requestSubmit();
+            }
         }
     };
 
@@ -204,9 +219,11 @@ export default function ParentLoginPage() {
                                     type="text"
                                     value={formData.studentId}
                                     onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                                    onKeyPress={handleKeyPress}
                                     required
                                     placeholder="student-xxxxx"
                                     className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                    disabled={loading}
                                 />
                             </div>
                         </div>
@@ -221,9 +238,11 @@ export default function ParentLoginPage() {
                                     type="tel"
                                     value={formData.parentPhone}
                                     onChange={(e) => setFormData({ ...formData, parentPhone: e.target.value })}
+                                    onKeyPress={handleKeyPress}
                                     required
                                     placeholder="010-1234-5678"
                                     className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
+                                    disabled={loading}
                                 />
                             </div>
                         </div>

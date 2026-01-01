@@ -13,29 +13,43 @@ export default function AdminLogin() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // 중복 제출 방지
+        if (isLoading) {
+            console.log('[Admin Login] Already submitting, ignoring...');
+            return;
+        }
+        
+        // 입력값 검증
+        if (!username.trim() || !password.trim()) {
+            toast.error('아이디와 비밀번호를 입력해주세요.');
+            return;
+        }
+        
         setError('');
         setIsLoading(true);
 
         const loadingToast = toast.loading('로그인 중...');
 
         try {
+            console.log('[Admin Login] Submitting login request...');
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify({ username, password }),
+                cache: 'no-store',
+                body: JSON.stringify({ username: username.trim(), password }),
             });
 
             const result = await response.json();
             
-            console.log('Login response:', {
+            console.log('[Admin Login] Response:', {
                 status: response.status,
                 ok: response.ok,
                 success: result.success,
                 error: result.error,
-                headers: Object.fromEntries(response.headers.entries()),
             });
 
             if (result.success) {
@@ -45,19 +59,30 @@ export default function AdminLogin() {
                 // 쿠키 설정 완료를 위한 충분한 지연 후 리다이렉트
                 // 전체 페이지 리로드를 통해 쿠키 반영 보장
                 setTimeout(() => {
-                    console.log('Redirecting to /admin');
+                    console.log('[Admin Login] Redirecting to /admin');
                     window.location.href = '/admin';
-                }, 1000);
+                }, 800);
             } else {
                 toast.error(result.error || '로그인에 실패했습니다.', { id: loadingToast });
                 setError(result.error || '로그인에 실패했습니다.');
                 setIsLoading(false);
             }
         } catch (error) {
-            console.error('Login failed:', error);
+            console.error('[Admin Login] Error:', error);
             toast.error('로그인 중 오류가 발생했습니다.', { id: loadingToast });
             setError('로그인 중 오류가 발생했습니다.');
             setIsLoading(false);
+        }
+    };
+    
+    // 엔터 키 핸들러
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && !isLoading && username.trim() && password.trim()) {
+            e.preventDefault();
+            const form = e.currentTarget.closest('form');
+            if (form) {
+                form.requestSubmit();
+            }
         }
     };
 
@@ -92,6 +117,7 @@ export default function AdminLogin() {
                                     name="username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
+                                    onKeyPress={handleKeyPress}
                                     className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-deep-electric-blue focus:ring-2 focus:ring-deep-electric-blue/20 transition-all"
                                     placeholder="관리자 아이디"
                                     required
@@ -116,6 +142,7 @@ export default function AdminLogin() {
                                     name="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    onKeyPress={handleKeyPress}
                                     className="w-full pl-10 pr-12 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-deep-electric-blue focus:ring-2 focus:ring-deep-electric-blue/20 transition-all"
                                     placeholder="비밀번호를 입력하세요"
                                     required
