@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Image, Mail, LogOut, Calendar, Trophy, BookOpen, CheckCircle, XCircle, Clock, MessageSquare } from 'lucide-react';
+import { User, Image, Mail, LogOut, Calendar, Trophy, BookOpen, CheckCircle, XCircle, Clock, MessageSquare, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface Student {
@@ -58,6 +58,7 @@ export default function ParentPortalPage() {
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'attendance' | 'feedback' | 'portfolio'>('overview');
+    const [selectedNewsletter, setSelectedNewsletter] = useState<any | null>(null);
 
     const loadData = async (studentId: string, authUser?: any) => {
         try {
