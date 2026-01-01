@@ -57,6 +57,7 @@ export default function ParentCommunicationTab() {
     const [isCreatingGallery, setIsCreatingGallery] = useState(false);
     const [isCreatingNewsletter, setIsCreatingNewsletter] = useState(false);
     const [editingFAQId, setEditingFAQId] = useState<string | null>(null);
+    const [editingNewsletterId, setEditingNewsletterId] = useState<string | null>(null);
     const [selectedGallery, setSelectedGallery] = useState<Gallery | null>(null);
 
     // FAQ 폼 데이터
@@ -317,22 +318,28 @@ export default function ParentCommunicationTab() {
             return;
         }
 
-        const loadingToast = toast.loading('뉴스레터 생성 중...');
+        const isEditing = !!editingNewsletterId;
+        const loadingToast = toast.loading(isEditing ? '뉴스레터 수정 중...' : '뉴스레터 생성 중...');
         try {
-            const response = await fetch('/api/newsletters', {
-                method: 'POST',
+            const url = isEditing ? `/api/newsletters/${editingNewsletterId}` : '/api/newsletters';
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(newsletterForm),
             });
 
             const result = await response.json();
 
             if (!response.ok || !result.success) {
-                throw new Error(result.error || '생성 실패');
+                throw new Error(result.error || (isEditing ? '수정 실패' : '생성 실패'));
             }
 
-            toast.success('뉴스레터가 생성되었습니다.', { id: loadingToast });
+            toast.success(isEditing ? '뉴스레터가 수정되었습니다.' : '뉴스레터가 생성되었습니다.', { id: loadingToast });
             setIsCreatingNewsletter(false);
+            setEditingNewsletterId(null);
             const now = new Date();
             setNewsletterForm({
                 month: now.getMonth() + 1,
