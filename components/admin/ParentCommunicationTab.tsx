@@ -372,6 +372,31 @@ export default function ParentCommunicationTab() {
         });
     };
 
+    const handleDeleteNewsletter = async (id: string) => {
+        if (!confirm('정말로 이 뉴스레터를 삭제하시겠습니까?')) {
+            return;
+        }
+
+        const loadingToast = toast.loading('뉴스레터 삭제 중...');
+        try {
+            const response = await fetch(`/api/newsletters/${id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || '삭제 실패');
+            }
+
+            toast.success('뉴스레터가 삭제되었습니다.', { id: loadingToast });
+            await loadNewsletters();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : '오류가 발생했습니다.', { id: loadingToast });
+        }
+    };
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('ko-KR');
     };
@@ -716,6 +741,16 @@ export default function ParentCommunicationTab() {
 
                     {isCreatingNewsletter && (
                         <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border-2 border-deep-electric-blue">
+                            <div className="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {editingNewsletterId ? '뉴스레터 수정' : '새 뉴스레터 생성'}
+                                </h3>
+                                {editingNewsletterId && (
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                        뉴스레터를 수정하고 저장하세요.
+                                    </p>
+                                )}
+                            </div>
                             <form onSubmit={handleSubmitNewsletter} className="space-y-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
@@ -787,7 +822,20 @@ export default function ParentCommunicationTab() {
                                 <div className="flex gap-3 justify-end">
                                     <button
                                         type="button"
-                                        onClick={() => setIsCreatingNewsletter(false)}
+                                        onClick={() => {
+                                            setIsCreatingNewsletter(false);
+                                            setEditingNewsletterId(null);
+                                            setNewsletterForm({
+                                                month: new Date().getMonth() + 1,
+                                                year: new Date().getFullYear(),
+                                                title: '',
+                                                content: '',
+                                                highlights: [],
+                                                studentSpotlights: [],
+                                                competitionResults: [],
+                                                photos: [],
+                                            });
+                                        }}
                                         className="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-semibold"
                                     >
                                         취소
@@ -797,7 +845,7 @@ export default function ParentCommunicationTab() {
                                         className="flex items-center gap-2 px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 text-white rounded-lg transition-all font-semibold"
                                     >
                                         <Save className="w-4 h-4" />
-                                        생성
+                                        {editingNewsletterId ? '수정' : '생성'}
                                     </button>
                                 </div>
                             </form>
@@ -810,8 +858,11 @@ export default function ParentCommunicationTab() {
                                 key={newsletter._id}
                                 className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700"
                             >
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="flex-1">
+                                <div className="flex items-start gap-4">
+                                    <div 
+                                        className="flex-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg p-3 -mx-3 transition-colors"
+                                        onClick={() => handleEditNewsletter(newsletter)}
+                                    >
                                         <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
                                             {newsletter.year}년 {newsletter.month}월 - {newsletter.title}
                                         </h4>
@@ -828,6 +879,32 @@ export default function ParentCommunicationTab() {
                                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                                             발송일: {formatDate(newsletter.sentAt)}
                                         </p>
+                                    </div>
+                                    <div className="flex flex-col gap-2 flex-shrink-0">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEditNewsletter(newsletter);
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap"
+                                            title="수정"
+                                            aria-label="뉴스레터 수정"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                            수정
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteNewsletter(newsletter._id);
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap"
+                                            title="삭제"
+                                            aria-label="뉴스레터 삭제"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                            삭제
+                                        </button>
                                     </div>
                                 </div>
                             </div>
