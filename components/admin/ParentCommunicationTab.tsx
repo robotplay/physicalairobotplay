@@ -357,6 +357,21 @@ export default function ParentCommunicationTab() {
         }
     };
 
+    const handleEditNewsletter = (newsletter: Newsletter) => {
+        setEditingNewsletterId(newsletter._id);
+        setIsCreatingNewsletter(true);
+        setNewsletterForm({
+            month: newsletter.month,
+            year: newsletter.year,
+            title: newsletter.title,
+            content: newsletter.content,
+            highlights: newsletter.highlights || [],
+            studentSpotlights: newsletter.studentSpotlights || [],
+            competitionResults: newsletter.competitionResults || [],
+            photos: newsletter.photos || [],
+        });
+    };
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('ko-KR');
     };

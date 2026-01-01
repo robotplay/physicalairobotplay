@@ -695,7 +695,10 @@ export default function ParentPortalPage() {
                         {/* 내용 */}
                         <div className="overflow-y-auto max-h-[calc(90vh-120px)] px-6 py-6">
                             <div 
-                                className="prose prose-lg dark:prose-invert max-w-none text-gray-900 dark:text-gray-100"
+                                className="prose prose-lg dark:prose-invert max-w-none text-gray-900 dark:text-gray-100 prose-img:max-w-full prose-img:rounded-lg prose-img:my-4"
+                                style={{
+                                    // 이미지 스타일링 개선
+                                }}
                                 dangerouslySetInnerHTML={{ __html: selectedNewsletter.content }}
                             />
                         </div>
