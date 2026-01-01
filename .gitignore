@@ -43,3 +43,6 @@ next-env.d.ts
 # uploaded files (keep folder structure)
 /public/uploads/news/*
 !/public/uploads/news/.gitkeep
+
+# editor history
+.history/
