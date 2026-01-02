@@ -82,21 +82,30 @@ export async function GET(request: NextRequest) {
         const attendanceRecords = await collection
             .find(query)
             .sort({ classDate: -1 })
-            .toArray() as AttendanceRecord[];
+            .toArray() as unknown as AttendanceRecord[];
 
         // 학생 정보 조회
         const studentIds = [...new Set(attendanceRecords.map((r: AttendanceRecord) => r.studentId))];
         const students = await studentsCollection
             .find({ studentId: { $in: studentIds } })
-            .toArray() as Student[];
+            .toArray() as unknown as Student[];
         const studentMap = new Map(students.map((s: Student) => [s.studentId, s]));
 
-        const formattedRecords = attendanceRecords.map((record: AttendanceRecord) => ({
-            ...record,
-            _id: record._id.toString(),
-            studentName: studentMap.get(record.studentId)?.name || '',
-            studentGrade: studentMap.get(record.studentId)?.grade || '',
-        }));
+        const formattedRecords = attendanceRecords.map((record: AttendanceRecord) => {
+            const idString = record._id 
+                ? (typeof record._id === 'string' 
+                    ? record._id 
+                    : (typeof record._id === 'object' && 'toString' in record._id
+                        ? record._id.toString()
+                        : String(record._id)))
+                : '';
+            return {
+                ...record,
+                _id: idString,
+                studentName: studentMap.get(record.studentId)?.name || '',
+                studentGrade: studentMap.get(record.studentId)?.grade || '',
+            };
+        });
 
         return successResponse({
             records: formattedRecords,
@@ -132,8 +141,8 @@ export async function POST(request: NextRequest) {
         const classDateObj = new Date(classDate);
         classDateObj.setHours(0, 0, 0, 0);
 
-        const results: Array<{ success: boolean; studentId: string; message?: string }> = [];
-        const studentUpdates: Array<{ studentId: string; attendance: { totalClasses: number; attendedClasses: number; rate: number } }> = [];
+        const results: Array<AttendanceRecord & { _id: string }> = [];
+        const studentUpdates: Array<{ studentId: string; status: string }> = [];
 
         // 각 학생의 출석 기록 처리
         for (const record of records) {
@@ -199,7 +208,7 @@ export async function POST(request: NextRequest) {
             }).toArray();
 
             const totalClasses = allRecords.length;
-            const attendedClasses = allRecords.filter(
+            const attendedClasses = (allRecords as unknown as AttendanceRecord[]).filter(
                 (r: AttendanceRecord) => r.status === 'present' || r.status === 'late'
             ).length;
             const attendanceRate = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;

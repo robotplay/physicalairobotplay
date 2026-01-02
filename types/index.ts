@@ -93,7 +93,7 @@ export interface Student {
 
 // 출석 관련 타입
 export interface AttendanceRecord {
-    _id?: string;
+    _id?: string | { toString(): string };
     studentId: string;
     studentClass: string;
     classDate: Date | string;

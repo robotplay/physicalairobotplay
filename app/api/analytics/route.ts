@@ -7,6 +7,7 @@ import {
     unauthorizedResponse,
     handleMongoError,
 } from '@/lib/api-response';
+import type { Payment, Student, CompetitionData, CompetitionTeam } from '@/types';
 
 // 권한 체크 헬퍼 함수
 async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
 
         // 결제 데이터
         const paymentsCollection = db.collection(COLLECTIONS.PAYMENTS);
-        const payments = await paymentsCollection.find({}).toArray() as Payment[];
+        const payments = await paymentsCollection.find({}).toArray() as unknown as Payment[];
         const revenue = payments
             .filter((p: Payment) => p.status === 'paid')
             .reduce((sum: number, p: Payment) => sum + (p.amount || 0), 0);
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
         });
 
         // 출석률 평균
-        const students = await studentsCollection.find({}).toArray() as Student[];
+        const students = await studentsCollection.find({}).toArray() as unknown as Student[];
         const attendanceRates = students
             .map((s: Student) => s.attendance?.rate || 0)
             .filter((rate: number) => rate > 0);
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
 
         // 대회 수상 건수
         const competitionsCollection = db.collection(COLLECTIONS.COMPETITIONS);
-        const competitions = await competitionsCollection.find({}).toArray() as CompetitionData[];
+        const competitions = await competitionsCollection.find({}).toArray() as unknown as CompetitionData[];
         let competitionWins = 0;
         competitions.forEach((comp: CompetitionData) => {
             if (comp.teams) {
