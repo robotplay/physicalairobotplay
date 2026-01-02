@@ -49,6 +49,11 @@
 - `{ "isPublished": 1, "createdAt": -1 }`
 
 #### payments 컬렉션 (5개)
+⚠️ **주의**: `payments` 컬렉션이 보이지 않으면 먼저 컬렉션을 생성하세요.
+- MongoDB Atlas UI에서 "+ Create" → Collection Name: `payments` → Create
+- 또는 첫 결제를 진행하면 자동 생성됩니다
+
+인덱스:
 - `{ "paymentId": 1 }`
 - `{ "orderId": 1 }`
 - `{ "customerEmail": 1 }`

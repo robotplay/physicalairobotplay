@@ -197,6 +197,52 @@ try {
 
 ---
 
+## 💳 payments 컬렉션이 없는 경우
+
+### 원인
+- 아직 결제 데이터가 없어서 컬렉션이 자동 생성되지 않았습니다
+- 첫 결제가 완료되면 자동으로 생성됩니다
+
+### 해결 방법
+
+#### 방법 1: MongoDB Atlas UI에서 수동 생성 (권장)
+
+1. **Database → Browse Collections**
+2. **`academy-site` 데이터베이스 클릭**
+3. **"+ Create" 또는 "Create Collection" 버튼 클릭**
+4. **Collection Name**: `payments` 입력
+5. **Create** 클릭
+6. **`payments` 컬렉션 클릭 → Indexes 탭 → 인덱스 생성**
+
+#### 방법 2: MongoDB Shell로 생성
+
+```javascript
+use('academy-site');
+
+// payments 컬렉션 생성
+if (!db.getCollectionNames().includes('payments')) {
+    db.createCollection('payments');
+    print('✅ payments 컬렉션 생성 완료');
+} else {
+    print('ℹ️  payments 컬렉션 이미 존재');
+}
+
+// 인덱스 생성
+db.payments.createIndex({ paymentId: 1 });
+db.payments.createIndex({ orderId: 1 });
+db.payments.createIndex({ customerEmail: 1 });
+db.payments.createIndex({ status: 1, timestamp: -1 });
+db.payments.createIndex({ timestamp: -1 });
+
+print("✅ payments 컬렉션 및 인덱스 생성 완료!");
+```
+
+#### 방법 3: 첫 결제로 자동 생성
+- 실제 결제를 진행하면 자동으로 `payments` 컬렉션이 생성됩니다
+- 하지만 인덱스는 수동으로 생성해야 합니다
+
+---
+
 **작성일**: 2025년 1월 2일  
-**상태**: 컬렉션 확인 및 생성 가이드 완료
+**상태**: 컬렉션 확인 및 생성 가이드 완료 (payments 컬렉션 추가)
 
