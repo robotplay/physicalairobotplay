@@ -230,10 +230,19 @@ export async function POST(request: NextRequest) {
 - [x] MongoDB 인덱스 생성 스크립트 작성
 - [x] API 캐싱 전략 문서화
 - [x] 이미지 CDN 통합 가이드 작성
+- [x] **API 캐싱 적용 완료** ✅
+  - `GET /api/faq`: 1시간 캐시 적용됨
+  - `GET /api/online-courses`: 30분 캐시 적용됨
+  - `GET /api/news`: 10분 캐시 적용됨
+  - `GET /api/news/[id]`: 1시간 캐시 적용됨
+  - `GET /api/online-courses/[id]`: 1시간 캐시 적용됨
+  - 모든 API에 `revalidate` 및 `Cache-Control` 헤더 설정 완료
 
 ### 실행 필요
-- [ ] MongoDB 인덱스 생성 실행
-- [ ] API 캐싱 적용 확인
+- [ ] **MongoDB 인덱스 생성 실행** ⚠️
+  - 스크립트: `scripts/create-indexes.js` 작성 완료
+  - 실행 명령: `node scripts/create-indexes.js`
+  - 상태: 아직 실행되지 않음 (수동 실행 필요)
 - [ ] 이미지 CDN 통합 (선택사항)
 
 ---

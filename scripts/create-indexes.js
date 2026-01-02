@@ -133,11 +133,11 @@ async function createIndexes() {
                         await collection.createIndex(indexSpec);
                         console.log(`  ✅ 인덱스 생성: ${JSON.stringify(indexSpec)}`);
                     }
-                } catch (error: any) {
-                    if (error.code === 85 || error.message?.includes('already exists')) {
+                } catch (error) {
+                    if (error.code === 85 || (error.message && error.message.includes('already exists'))) {
                         console.log(`  ⚠️  인덱스 이미 존재: ${JSON.stringify(indexSpec)}`);
                     } else {
-                        console.error(`  ❌ 인덱스 생성 실패: ${JSON.stringify(indexSpec)}`, error.message);
+                        console.error(`  ❌ 인덱스 생성 실패: ${JSON.stringify(indexSpec)}`, error.message || error);
                     }
                 }
             }
