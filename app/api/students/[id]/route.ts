@@ -134,12 +134,14 @@ export async function PUT(
         if (image !== undefined) updateData.image = image;
 
         // 출석률 자동 계산
-        if (updateData.attendance) {
-            const { totalClasses, attendedClasses } = updateData.attendance;
+        if (updateData.attendance && typeof updateData.attendance === 'object') {
+            const attendance = updateData.attendance as { totalClasses?: number; attendedClasses?: number; rate?: number };
+            const totalClasses = attendance.totalClasses ?? 0;
+            const attendedClasses = attendance.attendedClasses ?? 0;
             if (totalClasses > 0) {
-                updateData.attendance.rate = Math.round((attendedClasses / totalClasses) * 100);
+                attendance.rate = Math.round((attendedClasses / totalClasses) * 100);
             } else {
-                updateData.attendance.rate = 0;
+                attendance.rate = 0;
             }
         }
 
