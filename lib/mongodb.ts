@@ -1,8 +1,15 @@
 import { MongoClient, Db } from 'mongodb';
+import { validateEnvOrThrow } from './env-validation';
 
-// 개발 환경에서는 환경 변수가 없어도 에러를 던지지 않음 (로컬 스토리지 사용)
-if (!process.env.MONGODB_URI && process.env.NODE_ENV === 'production') {
-    console.warn('⚠️ MONGODB_URI가 설정되지 않았습니다. 로컬 스토리지를 사용합니다.');
+// 프로덕션 환경에서 필수 환경 변수 검증
+if (process.env.NODE_ENV === 'production') {
+    try {
+        validateEnvOrThrow();
+    } catch (error) {
+        // 프로덕션에서는 에러를 던져서 앱 시작을 막음
+        console.error(error instanceof Error ? error.message : String(error));
+        throw error;
+    }
 }
 
 const uri: string = process.env.MONGODB_URI || '';

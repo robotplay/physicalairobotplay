@@ -1,9 +1,17 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
+import { getEnvVar } from './env-validation';
 
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-);
+// JWT_SECRET 검증 및 가져오기
+const jwtSecretString = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+// 프로덕션 환경에서 기본값 사용 시 경고
+if (process.env.NODE_ENV === 'production' && jwtSecretString === 'your-secret-key-change-in-production') {
+    console.error('❌ JWT_SECRET이 기본값으로 설정되어 있습니다. 보안상 위험합니다!');
+    console.error('Vercel 대시보드에서 강력한 JWT_SECRET을 설정해주세요.');
+}
+
+const JWT_SECRET = new TextEncoder().encode(jwtSecretString);
 
 export interface User {
     _id: string;
