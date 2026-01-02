@@ -119,3 +119,20 @@ export interface MongoQuery {
     [key: string]: unknown;
 }
 
+// News 관련 타입 (별도 파일로 분리 가능)
+export interface NewsItem {
+    _id: string | { toString(): string };
+    id?: string;
+    category: string;
+    title: string;
+    content: string;
+    excerpt?: string;
+    image?: string;
+    authorId?: string;
+    authorRole?: 'admin' | 'teacher';
+    authorName?: string;
+    createdAt: Date | string;
+    updatedAt?: Date | string;
+    isPublished?: boolean;
+}
+

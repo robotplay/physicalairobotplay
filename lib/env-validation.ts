@@ -16,11 +16,11 @@ const REQUIRED_ENV_VARS = {
     // 프로덕션에서만 필수
     production: [
         'MONGODB_URI',
-        'JWT_SECRET',
+        // JWT_SECRET은 기본값이 있어서 경고만 표시
     ],
     // 모든 환경에서 필수
     all: [
-        'NEXT_PUBLIC_SITE_URL',
+        // NEXT_PUBLIC_SITE_URL은 기본값이 있어서 선택사항으로 변경
     ],
     // 선택사항 (기능 사용 시 필수)
     optional: {

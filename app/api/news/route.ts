@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
+import type { NewsFilter, NewsSortOption, NewsItem } from '@/types/news';
+import { ObjectId } from 'mongodb';
 
 // 캐싱 설정: 10분 (600초)
 export const revalidate = 600;
@@ -28,13 +30,13 @@ export async function GET(request: NextRequest) {
         const sort = searchParams.get('sort') || 'desc'; // desc 또는 asc
 
         // 필터 조건 구성
-        const filter: any = {};
+        const filter: NewsFilter = {};
         if (category && category !== 'all') {
             filter.category = category;
         }
 
         // 정렬 옵션
-        const sortOption: any = { createdAt: sort === 'asc' ? 1 : -1 };
+        const sortOption: Record<string, 1 | -1> = { createdAt: sort === 'asc' ? 1 : -1 };
 
         // 전체 개수 조회 (페이지네이션용)
         const totalCount = await collection.countDocuments(filter);
@@ -52,10 +54,10 @@ export async function GET(request: NextRequest) {
         const news = await query.toArray();
 
         // 날짜 포맷팅
-        const formattedNews = news.map((item: any) => ({
+        const formattedNews = (news as unknown as NewsItem[]).map((item: NewsItem) => ({
             ...item,
-            id: item._id.toString(),
-            _id: item._id.toString(),
+            id: typeof item._id === 'object' ? item._id.toString() : item._id,
+            _id: typeof item._id === 'object' ? item._id.toString() : item._id,
             createdAt: item.createdAt ? new Date(item.createdAt).toISOString() : new Date().toISOString(),
             updatedAt: item.updatedAt ? new Date(item.updatedAt).toISOString() : null,
         }));
@@ -77,13 +79,14 @@ export async function GET(request: NextRequest) {
         );
 
         return response;
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to fetch news:', error);
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         return NextResponse.json(
             {
                 success: false,
                 error: '공지사항을 불러오는데 실패했습니다.',
-                details: error.message,
+                details: errorMessage,
             },
             { status: 500 }
         );
@@ -123,11 +126,12 @@ export async function POST(request: NextRequest) {
         }
 
         // authorId가 있으면 작성자 정보 조회
-        let authorName = undefined;
+        let authorName: string | undefined = undefined;
         if (authorId) {
-            const author = await usersCollection.findOne({ _id: authorId });
-            if (author) {
-                authorName = author.name as string;
+            const authorIdObj = typeof authorId === 'string' ? new ObjectId(authorId) : authorId;
+            const author = await usersCollection.findOne({ _id: authorIdObj });
+            if (author && author.name) {
+                authorName = typeof author.name === 'string' ? author.name : String(author.name);
             }
         }
 
@@ -156,13 +160,14 @@ export async function POST(request: NextRequest) {
             },
             message: '공지사항이 작성되었습니다.',
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to create news:', error);
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         return NextResponse.json(
             {
                 success: false,
                 error: '공지사항 작성에 실패했습니다.',
-                details: error.message,
+                details: errorMessage,
             },
             { status: 500 }
         );

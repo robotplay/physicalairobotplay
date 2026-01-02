@@ -1,6 +1,5 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
-import { getEnvVar } from './env-validation';
 
 // JWT_SECRET 검증 및 가져오기
 const jwtSecretString = process.env.JWT_SECRET || 'your-secret-key-change-in-production';

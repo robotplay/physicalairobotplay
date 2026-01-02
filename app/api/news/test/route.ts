@@ -32,23 +32,26 @@ export async function GET(request: NextRequest) {
                 newsCount: count,
                 message: 'MongoDB 연결이 정상입니다.',
             });
-        } catch (dbError: any) {
+        } catch (dbError) {
+            const errorMessage = dbError instanceof Error ? dbError.message : '알 수 없는 오류';
             return NextResponse.json({
                 success: false,
                 hasMongoUri: true,
                 dbConnected: false,
                 error: 'MongoDB 연결 실패',
-                details: dbError.message,
+                details: errorMessage,
             }, { status: 500 });
         }
-    } catch (error: any) {
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         return NextResponse.json({
             success: false,
             error: '테스트 중 오류 발생',
-            details: error.message,
+            details: errorMessage,
         }, { status: 500 });
     }
 }
+
 
 
 

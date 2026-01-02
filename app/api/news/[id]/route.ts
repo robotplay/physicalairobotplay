@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import type { NewsItem } from '@/types/news';
 
 // 캐싱 설정: 1시간 (3600초)
 export const revalidate = 3600;
@@ -56,13 +57,14 @@ export async function GET(
         );
 
         return response;
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to fetch news:', error);
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         return NextResponse.json(
             {
                 success: false,
                 error: '공지사항을 불러오는데 실패했습니다.',
-                details: error.message,
+                details: errorMessage,
             },
             { status: 500 }
         );
@@ -119,7 +121,7 @@ export async function PUT(
         }
 
         // 업데이트 데이터 구성
-        const updateData: any = {
+        const updateData: Partial<NewsItem> & { updatedAt: Date } = {
             category,
             title,
             content,
@@ -131,11 +133,12 @@ export async function PUT(
 
         // authorId가 있으면 작성자 정보 조회 및 업데이트
         if (authorId) {
-            const author = await usersCollection.findOne({ _id: authorId });
-            if (author) {
+            const authorIdObj = typeof authorId === 'string' ? new ObjectId(authorId) : authorId;
+            const author = await usersCollection.findOne({ _id: authorIdObj });
+            if (author && author.name) {
                 updateData.authorId = authorId;
-                updateData.authorRole = authorRole || 'admin';
-                updateData.authorName = author.name;
+                updateData.authorRole = (authorRole || 'admin') as 'admin' | 'teacher';
+                updateData.authorName = typeof author.name === 'string' ? author.name : String(author.name);
             }
         }
 
@@ -157,22 +160,33 @@ export async function PUT(
         // 업데이트된 문서 가져오기
         const updatedNews = await collection.findOne({ _id: new ObjectId(id) });
 
+        if (!updatedNews) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: '공지사항을 찾을 수 없습니다.',
+                },
+                { status: 404 }
+            );
+        }
+
         return NextResponse.json({
             success: true,
             data: {
                 ...updatedNews,
-                id: updatedNews!._id.toString(),
-                _id: updatedNews!._id.toString(),
+                id: typeof updatedNews._id === 'object' ? updatedNews._id.toString() : updatedNews._id,
+                _id: typeof updatedNews._id === 'object' ? updatedNews._id.toString() : updatedNews._id,
             },
             message: '공지사항이 수정되었습니다.',
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to update news:', error);
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         return NextResponse.json(
             {
                 success: false,
                 error: '공지사항 수정에 실패했습니다.',
-                details: error.message,
+                details: errorMessage,
             },
             { status: 500 }
         );
@@ -218,13 +232,14 @@ export async function DELETE(
             success: true,
             message: '공지사항이 삭제되었습니다.',
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to delete news:', error);
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         return NextResponse.json(
             {
                 success: false,
                 error: '공지사항 삭제에 실패했습니다.',
-                details: error.message,
+                details: errorMessage,
             },
             { status: 500 }
         );

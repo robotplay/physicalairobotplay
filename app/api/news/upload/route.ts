@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
                     { status: 400 }
                 );
             }
-        } catch (readError: any) {
+        } catch (readError) {
             console.error('[Image Upload] 파일 읽기 오류:', readError);
             console.error('[Image Upload] 파일 정보:', {
                 name: file.name,
@@ -101,11 +101,12 @@ export async function POST(request: NextRequest) {
                 size: file.size,
                 lastModified: file.lastModified,
             });
+            const errorMessage = readError instanceof Error ? readError.message : '알 수 없는 오류';
             return NextResponse.json(
                 {
                     success: false,
-                    error: `파일을 읽을 수 없습니다: ${readError.message}\n\n파일이 손상되었거나 접근할 수 없습니다.\n\n다른 이미지 파일을 선택해주세요.`,
-                    details: readError.message,
+                    error: `파일을 읽을 수 없습니다: ${errorMessage}\n\n파일이 손상되었거나 접근할 수 없습니다.\n\n다른 이미지 파일을 선택해주세요.`,
+                    details: errorMessage,
                 },
                 { status: 400 }
             );
@@ -155,13 +156,13 @@ export async function POST(request: NextRequest) {
             const optimizedMetadata = await sharp(optimizedBuffer).metadata();
             console.log(`[Image Upload] 최적화 완료 - 크기: ${optimizedMetadata.width}x${optimizedMetadata.height}, 포맷: ${optimizedMetadata.format}`);
             isOptimized = true;
-        } catch (sharpError: any) {
+        } catch (sharpError) {
             console.error('[Image Upload] Sharp 처리 오류:', sharpError);
-            console.error('[Image Upload] 에러 상세:', {
+            const errorDetails = sharpError instanceof Error ? {
                 message: sharpError.message,
                 stack: sharpError.stack,
-                code: sharpError.code,
-            });
+            } : { message: String(sharpError) };
+            console.error('[Image Upload] 에러 상세:', errorDetails);
             
             // Sharp 처리 실패 시 원본 이미지를 Base64로 변환 (fallback)
             console.warn('[Image Upload] Sharp 처리 실패, 원본 이미지를 Base64로 변환');
@@ -201,18 +202,20 @@ export async function POST(request: NextRequest) {
                 ? `이미지가 업로드되었습니다. (최적화: ${compressionRatio}% 용량 감소)`
                 : `이미지가 업로드되었습니다. (원본 포맷 유지)`,
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to upload image:', error);
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         return NextResponse.json(
             {
                 success: false,
                 error: '이미지 업로드에 실패했습니다.',
-                details: error.message,
+                details: errorMessage,
             },
             { status: 500 }
         );
     }
 }
+
 
 
 
