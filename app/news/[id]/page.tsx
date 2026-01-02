@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { Calendar, ArrowLeft, Newspaper, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 const Footer = dynamic(() => import('@/components/Footer'), {
     loading: () => <div className="py-20" />,
@@ -144,6 +145,22 @@ export default function NewsDetailPage() {
                                         src={newsItem.image}
                                         alt={newsItem.title}
                                         className="w-full h-full object-contain"
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.src = '/img/01.jpeg';
+                                        }}
+                                    />
+                                ) : newsItem.image.startsWith('https://') ? (
+                                    // CDN URL (Vercel Blob Storage 등)
+                                    <img
+                                        src={newsItem.image}
+                                        alt={newsItem.title}
+                                        className="w-full h-full object-contain"
+                                        crossOrigin="anonymous"
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.src = '/img/01.jpeg';
+                                        }}
                                     />
                                 ) : (
                                     // 일반 이미지 URL
@@ -195,8 +212,8 @@ export default function NewsDetailPage() {
                             {/* Body */}
                             <div className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-8 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-300 prose-ol:text-gray-300 prose-li:text-gray-300 prose-blockquote:text-gray-400 prose-blockquote:border-gray-600">
                                 <div 
-                                    className="text-base sm:text-lg leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-lg [&_iframe]:my-8 [&_iframe]:max-w-full"
-                                    dangerouslySetInnerHTML={{ __html: newsItem.content }}
+                                    className="text-base sm:text-lg leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-lg [&_iframe]:my-8 [&_iframe]:max-w-full [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:my-4"
+                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(newsItem.content) }}
                                 />
                             </div>
                         </div>
@@ -224,6 +241,7 @@ export default function NewsDetailPage() {
         </main>
     );
 }
+
 
 
 

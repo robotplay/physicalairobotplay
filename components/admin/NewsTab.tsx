@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { Newspaper, Calendar, Edit, Trash2, Plus, X, Save, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import RichTextEditor from './RichTextEditor';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface NewsData {
     _id: string;
@@ -204,9 +205,10 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                 if (fileInputRef.current) {
                     fileInputRef.current.files = dataTransfer.files;
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
                 console.error('이미지 압축 오류:', error);
-                alert(`이미지 압축 중 오류가 발생했습니다: ${error.message}\n\n원본 파일로 업로드를 시도합니다.`);
+                const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+                alert(`이미지 압축 중 오류가 발생했습니다: ${errorMessage}\n\n원본 파일로 업로드를 시도합니다.`);
             }
         }
 
@@ -228,9 +230,10 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
             // 압축된 파일이 있으면 그것을 사용, 없으면 원본 사용
             const fileToPreview = fileInputRef.current?.files?.[0] || file;
             reader.readAsDataURL(fileToPreview);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('파일 읽기 오류:', error);
-            alert(`파일을 읽을 수 없습니다: ${error.message}\n\n다른 이미지 파일을 선택해주세요.`);
+            const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+            alert(`파일을 읽을 수 없습니다: ${errorMessage}\n\n다른 이미지 파일을 선택해주세요.`);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
@@ -310,14 +313,21 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                     throw new Error('서버에서 응답이 없습니다.');
                 }
                 result = JSON.parse(responseText);
-            } catch (parseError: any) {
+            } catch (parseError: unknown) {
                 console.error('JSON 파싱 오류:', parseError);
-                throw new Error(`서버 응답을 읽을 수 없습니다: ${parseError.message}\n\n파일이 너무 크거나 서버 설정 문제일 수 있습니다.`);
+                const errorMessage = parseError instanceof Error ? parseError.message : '알 수 없는 오류';
+                throw new Error(`서버 응답을 읽을 수 없습니다: ${errorMessage}\n\n파일이 너무 크거나 서버 설정 문제일 수 있습니다.`);
             }
 
             if (result.success) {
-                setFormData({ ...formData, image: result.path });
-                setUploadPreview(null);
+                const imageUrl = result.path || result.url || result.data?.path || result.data?.url;
+                setFormData({ ...formData, image: imageUrl });
+                // 업로드된 이미지로 미리보기 업데이트
+                if (imageUrl) {
+                    setUploadPreview(imageUrl.startsWith('data:image/') ? imageUrl : null);
+                } else {
+                    setUploadPreview(null);
+                }
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
@@ -333,9 +343,9 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                 alert(`이미지 업로드 실패\n\n${errorMsg}\n\n파일명: ${file.name}\n크기: ${(file.size / 1024 / 1024).toFixed(2)}MB\n\n문제가 계속되면:\n1. 파일을 먼저 저장한 후 업로드\n2. 다른 이미지 파일로 시도\n3. 브라우저 콘솔 확인`);
                 console.error('업로드 실패:', result);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Failed to upload image:', error);
-            const errorMsg = error?.message || '알 수 없는 오류';
+            const errorMsg = error instanceof Error ? error.message : '알 수 없는 오류';
             alert(`이미지 업로드 중 오류가 발생했습니다.\n\n${errorMsg}\n\n파일명: ${file.name}\n\nPhotos 앱에서 드래그한 파일의 경우, 파일을 먼저 저장한 후 업로드해주세요.`);
         } finally {
             setIsUploading(false);
@@ -452,7 +462,7 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                 const response = await fetch('/api/news/test');
                                 const result = await response.json();
                                 alert(`MongoDB 연결 상태:\n${JSON.stringify(result, null, 2)}`);
-                            } catch (error) {
+                            } catch {
                                 alert('연결 테스트 실패');
                             }
                         }}
@@ -704,7 +714,8 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
 
                                     const result = await response.json();
                                     if (result.success) {
-                                        return result.path; // Base64 데이터 URL 반환
+                                        // CDN URL 또는 Base64 데이터 URL 반환
+                                        return result.path || result.url || result.data?.path || result.data?.url;
                                     } else {
                                         throw new Error(result.error || '이미지 업로드에 실패했습니다.');
                                     }
@@ -829,6 +840,22 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                             src={selectedNews.image}
                                             alt={selectedNews.title}
                                             className="w-full h-full object-contain"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.src = '/img/01.jpeg';
+                                            }}
+                                        />
+                                    ) : selectedNews.image?.startsWith('https://') ? (
+                                        // CDN URL (Vercel Blob Storage 등)
+                                        <img
+                                            src={selectedNews.image}
+                                            alt={selectedNews.title}
+                                            className="w-full h-full object-contain"
+                                            crossOrigin="anonymous"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.src = '/img/01.jpeg';
+                                            }}
                                         />
                                     ) : (
                                         // 일반 이미지 URL
@@ -839,6 +866,10 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                             className="object-contain"
                                             sizes="(max-width: 768px) 100vw, 33vw"
                                             unoptimized={selectedNews.image?.startsWith('/uploads/')}
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.src = '/img/01.jpeg';
+                                            }}
                                         />
                                     )}
                                 </div>
@@ -857,9 +888,10 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                                         {selectedNews.title}
                                     </h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                                        {selectedNews.content}
-                                    </p>
+                                    <div 
+                                        className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 prose-img:max-w-full prose-img:rounded-lg prose-img:my-4 [&_img]:max-w-full [&_img]:h-auto"
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedNews.content) }}
+                                    />
                                 </div>
 
                                 <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
