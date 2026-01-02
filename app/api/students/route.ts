@@ -108,6 +108,7 @@ export async function POST(request: NextRequest) {
             parentEmail,
             enrolledCourses,
             learningNotes,
+            image: studentImage,
         } = body;
 
         // 필수 필드 검증
