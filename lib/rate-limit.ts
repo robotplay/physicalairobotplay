@@ -25,9 +25,10 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 };
 
 // 엄격한 설정 (로그인, 인증 등)
+// 15분에 10회로 완화 (기존 5회에서 증가)
 const STRICT_CONFIG: RateLimitConfig = {
     windowMs: 15 * 60 * 1000, // 15분
-    maxRequests: 5, // 최대 5회
+    maxRequests: 10, // 최대 10회 (기존 5회에서 증가)
 };
 
 // 중간 설정 (일반 API)
