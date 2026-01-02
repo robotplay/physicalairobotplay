@@ -55,10 +55,14 @@ export async function GET(
             return unauthorizedResponse('권한이 없습니다.');
         }
 
-        return successResponse({
+        // 학생 데이터 반환 (image 필드 포함)
+        const studentData = {
             ...student,
             _id: student._id.toString(),
-        });
+            image: student.image || undefined, // image 필드 명시적으로 포함
+        };
+
+        return successResponse(studentData);
     } catch (error) {
         return handleMongoError(error);
     }

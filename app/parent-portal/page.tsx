@@ -148,6 +148,7 @@ export default function ParentPortalPage() {
                 const studentResult = await studentResponse.json();
                 if (studentResult.success) {
                     logger.log('Student data loaded:', studentResult.data);
+                    logger.log('Student image:', studentResult.data?.image);
                     setStudent(studentResult.data);
                 } else {
                     logger.error('Failed to load student:', studentResult.error);
@@ -364,6 +365,12 @@ export default function ParentPortalPage() {
                                             src={student.image}
                                             alt={student.name}
                                             className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                logger.error('Failed to load Base64 image:', student.image);
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                                target.parentElement?.classList.add('bg-gradient-to-br', 'from-deep-electric-blue', 'to-active-orange');
+                                            }}
                                         />
                                     ) : student.image.startsWith('https://') ? (
                                         <img
@@ -371,6 +378,28 @@ export default function ParentPortalPage() {
                                             alt={student.name}
                                             className="w-full h-full object-cover"
                                             crossOrigin="anonymous"
+                                            onError={(e) => {
+                                                logger.error('Failed to load CDN image:', student.image);
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                                const parent = target.parentElement;
+                                                if (parent) {
+                                                    parent.innerHTML = '';
+                                                    parent.className = 'w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-deep-electric-blue to-active-orange flex items-center justify-center flex-shrink-0';
+                                                    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                                                    icon.setAttribute('class', 'w-6 h-6 sm:w-7 sm:h-7 text-white');
+                                                    icon.setAttribute('fill', 'none');
+                                                    icon.setAttribute('viewBox', '0 0 24 24');
+                                                    icon.setAttribute('stroke', 'currentColor');
+                                                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                                                    path.setAttribute('stroke-linecap', 'round');
+                                                    path.setAttribute('stroke-linejoin', 'round');
+                                                    path.setAttribute('stroke-width', '2');
+                                                    path.setAttribute('d', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z');
+                                                    icon.appendChild(path);
+                                                    parent.appendChild(icon);
+                                                }
+                                            }}
                                         />
                                     ) : (
                                         <Image
@@ -379,6 +408,9 @@ export default function ParentPortalPage() {
                                             width={56}
                                             height={56}
                                             className="w-full h-full object-cover"
+                                            onError={() => {
+                                                logger.error('Failed to load local image:', student.image);
+                                            }}
                                         />
                                     )}
                                 </div>
