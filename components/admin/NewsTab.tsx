@@ -500,13 +500,18 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                 
                                 {/* 이미지 미리보기 */}
                                 {(uploadPreview || formData.image) && (
-                                    <div className="mb-3 relative w-full h-48 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
+                                    <div className="mb-3 relative w-full h-48 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900">
                                         {uploadPreview ? (
                                             // 업로드 전 미리보기 (base64)
                                             <img
                                                 src={uploadPreview}
                                                 alt="미리보기"
                                                 className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    console.error('[Image Preview] 업로드 미리보기 로드 실패');
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
                                             />
                                         ) : formData.image?.startsWith('data:image/') ? (
                                             // Base64 이미지
@@ -514,9 +519,27 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                                 src={formData.image}
                                                 alt="미리보기"
                                                 className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    console.error('[Image Preview] Base64 이미지 로드 실패');
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : formData.image?.startsWith('https://') ? (
+                                            // CDN URL (Vercel Blob Storage 등)
+                                            <img
+                                                src={formData.image}
+                                                alt="미리보기"
+                                                className="w-full h-full object-contain"
+                                                crossOrigin="anonymous"
+                                                onError={(e) => {
+                                                    console.error('[Image Preview] CDN 이미지 로드 실패:', formData.image);
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
                                             />
                                         ) : (
-                                            // 일반 이미지 URL
+                                            // 일반 이미지 URL (로컬 경로)
                                             <Image
                                                 src={formData.image}
                                                 alt="미리보기"
@@ -524,6 +547,9 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
                                                 className="object-contain"
                                                 sizes="(max-width: 768px) 100vw, 50vw"
                                                 unoptimized={formData.image?.startsWith('/uploads/')}
+                                                onError={() => {
+                                                    console.error('[Image Preview] Next.js Image 로드 실패:', formData.image);
+                                                }}
                                             />
                                         )}
                                     </div>
@@ -856,6 +882,7 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
         </div>
     );
 }
+
 
 
 
