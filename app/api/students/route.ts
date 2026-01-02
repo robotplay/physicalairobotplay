@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
                 videos: [],
                 description: '',
             },
-            image: image || '',
+            image: studentImage || '',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
