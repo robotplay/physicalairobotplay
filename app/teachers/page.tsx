@@ -1,83 +1,9 @@
 'use client';
 
-import ScrollAnimation from './ScrollAnimation';
-import { Award, Mail, Phone, MapPin, GraduationCap, Rocket, Code, Plane, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { User, Mail, Phone, MapPin, GraduationCap, Award } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState, useRef } from 'react';
-
-interface Skill {
-    name: string;
-    level: number;
-}
-
-interface SkillBarsProps {
-    skills: Skill[];
-}
-
-function SkillBars({ skills }: SkillBarsProps) {
-    const [animatedLevels, setAnimatedLevels] = useState<number[]>(skills.map(() => 0));
-    const [isVisible, setIsVisible] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting && !isVisible) {
-                    setIsVisible(true);
-                    // Animate each skill bar with delay
-                    skills.forEach((skill, index) => {
-                        setTimeout(() => {
-                            setAnimatedLevels((prev) => {
-                                const newLevels = [...prev];
-                                newLevels[index] = skill.level;
-                                return newLevels;
-                            });
-                        }, index * 200);
-                    });
-                }
-            },
-            { threshold: 0.1 }
-        );
-
-        if (ref.current) {
-            observer.observe(ref.current);
-        }
-
-        return () => {
-            if (ref.current) {
-                observer.unobserve(ref.current);
-            }
-        };
-    }, [skills, isVisible]);
-
-    return (
-        <div ref={ref} className="mb-4 sm:mb-6 space-y-2">
-            <h5 className="text-xs font-semibold text-gray-300">
-                <Code className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue" />
-                기술 숙련도
-            </h5>
-            {skills.map((skill, i) => (
-                <div key={i} className="space-y-1">
-                    <div className="flex justify-between text-xs text-gray-300">
-                        <span>{skill.name}</span>
-                        <span className="font-semibold text-deep-electric-blue transition-all duration-1000">
-                            {animatedLevels[i]}%
-                        </span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                            className="bg-gradient-to-r from-deep-electric-blue to-active-orange h-2 rounded-full transition-all duration-1000 ease-out"
-                            style={{ 
-                                width: `${animatedLevels[i]}%`,
-                                transition: 'width 1s ease-out'
-                            }}
-                        ></div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
+import Link from 'next/link';
 
 interface Teacher {
     _id: string;
@@ -88,28 +14,15 @@ interface Teacher {
     email?: string;
     address?: string;
     qualifications?: string[];
-    skills?: { name: string; level: number }[];
     experience?: string[];
     image?: string;
     status?: 'active' | 'inactive';
 }
 
-export default function Teachers() {
+export default function TeachersPage() {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [expandedTeachers, setExpandedTeachers] = useState<Set<number>>(new Set());
-
-    const toggleExperience = (index: number) => {
-        setExpandedTeachers((prev) => {
-            const newSet = new Set(prev);
-            if (newSet.has(index)) {
-                newSet.delete(index);
-            } else {
-                newSet.add(index);
-            }
-            return newSet;
-        });
-    };
+    const [expandedTeachers, setExpandedTeachers] = useState<Set<string>>(new Set());
 
     // 이름의 가운데 글자를 *로 마스킹하는 함수
     const maskName = (name: string): string => {
@@ -117,7 +30,6 @@ export default function Teachers() {
         if (name.length === 2) {
             return name[0] + '*';
         }
-        // 3글자 이상인 경우 가운데 글자를 *로 마스킹
         const firstChar = name[0];
         const lastChar = name[name.length - 1];
         const middleChars = '*'.repeat(name.length - 2);
@@ -130,11 +42,9 @@ export default function Teachers() {
                 const response = await fetch('/api/users?role=teacher');
                 const result = await response.json();
                 if (result.success && result.data) {
-                    // 활성 상태인 강사만 필터링하고 최신순으로 정렬
                     const activeTeachers = (result.data.users || [])
                         .filter((teacher: Teacher) => teacher.status === 'active')
                         .sort((a: Teacher, b: Teacher) => {
-                            // createdAt 기준 정렬 (최신순)
                             const dateA = new Date((a as { createdAt?: string }).createdAt || 0).getTime();
                             const dateB = new Date((b as { createdAt?: string }).createdAt || 0).getTime();
                             return dateB - dateA;
@@ -151,36 +61,37 @@ export default function Teachers() {
         loadTeachers();
     }, []);
 
-    // 표시할 강사 (최대 3명)
-    const displayedTeachers = teachers.slice(0, 3);
-    const hasMoreTeachers = teachers.length > 3;
+    const toggleExperience = (teacherId: string) => {
+        setExpandedTeachers((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(teacherId)) {
+                newSet.delete(teacherId);
+            } else {
+                newSet.add(teacherId);
+            }
+            return newSet;
+        });
+    };
 
     return (
-        <section id="teachers" className="py-12 sm:py-16 md:py-20 bg-[#1A1A1A]">
-            {/* Background decoration */}
-            <div className="absolute inset-0 opacity-5">
-                <div className="absolute top-20 left-10 w-72 h-72 bg-deep-electric-blue rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-20 right-10 w-96 h-96 bg-active-orange rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-            </div>
-
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
-                <ScrollAnimation direction="fade">
-                    <div className="text-center mb-10 sm:mb-16">
-                        <h2 className="text-deep-electric-blue font-bold tracking-wider mb-2 text-sm sm:text-base">OUR TEACHERS</h2>
-                        <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
-                            아이들의 꿈을 현실로 만드는<br />
-                            전문 강사진
-                        </h3>
-                        <p className="text-gray-300">
-                            경험과 열정으로 아이들의 미래를 만들어가는 전문 교육진입니다
-                        </p>
-                    </div>
-                </ScrollAnimation>
+        <div className="min-h-screen bg-[#1A1A1A] pt-20 sm:pt-24">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
+                {/* Header */}
+                <div className="text-center mb-10 sm:mb-16">
+                    <h1 className="text-deep-electric-blue font-bold tracking-wider mb-2 text-sm sm:text-base">OUR TEACHERS</h1>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+                        아이들의 꿈을 현실로 만드는<br />
+                        전문 강사진
+                    </h2>
+                    <p className="text-gray-300">
+                        경험과 열정으로 아이들의 미래를 만들어가는 전문 교육진입니다
+                    </p>
+                </div>
 
                 {/* Teachers Grid */}
                 {isLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                        {[1, 2, 3].map((i) => (
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
                             <div key={i} className="bg-gray-800 rounded-2xl p-6 animate-pulse">
                                 <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-700"></div>
                                 <div className="h-4 bg-gray-700 rounded mb-2"></div>
@@ -188,20 +99,18 @@ export default function Teachers() {
                             </div>
                         ))}
                     </div>
-                ) : displayedTeachers.length === 0 ? (
+                ) : teachers.length === 0 ? (
                     <div className="text-center py-16">
                         <User className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                         <p className="text-gray-400">등록된 강사가 없습니다.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                        {displayedTeachers.map((teacher, index) => (
-                        <ScrollAnimation
-                            key={index}
-                            direction="up"
-                            delay={index * 100}
-                        >
-                            <div className="group relative bg-gray-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-700 hover:border-deep-electric-blue/50">
+                        {teachers.map((teacher) => (
+                            <div
+                                key={teacher._id}
+                                className="group relative bg-gray-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-700 hover:border-deep-electric-blue/50"
+                            >
                                 {/* Animated background blob */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-deep-electric-blue/10 rounded-bl-full -mr-8 -mt-8 transition-all duration-700 group-hover:scale-150 group-hover:bg-deep-electric-blue/20"></div>
                                 
@@ -234,7 +143,6 @@ export default function Teachers() {
                                                     width={112}
                                                     height={112}
                                                     className="w-full h-full object-cover"
-                                                    priority={index === 0}
                                                 />
                                             )}
                                         </div>
@@ -246,9 +154,9 @@ export default function Teachers() {
 
                                     {/* Teacher Info */}
                                     <div className="text-center mb-4 sm:mb-6">
-                                        <h4 className="text-xl sm:text-2xl font-bold text-white">
+                                        <h3 className="text-xl sm:text-2xl font-bold text-white">
                                             {maskName(teacher.name)}
-                                        </h4>
+                                        </h3>
                                         <p className="text-sm sm:text-base text-deep-electric-blue font-semibold mb-2">
                                             {teacher.title || '전문강사'}
                                         </p>
@@ -284,8 +192,8 @@ export default function Teachers() {
                                     {/* Qualifications */}
                                     {teacher.qualifications && teacher.qualifications.length > 0 && (
                                         <div className="mb-4 sm:mb-6">
-                                            <h5 className="text-xs font-semibold text-gray-300">
-                                                <Award className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue" />
+                                            <h5 className="text-xs font-semibold text-gray-300 mb-2">
+                                                <Award className="w-3 h-3 sm:w-4 sm:h-4 text-deep-electric-blue inline mr-1" />
                                                 자격증
                                             </h5>
                                             <ul className="space-y-1 text-xs text-gray-300">
@@ -305,7 +213,6 @@ export default function Teachers() {
                                             href="#consultation"
                                             onClick={(e) => {
                                                 e.preventDefault();
-                                                // 상담 모달 열기 로직
                                                 const consultationButton = document.querySelector('[aria-label*="상담"], [aria-label*="문의"]');
                                                 if (consultationButton) {
                                                     (consultationButton as HTMLElement).click();
@@ -328,7 +235,7 @@ export default function Teachers() {
                                                 주요 경력
                                             </h5>
                                             <ul className="space-y-1 text-xs text-gray-300">
-                                                {(expandedTeachers.has(index) ? teacher.experience : teacher.experience.slice(0, 3)).map((exp, i) => (
+                                                {(expandedTeachers.has(teacher._id) ? teacher.experience : teacher.experience.slice(0, 3)).map((exp, i) => (
                                                     <li key={i} className="flex items-start gap-2">
                                                         <span className="text-active-orange mt-0.5">•</span>
                                                         <span className="line-clamp-2">{exp}</span>
@@ -337,10 +244,10 @@ export default function Teachers() {
                                                 {teacher.experience.length > 3 && (
                                                     <li>
                                                         <button
-                                                            onClick={() => toggleExperience(index)}
+                                                            onClick={() => toggleExperience(teacher._id)}
                                                             className="text-deep-electric-blue hover:text-active-orange text-xs font-semibold mt-2 transition-colors cursor-pointer flex items-center gap-1"
                                                         >
-                                                            {expandedTeachers.has(index) ? (
+                                                            {expandedTeachers.has(teacher._id) ? (
                                                                 <>
                                                                     <span>접기</span>
                                                                     <span>▲</span>
@@ -359,27 +266,21 @@ export default function Teachers() {
                                     )}
                                 </div>
                             </div>
-                        </ScrollAnimation>
                         ))}
                     </div>
                 )}
 
-                {/* 전체보기 링크 */}
-                {hasMoreTeachers && (
-                    <ScrollAnimation direction="fade" delay={400}>
-                        <div className="text-center mt-8 sm:mt-12">
-                            <a
-                                href="/teachers"
-                                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-deep-electric-blue via-active-orange to-deep-electric-blue bg-[length:200%_100%] hover:bg-[length:100%_100%] text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl text-base sm:text-lg cursor-pointer"
-                            >
-                                <User className="w-5 h-5" />
-                                전체 강사진 보기 ({teachers.length}명)
-                            </a>
-                        </div>
-                    </ScrollAnimation>
-                )}
+                {/* Back to Home */}
+                <div className="text-center mt-12">
+                    <Link
+                        href="/"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
+                    >
+                        ← 홈으로 돌아가기
+                    </Link>
+                </div>
             </div>
-        </section>
+        </div>
     );
 }
 

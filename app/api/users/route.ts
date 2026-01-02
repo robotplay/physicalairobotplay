@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         console.log('Received body:', { ...body, password: '***' }); // 비밀번호는 로그에서 숨김
         
-        const { username, password, name, email, phone, role } = body;
+        const { username, password, name, email, phone, role, image, title, specialty, experience } = body;
 
         // 필수 필드 검증
         if (!username || !password || !name || !role) {
@@ -125,6 +125,13 @@ export async function POST(request: NextRequest) {
             role,
             teacherId,
             status: 'active',
+            // 강사 전용 필드
+            ...(role === 'teacher' && {
+                image: image || '',
+                title: title || '',
+                specialty: specialty || '',
+                experience: experience || [],
+            }),
             createdAt: new Date(),
             updatedAt: new Date(),
         };

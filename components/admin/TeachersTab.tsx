@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Mail, Phone, Edit, Trash2, Plus, X, Save, Eye, EyeOff, UserCheck, UserX } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { User, Mail, Phone, Edit, Trash2, Plus, X, Save, Eye, EyeOff, UserCheck, UserX, Image as ImageIcon, Upload, Loader2, GraduationCap } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 interface Teacher {
     _id: string;
@@ -14,6 +15,10 @@ interface Teacher {
     role: string;
     teacherId: string;
     status: 'active' | 'inactive';
+    image?: string;
+    title?: string;
+    specialty?: string;
+    experience?: string[];
     createdAt: string;
 }
 
@@ -27,12 +32,19 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
     const [showPassword, setShowPassword] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [formData, setFormData] = useState({
         username: '',
         password: '',
         name: '',
         email: '',
         phone: '',
+        image: '',
+        title: '',
+        specialty: '',
+        experience: [] as string[],
     });
 
     const handleCreate = () => {
@@ -43,7 +55,12 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
             name: '',
             email: '',
             phone: '',
+            image: '',
+            title: '',
+            specialty: '',
+            experience: [],
         });
+        setUploadPreview(null);
         setSelectedTeacher(null);
         setEditingId(null);
     };
@@ -56,7 +73,12 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
             name: teacher.name,
             email: teacher.email,
             phone: teacher.phone,
+            image: teacher.image || '',
+            title: teacher.title || '',
+            specialty: teacher.specialty || '',
+            experience: teacher.experience || [],
         });
+        setUploadPreview(teacher.image || null);
         setSelectedTeacher(null);
         setIsCreating(false);
     };
@@ -65,12 +87,120 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
         setIsCreating(false);
         setEditingId(null);
         setShowPassword(false);
+        setUploadPreview(null);
         setFormData({
             username: '',
             password: '',
             name: '',
             email: '',
             phone: '',
+            image: '',
+            title: '',
+            specialty: '',
+            experience: [],
+        });
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // 파일 타입 검증
+        if (!file.type.startsWith('image/')) {
+            toast.error('이미지 파일만 업로드 가능합니다.');
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            return;
+        }
+
+        // 파일 크기 검증 (6MB)
+        const maxSize = 6 * 1024 * 1024;
+        if (file.size > maxSize) {
+            toast.error('파일 크기는 6MB 이하여야 합니다.');
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            return;
+        }
+
+        // 미리보기 생성
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if (reader.result) {
+                setUploadPreview(reader.result as string);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleImageUpload = async () => {
+        const file = fileInputRef.current?.files?.[0];
+        if (!file) {
+            toast.error('파일을 선택해주세요.');
+            return;
+        }
+
+        setIsUploading(true);
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+
+        const loadingToast = toast.loading('이미지 업로드 중...');
+
+        try {
+            const response = await fetch('/api/news/upload', {
+                method: 'POST',
+                body: uploadFormData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || '업로드 실패');
+            }
+
+            const result = await response.json();
+            if (result.success) {
+                const imageUrl = result.path || result.url || result.data?.path || result.data?.url;
+                setFormData({ ...formData, image: imageUrl });
+                setUploadPreview(null);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                toast.success('이미지가 업로드되었습니다.', { id: loadingToast });
+            } else {
+                throw new Error(result.error || '업로드 실패');
+            }
+        } catch (error) {
+            console.error('Failed to upload image:', error);
+            toast.error(error instanceof Error ? error.message : '이미지 업로드 중 오류가 발생했습니다.', { id: loadingToast });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleAddExperience = () => {
+        setFormData({
+            ...formData,
+            experience: [...formData.experience, ''],
+        });
+    };
+
+    const handleRemoveExperience = (index: number) => {
+        setFormData({
+            ...formData,
+            experience: formData.experience.filter((_, i) => i !== index),
+        });
+    };
+
+    const handleExperienceChange = (index: number, value: string) => {
+        const newExperience = [...formData.experience];
+        newExperience[index] = value;
+        setFormData({
+            ...formData,
+            experience: newExperience,
         });
     };
 
@@ -100,6 +230,7 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
                     body: JSON.stringify({
                         ...formData,
                         role: 'teacher',
+                        experience: formData.experience.filter(exp => exp.trim() !== ''),
                     }),
                 });
 
@@ -118,10 +249,14 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
                 }
             } else if (editingId) {
                 // 수정
-                const updateData: Record<string, string> = {
+                const updateData: Record<string, unknown> = {
                     name: formData.name,
                     email: formData.email,
                     phone: formData.phone,
+                    image: formData.image,
+                    title: formData.title,
+                    specialty: formData.specialty,
+                    experience: formData.experience.filter(exp => exp.trim() !== ''),
                 };
 
                 // 비밀번호가 입력된 경우에만 포함
@@ -334,6 +469,174 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
                             </div>
                         </div>
 
+                        {/* 이미지 업로드 */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                프로필 사진
+                            </label>
+                            
+                            {/* 이미지 미리보기 */}
+                            {(uploadPreview || formData.image) && (
+                                <div className="mb-3 relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900">
+                                    {uploadPreview ? (
+                                        <img
+                                            src={uploadPreview}
+                                            alt="미리보기"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                            }}
+                                        />
+                                    ) : formData.image?.startsWith('data:image/') ? (
+                                        <img
+                                            src={formData.image}
+                                            alt="프로필"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                            }}
+                                        />
+                                    ) : formData.image?.startsWith('https://') ? (
+                                        <img
+                                            src={formData.image}
+                                            alt="프로필"
+                                            className="w-full h-full object-cover"
+                                            crossOrigin="anonymous"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                            }}
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={formData.image}
+                                            alt="프로필"
+                                            fill
+                                            className="object-cover"
+                                            sizes="128px"
+                                            onError={() => {
+                                                console.error('이미지 로드 실패:', formData.image);
+                                            }}
+                                        />
+                                    )}
+                                </div>
+                            )}
+
+                            {/* 파일 업로드 */}
+                            <div className="space-y-2">
+                                <div className="flex gap-2">
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileSelect}
+                                        className="hidden"
+                                        id="teacher-image-upload"
+                                    />
+                                    <label
+                                        htmlFor="teacher-image-upload"
+                                        className="flex-1 px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 hover:border-deep-electric-blue dark:hover:border-deep-electric-blue transition-colors cursor-pointer flex items-center justify-center gap-2"
+                                    >
+                                        <Upload className="w-4 h-4" />
+                                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                                            이미지 선택
+                                        </span>
+                                    </label>
+                                    {fileInputRef.current?.files?.[0] && (
+                                        <button
+                                            type="button"
+                                            onClick={handleImageUpload}
+                                            disabled={isUploading}
+                                            className="px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed flex items-center gap-2"
+                                        >
+                                            {isUploading ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    업로드 중...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Upload className="w-4 h-4" />
+                                                    업로드
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    이미지는 자동으로 리사이즈됩니다. (최대 6MB)
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* 전문 분야 */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                전문 분야 (예: 창의과학 교육 전문강사)
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                placeholder="창의과학 교육 전문강사"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            />
+                        </div>
+
+                        {/* 전문 기술 */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                전문 기술 (예: 과학적 사고를 키우는 드론·코딩)
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.specialty}
+                                onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                                placeholder="과학적 사고를 키우는 드론·코딩"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            />
+                        </div>
+
+                        {/* 주요 경력 */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                <GraduationCap className="w-4 h-4 inline mr-1" />
+                                주요 경력
+                            </label>
+                            <div className="space-y-2">
+                                {formData.experience.map((exp, index) => (
+                                    <div key={index} className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={exp}
+                                            onChange={(e) => handleExperienceChange(index, e.target.value)}
+                                            placeholder="예: 로봇코딩 - 스크래치 코딩"
+                                            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveExperience(index)}
+                                            className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={handleAddExperience}
+                                    className="w-full px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 hover:border-deep-electric-blue dark:hover:border-deep-electric-blue transition-colors cursor-pointer flex items-center justify-center gap-2"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                                        경력 추가
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="flex gap-2 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
                             <button
                                 type="button"
@@ -460,6 +763,34 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
                             </div>
 
                             <div className="space-y-4">
+                                {/* 프로필 이미지 */}
+                                {selectedTeacher.image && (
+                                    <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900">
+                                        {selectedTeacher.image.startsWith('data:image/') ? (
+                                            <img
+                                                src={selectedTeacher.image}
+                                                alt={selectedTeacher.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : selectedTeacher.image.startsWith('https://') ? (
+                                            <img
+                                                src={selectedTeacher.image}
+                                                alt={selectedTeacher.name}
+                                                className="w-full h-full object-cover"
+                                                crossOrigin="anonymous"
+                                            />
+                                        ) : (
+                                            <Image
+                                                src={selectedTeacher.image}
+                                                alt={selectedTeacher.name}
+                                                fill
+                                                className="object-cover"
+                                                sizes="128px"
+                                            />
+                                        )}
+                                    </div>
+                                )}
+
                                 <div>
                                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                                         {selectedTeacher.name}
@@ -467,6 +798,16 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
                                     <p className="text-sm text-gray-600 dark:text-gray-300">
                                         @{selectedTeacher.username}
                                     </p>
+                                    {selectedTeacher.title && (
+                                        <p className="text-sm text-deep-electric-blue font-semibold mt-1">
+                                            {selectedTeacher.title}
+                                        </p>
+                                    )}
+                                    {selectedTeacher.specialty && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            {selectedTeacher.specialty}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -491,6 +832,24 @@ export default function TeachersTab({ teachers, onRefresh }: TeachersTabProps) {
                                         </span>
                                     </div>
                                 </div>
+
+                                {/* 주요 경력 */}
+                                {selectedTeacher.experience && selectedTeacher.experience.length > 0 && (
+                                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                            <GraduationCap className="w-4 h-4 text-deep-electric-blue" />
+                                            주요 경력
+                                        </h4>
+                                        <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+                                            {selectedTeacher.experience.map((exp, index) => (
+                                                <li key={index} className="flex items-start gap-2">
+                                                    <span className="text-deep-electric-blue mt-0.5">•</span>
+                                                    <span>{exp}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
 
                                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <p className="text-xs text-gray-500 dark:text-gray-400">

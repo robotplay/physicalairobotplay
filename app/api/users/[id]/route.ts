@@ -50,7 +50,7 @@ export async function PUT(
         }
 
         const body = await request.json();
-        const { name, email, phone, status, password } = body;
+        const { name, email, phone, status, password, image, title, specialty, experience } = body;
 
         const db = await getDatabase();
         const collection = db.collection(COLLECTIONS.USERS);
@@ -77,6 +77,14 @@ export async function PUT(
         // 비밀번호 변경 (선택적)
         if (password) {
             updateData.password = await hashPassword(password);
+        }
+
+        // 강사 전용 필드 업데이트
+        if (user.role === 'teacher') {
+            if (image !== undefined) updateData.image = image;
+            if (title !== undefined) updateData.title = title;
+            if (specialty !== undefined) updateData.specialty = specialty;
+            if (experience !== undefined) updateData.experience = experience;
         }
 
         await collection.updateOne(
