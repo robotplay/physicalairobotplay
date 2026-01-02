@@ -30,6 +30,27 @@ export default function ParentLoginPage() {
             }
             // URL에서 쿼리 파라미터 제거
             window.history.replaceState({}, '', '/parent-portal/login');
+            // 로그아웃 후 쿠키가 완전히 삭제되었는지 확인하기 위해 짧은 지연
+            setTimeout(() => {
+                // 추가로 인증 체크하여 확실히 로그아웃 상태 확인
+                fetch('/api/auth/me', {
+                    credentials: 'include',
+                    cache: 'no-store',
+                }).then(res => {
+                    if (res.ok) {
+                        res.json().then(data => {
+                            if (data.success && data.user) {
+                                logger.warn('Still authenticated after logout, forcing logout');
+                                // 여전히 인증되어 있으면 강제 로그아웃
+                                fetch('/api/auth/logout', {
+                                    method: 'POST',
+                                    credentials: 'include',
+                                }).catch(() => {});
+                            }
+                        });
+                    }
+                }).catch(() => {});
+            }, 500);
             return;
         }
         
@@ -37,17 +58,21 @@ export default function ParentLoginPage() {
             try {
                 logger.log('Checking if already authenticated...');
                 
-                // 타임아웃 설정 (3초로 단축 - 빠른 응답을 위해)
-                const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('인증 확인 시간 초과')), 3000);
+                // 타임아웃 설정 (5초)
+                const timeoutPromise = new Promise<never>((_, reject) => {
+                    setTimeout(() => reject(new Error('인증 확인 시간 초과')), 5000);
                 });
                 
                 const fetchPromise = fetch('/api/auth/me', {
                     credentials: 'include',
-                    cache: 'no-store', // 캐시 사용 안 함
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                    },
                 });
                 
-                const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
                 
                 if (!isMounted) return;
                 
@@ -60,13 +85,25 @@ export default function ParentLoginPage() {
                     return;
                 }
                 
+                // 응답이 실패한 경우도 로그인 폼 표시
+                if (!response.ok) {
+                    logger.log('Auth check failed, showing login form');
+                    if (isMounted) {
+                        setCheckingAuth(false);
+                    }
+                    return;
+                }
+                
                 const result = await response.json();
                 logger.log('Auth check result:', result);
                 
-                // 이미 로그인된 경우 포털로 리다이렉트
+                // 이미 로그인된 경우 포털로 리다이렉트 (명시적으로 parent 역할 확인)
                 if (result.success && result.user && result.user.role === 'parent' && result.user.studentId) {
                     logger.log('Already authenticated, redirecting to portal...');
-                    window.location.href = '/parent-portal';
+                    // 약간의 지연 후 리다이렉트 (상태 업데이트 완료 대기)
+                    setTimeout(() => {
+                        window.location.href = '/parent-portal';
+                    }, 100);
                     return;
                 }
                 
@@ -166,14 +203,13 @@ export default function ParentLoginPage() {
         }
     };
     
-    // 엔터 키 핸들러 - 폼 제출 버튼 클릭
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && !loading && formData.studentId.trim() && formData.parentPhone.trim()) {
+    // 엔터 키 핸들러 - 직접 폼 제출
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && !loading && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
             e.preventDefault();
-            // 제출 버튼 클릭으로 폼 제출
-            const submitButton = e.currentTarget.closest('form')?.querySelector('button[type="submit"]') as HTMLButtonElement;
-            if (submitButton && !submitButton.disabled) {
-                submitButton.click();
+            // 입력값이 있으면 직접 제출
+            if (formData.studentId.trim() && formData.parentPhone.trim()) {
+                handleSubmit(e as unknown as React.FormEvent);
             }
         }
     };
@@ -221,11 +257,12 @@ export default function ParentLoginPage() {
                                     type="text"
                                     value={formData.studentId}
                                     onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
-                                    onKeyPress={handleKeyPress}
+                                    onKeyDown={handleKeyDown}
                                     required
                                     placeholder="student-xxxxx"
                                     className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
                                     disabled={loading}
+                                    autoComplete="off"
                                 />
                             </div>
                         </div>
@@ -240,11 +277,12 @@ export default function ParentLoginPage() {
                                     type="tel"
                                     value={formData.parentPhone}
                                     onChange={(e) => setFormData({ ...formData, parentPhone: e.target.value })}
-                                    onKeyPress={handleKeyPress}
+                                    onKeyDown={handleKeyDown}
                                     required
                                     placeholder="010-1234-5678"
                                     className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
                                     disabled={loading}
+                                    autoComplete="off"
                                 />
                             </div>
                         </div>

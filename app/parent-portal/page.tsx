@@ -249,22 +249,50 @@ export default function ParentPortalPage() {
         }
     };
 
-    const checkAuth = async () => {
+    const checkAuth = async (retryCount = 0) => {
         try {
-            logger.log('Checking authentication...');
+            logger.log('Checking authentication...', { retryCount });
             
-            // 타임아웃 설정 (10초)
+            // 타임아웃 설정 (5초)
             const timeoutPromise = new Promise<never>((_, reject) => {
-                setTimeout(() => reject(new Error('인증 확인 시간 초과')), 10000);
+                setTimeout(() => reject(new Error('인증 확인 시간 초과')), 5000);
             });
             
             const fetchPromise = fetch('/api/auth/me', {
                 credentials: 'include',
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                },
             });
             
             const response = await Promise.race([fetchPromise, timeoutPromise]);
             
             logger.log('Auth response status:', response.status);
+            
+            // 401 또는 403이면 명확히 인증되지 않은 상태
+            if (response.status === 401 || response.status === 403) {
+                logger.log('Not authenticated (401/403), redirecting to login');
+                setLoading(false);
+                window.location.href = '/parent-portal/login';
+                return;
+            }
+            
+            // 응답이 실패한 경우 재시도 (최대 2번)
+            if (!response.ok && retryCount < 2) {
+                logger.log(`Auth check failed, retrying... (${retryCount + 1}/2)`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return checkAuth(retryCount + 1);
+            }
+            
+            if (!response.ok) {
+                logger.error('Auth check failed after retries');
+                setLoading(false);
+                window.location.href = '/parent-portal/login';
+                return;
+            }
+            
             const result = await response.json();
             logger.log('Auth response result:', result);
 
@@ -289,6 +317,14 @@ export default function ParentPortalPage() {
             window.location.href = '/parent-portal/login';
         } catch (error) {
             logger.error('Auth check failed:', error);
+            
+            // 타임아웃이나 네트워크 오류인 경우 재시도 (최대 2번)
+            if (retryCount < 2 && (error instanceof Error && error.message.includes('시간 초과'))) {
+                logger.log(`Auth check timeout, retrying... (${retryCount + 1}/2)`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return checkAuth(retryCount + 1);
+            }
+            
             // 에러 발생 시 로그인 페이지로 리다이렉트
             setLoading(false);
             window.location.href = '/parent-portal/login';
@@ -307,19 +343,40 @@ export default function ParentPortalPage() {
             const response = await fetch('/api/auth/logout', { 
                 method: 'POST',
                 credentials: 'include',
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                },
             });
             
             const result = await response.json();
             logger.log('Logout response:', result);
             
-            // 성공 여부와 관계없이 즉시 로그인 페이지로 리다이렉트
-            // 쿠키 삭제는 서버에서 처리되므로 클라이언트에서는 바로 리다이렉트
-            // 로그아웃 상태임을 명시하기 위해 쿼리 파라미터 추가
-            window.location.href = '/parent-portal/login?logout=true';
+            // 로컬 스토리지와 세션 스토리지도 클리어
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {
+                logger.error('Failed to clear storage:', e);
+            }
+            
+            // 쿠키 삭제를 위한 짧은 지연 후 리다이렉트
+            setTimeout(() => {
+                // 로그아웃 상태임을 명시하기 위해 쿼리 파라미터 추가
+                window.location.href = '/parent-portal/login?logout=true&t=' + Date.now();
+            }, 300);
         } catch (error) {
             logger.error('Logout failed:', error);
             // 에러가 발생해도 로그인 페이지로 즉시 이동
-            window.location.href = '/parent-portal/login';
+            // 로컬 스토리지와 세션 스토리지 클리어
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {
+                // 무시
+            }
+            window.location.href = '/parent-portal/login?logout=true&t=' + Date.now();
         }
     };
 
