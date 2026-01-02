@@ -23,23 +23,45 @@
    - Storage 이름 입력 (예: `academy-images`)
    - **"Create"** 클릭
 
-4. **토큰 생성**
-   - Storage 생성 후 **"Settings"** → **"Tokens"** 클릭
-   - **"Create Token"** 클릭
-   - Token 이름 입력 (예: `academy-site-upload`)
-   - 권한: **Read and Write** 선택
-   - **"Create"** 클릭
-   - **토큰 복사** (한 번만 표시되므로 안전하게 보관)
+4. **토큰 확인 (자동 설정됨)**
+   - Blob Storage 생성 시 Vercel이 자동으로 환경 변수를 설정합니다
+   - 별도 토큰 생성이 필요하지 않을 수 있습니다
+   - 만약 자동 설정되지 않았다면 아래 방법을 사용하세요
 
-### 2단계: 환경 변수 설정
+### 2단계: 환경 변수 확인 및 설정
+
+#### 방법 1: 자동 설정 확인 (권장)
+
+1. **Vercel 대시보드 → Settings → Environment Variables**
+
+2. **자동 생성된 환경 변수 확인**
+   - Blob Storage 생성 시 `BLOB_READ_WRITE_TOKEN`이 자동으로 추가되었는지 확인
+   - 이미 있다면 추가 설정 불필요 ✅
+
+#### 방법 2: 수동 설정 (자동 설정되지 않은 경우)
 
 1. **Vercel 대시보드 → Settings → Environment Variables**
 
 2. **환경 변수 추가**
+   - **"Add New"** 버튼 클릭
    - **Key**: `BLOB_READ_WRITE_TOKEN`
-   - **Value**: 위에서 복사한 토큰
+   - **Value**: 
+     - Storage 페이지에서 토큰 확인
+     - 또는 Vercel CLI로 확인: `vercel env pull`
    - **Environment**: Production, Preview, Development 모두 선택
    - **"Save"** 클릭
+
+#### 방법 3: Vercel CLI로 확인
+
+```bash
+# Vercel CLI 설치 (없는 경우)
+npm i -g vercel
+
+# 프로젝트 디렉토리에서
+vercel env pull .env.local
+
+# .env.local 파일에서 BLOB_READ_WRITE_TOKEN 확인
+```
 
 3. **로컬 개발 환경 설정** (선택사항)
    - `.env.local` 파일에 추가:
@@ -146,16 +168,22 @@
 **증상**: 이미지 업로드 시 Base64로 fallback됨
 
 **원인 및 해결**:
-1. **토큰 미설정**
-   - Vercel 환경 변수에 `BLOB_READ_WRITE_TOKEN` 확인
-   - 토큰이 올바른지 확인
+1. **환경 변수 확인**
+   - Vercel 대시보드 → Settings → Environment Variables
+   - `BLOB_READ_WRITE_TOKEN`이 있는지 확인
+   - 없으면 Storage 페이지에서 자동 생성되었는지 확인
 
-2. **토큰 권한 부족**
-   - 토큰이 **Read and Write** 권한인지 확인
-   - 새 토큰 생성 후 재설정
+2. **Storage 연결 확인**
+   - Storage 탭에서 Blob Storage가 프로젝트에 연결되었는지 확인
+   - 연결되지 않았다면 Storage를 프로젝트에 연결
 
-3. **Storage 미생성**
-   - Vercel 대시보드에서 Blob Storage가 생성되었는지 확인
+3. **재배포 필요**
+   - 환경 변수 추가 후 **재배포** 필요
+   - Vercel이 자동으로 재배포하거나 수동으로 트리거
+
+4. **토큰이 자동 생성되지 않은 경우**
+   - Storage 페이지에서 "Connect" 또는 "Link" 버튼 확인
+   - 또는 Vercel CLI 사용: `vercel link`
 
 ### 이미지가 표시되지 않음
 
