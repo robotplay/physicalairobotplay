@@ -51,6 +51,8 @@
    - **Environment**: Production, Preview, Development 모두 선택
    - **"Save"** 클릭
 
+**⚠️ 중요**: 토큰 값은 **절대 공개하지 마세요**. Vercel 환경 변수에만 저장하고, 코드에서 자동으로 사용됩니다.
+
 #### 방법 3: Vercel CLI로 확인
 
 ```bash
