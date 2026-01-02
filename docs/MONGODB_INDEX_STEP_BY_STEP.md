@@ -35,16 +35,35 @@
 
 ---
 
-### 2단계: 컬렉션 선택 및 인덱스 탭 이동
+### 2단계: 컬렉션 확인 및 생성 (필요한 경우)
 
 1. **컬렉션 목록 확인**
    - 왼쪽 사이드바에서 **"academy-site"** 아래의 컬렉션 목록 확인
    - 또는 메인 화면에서 컬렉션 목록 확인
 
-2. **컬렉션 선택**
+2. **`students` 컬렉션이 없는 경우**
+   
+   **옵션 A: 관리자 페이지에서 학생 등록 (권장)**
+   - https://www.parplay.co.kr/admin 접속
+   - 로그인 → **학생 관리** → **학생 등록**
+   - 학생 정보 입력 후 저장
+   - → `students` 컬렉션이 자동 생성됩니다!
+   
+   **옵션 B: MongoDB Shell로 수동 생성**
+   ```javascript
+   use('academy-site');
+   db.createCollection('students');
+   ```
+   
+   **옵션 C: Atlas UI에서 수동 생성**
+   - `academy-site` 데이터베이스에서 **"+ Create"** 또는 **"Create Collection"** 클릭
+   - Collection Name: `students` 입력
+   - Create 클릭
+
+3. **컬렉션 선택**
    - 인덱스를 생성할 컬렉션 클릭 (예: **"students"**)
 
-3. **Indexes 탭 클릭**
+4. **Indexes 탭 클릭**
    - 컬렉션 상세 화면 상단에 여러 탭이 있습니다:
      - **Documents** (기본)
      - **Indexes** ← **이 탭 클릭**
