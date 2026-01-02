@@ -55,6 +55,10 @@ export default function NewsDetailPage() {
                 const result = await response.json();
 
                 if (result.success) {
+                    // 디버깅: 콘텐츠 확인
+                    console.log('News content:', result.data.content);
+                    console.log('Content type:', typeof result.data.content);
+                    console.log('Content length:', result.data.content?.length);
                     setNewsItem(result.data);
                 } else {
                     setError(result.error || '공지사항을 불러올 수 없습니다.');
@@ -213,7 +217,9 @@ export default function NewsDetailPage() {
                             <div className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-8 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-300 prose-ol:text-gray-300 prose-li:text-gray-300 prose-blockquote:text-gray-400 prose-blockquote:border-gray-600">
                                 <div 
                                     className="text-base sm:text-lg leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-lg [&_iframe]:my-8 [&_iframe]:max-w-full [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:my-4 [&_img]:object-contain [&_code]:bg-gray-700 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_pre]:bg-gray-700 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto"
-                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(newsItem.content) }}
+                                    dangerouslySetInnerHTML={{ 
+                                        __html: sanitizeHtml(newsItem.content || '') 
+                                    }}
                                 />
                             </div>
                         </div>
