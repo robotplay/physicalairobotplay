@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
+import { put } from '@vercel/blob';
 
 // Vercel에서 Sharp를 사용하기 위해 Node.js runtime 명시
 export const runtime = 'nodejs';
 export const maxDuration = 30; // 최대 실행 시간 30초
+
+// Vercel Blob Storage 사용 여부 (환경 변수로 제어)
+const USE_BLOB_STORAGE = process.env.BLOB_READ_WRITE_TOKEN ? true : false;
 
 export async function POST(request: NextRequest) {
     try {
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest) {
             }
         }
         
-        console.log(`[Image Upload] 업로드 파일 정보 - 이름: ${file.name}, 타입: ${fileType}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB, 확장자: ${fileExtension}`);
+        console.log(`[Image Upload] 업로드 파일 정보 - 이름: ${file.name}, 타입: ${fileType}, 크기: ${(file.size / 1024 / 1024).toFixed(2)}MB, 확장자: ${fileExtension}, Blob Storage: ${USE_BLOB_STORAGE ? '사용' : 'Base64 사용'}`);
 
         // 파일 크기 제한 (6MB)
         const maxSize = 6 * 1024 * 1024; // 6MB
@@ -164,13 +168,58 @@ export async function POST(request: NextRequest) {
             } : { message: String(sharpError) };
             console.error('[Image Upload] 에러 상세:', errorDetails);
             
-            // Sharp 처리 실패 시 원본 이미지를 Base64로 변환 (fallback)
-            console.warn('[Image Upload] Sharp 처리 실패, 원본 이미지를 Base64로 변환');
+            // Sharp 처리 실패 시 원본 이미지를 사용 (fallback)
+            console.warn('[Image Upload] Sharp 처리 실패, 원본 이미지 사용');
             optimizedBuffer = buffer;
             isOptimized = false;
         }
 
-        // 최적화된 이미지를 Base64로 변환
+        // 원본 크기와 최적화된 크기 정보
+        const originalSize = buffer.length;
+        const optimizedSize = optimizedBuffer.length;
+        const compressionRatio = isOptimized 
+            ? ((1 - optimizedSize / originalSize) * 100).toFixed(1)
+            : '0.0';
+
+        // Vercel Blob Storage 사용 여부에 따라 분기
+        if (USE_BLOB_STORAGE) {
+            try {
+                // 파일명 생성 (타임스탬프 + 원본 파일명)
+                const timestamp = Date.now();
+                const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_'); // 특수문자 제거
+                const fileName = `${timestamp}_${sanitizedName.replace(/\.[^/.]+$/, '')}.jpg`; // 확장자를 .jpg로 변경
+                const blobPath = `images/${fileName}`;
+
+                // Vercel Blob Storage에 업로드
+                const blob = await put(blobPath, optimizedBuffer, {
+                    access: 'public',
+                    contentType: 'image/jpeg',
+                });
+
+                console.log(`[Image Upload] Vercel Blob Storage 업로드 완료 - URL: ${blob.url}`);
+
+                return NextResponse.json({
+                    success: true,
+                    path: blob.url, // CDN URL 반환
+                    fileName: fileName,
+                    originalSize: originalSize,
+                    optimizedSize: optimizedSize,
+                    compressionRatio: compressionRatio,
+                    isOptimized: isOptimized,
+                    originalFormat: fileType,
+                    storageType: 'blob', // 저장 타입 표시
+                    message: isOptimized 
+                        ? `이미지가 업로드되었습니다. (최적화: ${compressionRatio}% 용량 감소, CDN 사용)`
+                        : `이미지가 업로드되었습니다. (원본 포맷 유지, CDN 사용)`,
+                });
+            } catch (blobError) {
+                console.error('[Image Upload] Vercel Blob Storage 업로드 실패:', blobError);
+                // Blob Storage 업로드 실패 시 Base64로 fallback
+                console.warn('[Image Upload] Blob Storage 실패, Base64로 fallback');
+            }
+        }
+
+        // Base64 fallback (Blob Storage 미사용 또는 업로드 실패 시)
         const base64 = optimizedBuffer.toString('base64');
         // Sharp로 처리된 경우 JPEG, 실패한 경우 원본 포맷 유지
         const mimeType = isOptimized ? 'image/jpeg' : fileType;
@@ -180,13 +229,6 @@ export async function POST(request: NextRequest) {
         const timestamp = Date.now();
         const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_'); // 특수문자 제거
         const fileName = `${timestamp}_${sanitizedName.replace(/\.[^/.]+$/, '')}.jpg`; // 확장자를 .jpg로 변경
-
-        // 원본 크기와 최적화된 크기 정보
-        const originalSize = buffer.length;
-        const optimizedSize = optimizedBuffer.length;
-        const compressionRatio = isOptimized 
-            ? ((1 - optimizedSize / originalSize) * 100).toFixed(1)
-            : '0.0';
 
         // Base64 데이터 URL 반환 (MongoDB에 저장하거나 직접 사용 가능)
         return NextResponse.json({
@@ -198,9 +240,10 @@ export async function POST(request: NextRequest) {
             compressionRatio: compressionRatio,
             isOptimized: isOptimized,
             originalFormat: fileType,
+            storageType: 'base64', // 저장 타입 표시
             message: isOptimized 
-                ? `이미지가 업로드되었습니다. (최적화: ${compressionRatio}% 용량 감소)`
-                : `이미지가 업로드되었습니다. (원본 포맷 유지)`,
+                ? `이미지가 업로드되었습니다. (최적화: ${compressionRatio}% 용량 감소, Base64 사용)`
+                : `이미지가 업로드되었습니다. (원본 포맷 유지, Base64 사용)`,
         });
     } catch (error) {
         console.error('Failed to upload image:', error);
@@ -215,9 +258,3 @@ export async function POST(request: NextRequest) {
         );
     }
 }
-
-
-
-
-
-
