@@ -72,10 +72,11 @@ export async function GET(request: NextRequest) {
             limit,
         });
 
-        // Cache-Control 헤더 추가
+        // Cache-Control 헤더: 관리자 페이지에서 삭제 후 즉시 반영을 위해 캐시 비활성화
+        // 클라이언트에서 cache: 'no-store'를 사용하므로 여기서도 일관성 유지
         response.headers.set(
             'Cache-Control',
-            'public, s-maxage=600, stale-while-revalidate=3600'
+            'no-store, no-cache, must-revalidate, proxy-revalidate'
         );
 
         return response;

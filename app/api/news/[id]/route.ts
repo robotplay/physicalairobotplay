@@ -3,8 +3,8 @@ import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import type { NewsItem } from '@/types/news';
 
-// 캐싱 설정: 1시간 (3600초)
-export const revalidate = 3600;
+// 캐싱 설정: 삭제 후 즉시 반영을 위해 캐싱 비활성화
+// export const revalidate = 3600; // 삭제 작업 시 캐시 무효화 필요
 
 // GET - 특정 공지사항 조회
 export async function GET(
@@ -50,10 +50,10 @@ export async function GET(
             },
         });
 
-        // Cache-Control 헤더 추가
+        // Cache-Control 헤더: 삭제 후 즉시 반영을 위해 캐시 비활성화
         response.headers.set(
             'Cache-Control',
-            'public, s-maxage=3600, stale-while-revalidate=86400'
+            'no-store, no-cache, must-revalidate, proxy-revalidate'
         );
 
         return response;
@@ -228,10 +228,18 @@ export async function DELETE(
             );
         }
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             success: true,
             message: '공지사항이 삭제되었습니다.',
         });
+
+        // 삭제 후 캐시 무효화를 위한 헤더 설정
+        response.headers.set(
+            'Cache-Control',
+            'no-store, no-cache, must-revalidate, proxy-revalidate'
+        );
+
+        return response;
     } catch (error) {
         console.error('Failed to delete news:', error);
         const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';

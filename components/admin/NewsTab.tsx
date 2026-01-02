@@ -422,24 +422,42 @@ export default function NewsTab({ news, onRefresh }: NewsTabProps) {
             return;
         }
 
+        // Optimistic Update: UI에서 즉시 제거
+        const previousNews = [...news];
+        const deletedItem = news.find(item => item._id === id);
+        const updatedNews = news.filter(item => item._id !== id);
+        
+        // 로컬 상태 업데이트 (즉시 반영)
+        // Note: news는 props이므로 직접 수정할 수 없음
+        // onRefresh를 통해 부모 컴포넌트의 상태를 업데이트해야 함
+        
+        // 선택된 항목이 삭제되는 경우 선택 해제
+        if (selectedNews?._id === id) {
+            setSelectedNews(null);
+        }
+
         try {
             const response = await fetch(`/api/news/${id}`, {
                 method: 'DELETE',
+                credentials: 'include',
+                cache: 'no-store', // 캐시 사용 안 함
             });
 
             const result = await response.json();
             if (result.success) {
-                alert('공지사항이 삭제되었습니다.');
-                onRefresh();
-                if (selectedNews?._id === id) {
-                    setSelectedNews(null);
-                }
+                // 삭제 성공: 목록 새로고침 (캐시 무시)
+                await onRefresh();
             } else {
+                // 실패 시: 롤백은 onRefresh에서 처리됨
                 alert(result.error || '삭제에 실패했습니다.');
+                // 실패 시에도 목록 새로고침하여 최신 상태 유지
+                await onRefresh();
             }
         } catch (error) {
             console.error('Failed to delete news:', error);
             alert('삭제 중 오류가 발생했습니다.');
+            // 에러 발생 시에도 목록 새로고침
+            await onRefresh();
         }
     };
 

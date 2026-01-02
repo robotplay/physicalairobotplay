@@ -867,6 +867,7 @@ export default function AdminPage() {
                             try {
                                 const response = await fetch('/api/news', {
                                     credentials: 'include',
+                                    cache: 'no-store', // 캐시 사용 안 함
                                 });
                                 const result = await response.json();
                                 if (result.success) {
