@@ -176,6 +176,22 @@ export default function NewsPage() {
                                                 src={item.image}
                                                 alt={item.title}
                                                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = '/img/01.jpeg';
+                                                }}
+                                            />
+                                        ) : item.image?.startsWith('https://') ? (
+                                            // CDN URL (Vercel Blob Storage 등)
+                                            <img
+                                                src={item.image}
+                                                alt={item.title}
+                                                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                                                crossOrigin="anonymous"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = '/img/01.jpeg';
+                                                }}
                                             />
                                         ) : (
                                             // 일반 이미지 URL
@@ -188,7 +204,6 @@ export default function NewsPage() {
                                                 quality={85}
                                                 unoptimized={item.image?.startsWith('/uploads/')}
                                                 onError={(e) => {
-                                                    // 이미지 로드 실패 시 기본 이미지로 대체
                                                     const target = e.target as HTMLImageElement;
                                                     target.src = '/img/01.jpeg';
                                                 }}
@@ -212,7 +227,7 @@ export default function NewsPage() {
                                             {item.title}
                                         </h2>
                                         <p className="text-sm sm:text-base text-gray-300 line-clamp-3 mb-4">
-                                            {item.excerpt || item.content.substring(0, 100) + '...'}
+                                            {item.excerpt || (item.content ? item.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : '')}
                                         </p>
                                         <div className="flex items-center gap-2 text-deep-electric-blue text-sm font-semibold group-hover:translate-x-2 transition-transform">
                                             <span>자세히 보기</span>
@@ -311,6 +326,7 @@ export default function NewsPage() {
         </main>
     );
 }
+
 
 
 

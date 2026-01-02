@@ -103,20 +103,45 @@ export default function News() {
                                     <article className="bg-gray-800 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-700 hover:border-deep-electric-blue/50 cursor-pointer h-full flex flex-col">
                                         {/* Image */}
                                         <div className="relative w-full aspect-video overflow-hidden bg-gray-900">
-                                            <Image
-                                                src={item.image || '/img/01.jpeg'}
-                                                alt={item.title}
-                                                fill
-                                                className="object-contain group-hover:scale-105 transition-transform duration-700"
-                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                quality={85}
-                                                unoptimized={item.image?.startsWith('/uploads/')}
-                                                onError={(e) => {
-                                                    // 이미지 로드 실패 시 기본 이미지로 대체
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.src = '/img/01.jpeg';
-                                                }}
-                                            />
+                                            {item.image?.startsWith('data:image/') ? (
+                                                // Base64 이미지
+                                                <img
+                                                    src={item.image}
+                                                    alt={item.title}
+                                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = '/img/01.jpeg';
+                                                    }}
+                                                />
+                                            ) : item.image?.startsWith('https://') ? (
+                                                // CDN URL (Vercel Blob Storage 등)
+                                                <img
+                                                    src={item.image}
+                                                    alt={item.title}
+                                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                                                    crossOrigin="anonymous"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = '/img/01.jpeg';
+                                                    }}
+                                                />
+                                            ) : (
+                                                // 일반 이미지 URL
+                                                <Image
+                                                    src={item.image || '/img/01.jpeg'}
+                                                    alt={item.title}
+                                                    fill
+                                                    className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                    quality={85}
+                                                    unoptimized={item.image?.startsWith('/uploads/')}
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = '/img/01.jpeg';
+                                                    }}
+                                                />
+                                            )}
                                             <div className="absolute top-4 left-4">
                                                 <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${CATEGORY_COLORS[item.category] || 'bg-deep-electric-blue'}`}>
                                                     {item.category}
@@ -135,7 +160,7 @@ export default function News() {
                                                 {item.title}
                                             </h3>
                                             <p className="text-sm sm:text-base text-gray-300 line-clamp-3 mb-4 flex-1">
-                                                {item.excerpt || item.content?.substring(0, 100) + '...'}
+                                                {item.excerpt || (item.content ? item.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : '')}
                                             </p>
                                             <div className="flex items-center gap-2 text-deep-electric-blue text-sm font-semibold group-hover:translate-x-2 transition-transform">
                                                 <span>자세히 보기</span>
