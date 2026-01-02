@@ -113,7 +113,7 @@ export default function Footer() {
                             <h3 className="text-lg font-bold mb-6 text-gray-200">Contact Us</h3>
                             <ul className="space-y-4">
                                 {[
-                                    { icon: MapPin, text: '충청남도 천안시 서북구 불당동 불당34길 3-15 202호 불당동 탑프라자 로봇플레이', href: 'https://www.google.com/maps/search/?api=1&query=충청남도+천안시+서북구+불당동+불당34길+3-15+202호+불당동+탑프라자' },
+                                    { icon: MapPin, text: '충청남도 천안시 서북구 불당동 불당34길 3-15 202호 불당동 탑프라자 로봇플레이', href: 'https://www.google.com/maps/place/%EB%A1%9C%EB%B4%87%ED%94%8C%EB%A0%88%EC%9D%B4%ED%95%99%EC%9B%90/data=!3m1!4b1!4m6!3m5!1s0x357b27f1581ac50f:0xf4cc11247843af2!8m2!3d36.8063138!4d127.1051818!16s%2Fg%2F11ghrgthln?entry=ttu' },
                                     { icon: Phone, text: '041-566-5345', href: 'tel:041-566-5345' },
                                     { icon: Mail, text: 'hkj5345@gmail.com', href: 'mailto:hkj5345@gmail.com' },
                                     { icon: FileText, text: '사업자등록번호: 326-81-03489', href: null },
