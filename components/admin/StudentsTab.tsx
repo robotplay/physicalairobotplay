@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { User, Mail, Phone, Edit, Trash2, Plus, X, Save, GraduationCap, BookOpen, Trophy, TrendingUp, Copy, MessageSquare, Image, Video, Upload } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { User, Mail, Phone, Edit, Trash2, Plus, X, Save, GraduationCap, BookOpen, Trophy, TrendingUp, Copy, MessageSquare, Image, Video, Upload, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import RichTextEditor from './RichTextEditor';
+import NextImage from 'next/image';
 
 interface Student {
     _id: string;
@@ -43,6 +44,7 @@ interface Student {
         videos: string[];
         description: string;
     };
+    image?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -67,7 +69,11 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
         parentPhone: '',
         parentEmail: '',
         learningNotes: '',
+        image: '',
     });
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showPortfolioModal, setShowPortfolioModal] = useState(false);
     const [feedbackForm, setFeedbackForm] = useState({
@@ -104,7 +110,9 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
             parentPhone: '',
             parentEmail: '',
             learningNotes: '',
+            image: '',
         });
+        setUploadPreview(null);
         setSelectedStudent(null);
         setEditingId(null);
     };
@@ -120,7 +128,9 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
             parentPhone: student.parentPhone,
             parentEmail: student.parentEmail || '',
             learningNotes: student.learningNotes || '',
+            image: student.image || '',
         });
+        setUploadPreview(student.image || null);
         setSelectedStudent(null);
         setIsCreating(false);
     };
@@ -128,6 +138,7 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
     const handleCancel = () => {
         setIsCreating(false);
         setEditingId(null);
+        setUploadPreview(null);
         setFormData({
             name: '',
             grade: '',
@@ -137,7 +148,88 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
             parentPhone: '',
             parentEmail: '',
             learningNotes: '',
+            image: '',
         });
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // 파일 타입 검증
+        if (!file.type.startsWith('image/')) {
+            toast.error('이미지 파일만 업로드 가능합니다.');
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            return;
+        }
+
+        // 파일 크기 검증 (6MB)
+        const maxSize = 6 * 1024 * 1024;
+        if (file.size > maxSize) {
+            toast.error('파일 크기는 6MB 이하여야 합니다.');
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            return;
+        }
+
+        // 미리보기 생성
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if (reader.result) {
+                setUploadPreview(reader.result as string);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleImageUpload = async () => {
+        const file = fileInputRef.current?.files?.[0];
+        if (!file) {
+            toast.error('파일을 선택해주세요.');
+            return;
+        }
+
+        setIsUploading(true);
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+
+        const loadingToast = toast.loading('이미지 업로드 중...');
+
+        try {
+            const response = await fetch('/api/news/upload', {
+                method: 'POST',
+                body: uploadFormData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || '업로드 실패');
+            }
+
+            const result = await response.json();
+            if (result.success) {
+                const imageUrl = result.path || result.url || result.data?.path || result.data?.url;
+                setFormData({ ...formData, image: imageUrl });
+                setUploadPreview(null);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                toast.success('이미지가 업로드되었습니다.', { id: loadingToast });
+            } else {
+                throw new Error(result.error || '업로드 실패');
+            }
+        } catch (error) {
+            console.error('Failed to upload image:', error);
+            toast.error(error instanceof Error ? error.message : '이미지 업로드 중 오류가 발생했습니다.', { id: loadingToast });
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -457,6 +549,109 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-deep-electric-blue focus:border-transparent"
                                 />
                             </div>
+                            
+                            {/* 학생 사진 업로드 */}
+                            <div className="sm:col-span-2">
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    학생 사진
+                                </label>
+                                
+                                {/* 이미지 미리보기 */}
+                                {(uploadPreview || formData.image) && (
+                                    <div className="mb-3 relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900">
+                                        {uploadPreview ? (
+                                            <img
+                                                src={uploadPreview}
+                                                alt="미리보기"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : formData.image?.startsWith('data:image/') ? (
+                                            <img
+                                                src={formData.image}
+                                                alt="학생 사진"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : formData.image?.startsWith('https://') ? (
+                                            <img
+                                                src={formData.image}
+                                                alt="학생 사진"
+                                                className="w-full h-full object-cover"
+                                                crossOrigin="anonymous"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : (
+                                            <NextImage
+                                                src={formData.image}
+                                                alt="학생 사진"
+                                                fill
+                                                className="object-cover"
+                                                sizes="128px"
+                                                onError={() => {
+                                                    console.error('이미지 로드 실패:', formData.image);
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* 파일 업로드 */}
+                                <div className="space-y-2">
+                                    <div className="flex gap-2">
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileSelect}
+                                            className="hidden"
+                                            id="student-image-upload"
+                                        />
+                                        <label
+                                            htmlFor="student-image-upload"
+                                            className="flex-1 px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 hover:border-deep-electric-blue dark:hover:border-deep-electric-blue transition-colors cursor-pointer flex items-center justify-center gap-2"
+                                        >
+                                            <Upload className="w-4 h-4" />
+                                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                                                이미지 선택
+                                            </span>
+                                        </label>
+                                        {fileInputRef.current?.files?.[0] && (
+                                            <button
+                                                type="button"
+                                                onClick={handleImageUpload}
+                                                disabled={isUploading}
+                                                className="px-4 py-2 bg-deep-electric-blue hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed flex items-center gap-2"
+                                            >
+                                                {isUploading ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        업로드 중...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Upload className="w-4 h-4" />
+                                                        업로드
+                                                    </>
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        이미지는 자동으로 리사이즈됩니다. (최대 6MB)
+                                    </p>
+                                </div>
+                            </div>
+                            
                             <div className="sm:col-span-2">
                                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                     학습 성향 메모
@@ -514,9 +709,36 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                         >
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-deep-electric-blue to-active-orange flex items-center justify-center">
-                                        <User className="w-6 h-6 text-white" />
-                                    </div>
+                                    {student.image ? (
+                                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 flex-shrink-0">
+                                            {student.image.startsWith('data:image/') ? (
+                                                <img
+                                                    src={student.image}
+                                                    alt={student.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : student.image.startsWith('https://') ? (
+                                                <img
+                                                    src={student.image}
+                                                    alt={student.name}
+                                                    className="w-full h-full object-cover"
+                                                    crossOrigin="anonymous"
+                                                />
+                                            ) : (
+                                                <NextImage
+                                                    src={student.image}
+                                                    alt={student.name}
+                                                    width={48}
+                                                    height={48}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-deep-electric-blue to-active-orange flex items-center justify-center flex-shrink-0">
+                                            <User className="w-6 h-6 text-white" />
+                                        </div>
+                                    )}
                                     <div>
                                         <h3 className="font-bold text-lg text-gray-900 dark:text-white">
                                             {student.name}
@@ -654,6 +876,36 @@ export default function StudentsTab({ students, onRefresh }: StudentsTabProps) {
                         </div>
 
                         <div className="space-y-6">
+                            {/* 학생 사진 */}
+                            {selectedStudent.image && (
+                                <div className="flex justify-center">
+                                    <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900">
+                                        {selectedStudent.image.startsWith('data:image/') ? (
+                                            <img
+                                                src={selectedStudent.image}
+                                                alt={selectedStudent.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : selectedStudent.image.startsWith('https://') ? (
+                                            <img
+                                                src={selectedStudent.image}
+                                                alt={selectedStudent.name}
+                                                className="w-full h-full object-cover"
+                                                crossOrigin="anonymous"
+                                            />
+                                        ) : (
+                                            <NextImage
+                                                src={selectedStudent.image}
+                                                alt={selectedStudent.name}
+                                                fill
+                                                className="object-cover"
+                                                sizes="128px"
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                            
                             {/* 기본 정보 */}
                             <div>
                                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">

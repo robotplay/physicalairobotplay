@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Image, Mail, LogOut, Calendar, Trophy, BookOpen, CheckCircle, XCircle, Clock, MessageSquare, X } from 'lucide-react';
+import { User, Image as ImageIcon, Mail, LogOut, Calendar, Trophy, BookOpen, CheckCircle, XCircle, Clock, MessageSquare, X } from 'lucide-react';
+import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { logger } from '@/lib/logger';
@@ -47,6 +48,7 @@ interface Student {
         rate: number;
     };
     projects: Project[];
+    image?: string;
 }
 
 interface AttendanceRecord {
@@ -354,13 +356,45 @@ export default function ParentPortalPage() {
             <div className="sticky top-16 sm:top-20 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white truncate">
-                                {student.name} 학생 포털
-                            </h1>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
-                                {student.grade} | 학부모: {student.parentName}
-                            </p>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {student.image ? (
+                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 flex-shrink-0">
+                                    {student.image.startsWith('data:image/') ? (
+                                        <img
+                                            src={student.image}
+                                            alt={student.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : student.image.startsWith('https://') ? (
+                                        <img
+                                            src={student.image}
+                                            alt={student.name}
+                                            className="w-full h-full object-cover"
+                                            crossOrigin="anonymous"
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={student.image}
+                                            alt={student.name}
+                                            width={56}
+                                            height={56}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-deep-electric-blue to-active-orange flex items-center justify-center flex-shrink-0">
+                                    <User className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                                </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white truncate">
+                                    {student.name} 학생 포털
+                                </h1>
+                                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 truncate">
+                                    {student.grade} | 학부모: {student.parentName}
+                                </p>
+                            </div>
                         </div>
                         <button
                             onClick={handleLogout}
@@ -445,7 +479,7 @@ export default function ParentPortalPage() {
 
                     <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
                         <div className="flex items-center gap-3 mb-2">
-                            <Image className="w-5 h-5 text-purple-600" />
+                            <ImageIcon className="w-5 h-5 text-purple-600" />
                             <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">포트폴리오</h3>
                         </div>
                         <p className="text-3xl font-bold text-gray-900 dark:text-white">

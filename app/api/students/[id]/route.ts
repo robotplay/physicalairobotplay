@@ -101,6 +101,7 @@ export async function PUT(
             competitions,
             learningNotes,
             portfolio,
+            image,
         } = body;
 
         const db = await getDatabase();
@@ -113,7 +114,7 @@ export async function PUT(
         }
 
         // 업데이트할 데이터 구성
-        const updateData: any = {
+        const updateData: Record<string, unknown> = {
             updatedAt: new Date(),
         };
 
@@ -130,6 +131,7 @@ export async function PUT(
         if (competitions !== undefined) updateData.competitions = competitions;
         if (learningNotes !== undefined) updateData.learningNotes = learningNotes;
         if (portfolio !== undefined) updateData.portfolio = portfolio;
+        if (image !== undefined) updateData.image = image;
 
         // 출석률 자동 계산
         if (updateData.attendance) {
