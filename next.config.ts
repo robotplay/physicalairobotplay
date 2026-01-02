@@ -136,8 +136,14 @@ const nextConfig: NextConfig = {
 };
 
 // Make sure adding Sentry options is the last code to run before exporting, to ensure that your source maps are correctly generated
-// DSN이 설정되어 있을 때만 Sentry 설정 적용
-const finalConfig = process.env.NEXT_PUBLIC_SENTRY_DSN
+// 모든 Sentry 환경 변수가 설정되어 있을 때만 Sentry 설정 적용
+const hasSentryConfig = 
+  process.env.NEXT_PUBLIC_SENTRY_DSN && 
+  process.env.SENTRY_ORG && 
+  process.env.SENTRY_PROJECT &&
+  process.env.SENTRY_AUTH_TOKEN;
+
+const finalConfig = hasSentryConfig
   ? withSentryConfig(nextConfig, {
       // For all available options, see:
       // https://github.com/getsentry/sentry-webpack-plugin#options
