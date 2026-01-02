@@ -8,6 +8,7 @@ import {
     badRequestResponse,
     handleMongoError,
 } from '@/lib/api-response';
+import type { AttendanceRecord, AttendanceQuery, Student } from '@/types';
 
 // 권한 체크 헬퍼 함수
 async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
         const collection = db.collection(COLLECTIONS.ATTENDANCE);
         const studentsCollection = db.collection(COLLECTIONS.STUDENTS);
 
-        const query: any = {};
+        const query: AttendanceQuery = {};
         if (studentId) {
             query.studentId = studentId;
         }
@@ -81,16 +82,16 @@ export async function GET(request: NextRequest) {
         const attendanceRecords = await collection
             .find(query)
             .sort({ classDate: -1 })
-            .toArray();
+            .toArray() as AttendanceRecord[];
 
         // 학생 정보 조회
-        const studentIds = [...new Set(attendanceRecords.map((r: any) => r.studentId))];
+        const studentIds = [...new Set(attendanceRecords.map((r: AttendanceRecord) => r.studentId))];
         const students = await studentsCollection
             .find({ studentId: { $in: studentIds } })
-            .toArray();
-        const studentMap = new Map(students.map((s: any) => [s.studentId, s]));
+            .toArray() as Student[];
+        const studentMap = new Map(students.map((s: Student) => [s.studentId, s]));
 
-        const formattedRecords = attendanceRecords.map((record: any) => ({
+        const formattedRecords = attendanceRecords.map((record: AttendanceRecord) => ({
             ...record,
             _id: record._id.toString(),
             studentName: studentMap.get(record.studentId)?.name || '',
@@ -131,8 +132,8 @@ export async function POST(request: NextRequest) {
         const classDateObj = new Date(classDate);
         classDateObj.setHours(0, 0, 0, 0);
 
-        const results = [];
-        const studentUpdates: any[] = [];
+        const results: Array<{ success: boolean; studentId: string; message?: string }> = [];
+        const studentUpdates: Array<{ studentId: string; attendance: { totalClasses: number; attendedClasses: number; rate: number } }> = [];
 
         // 각 학생의 출석 기록 처리
         for (const record of records) {
@@ -199,7 +200,7 @@ export async function POST(request: NextRequest) {
 
             const totalClasses = allRecords.length;
             const attendedClasses = allRecords.filter(
-                (r: any) => r.status === 'present' || r.status === 'late'
+                (r: AttendanceRecord) => r.status === 'present' || r.status === 'late'
             ).length;
             const attendanceRate = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
 

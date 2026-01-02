@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings, TrendingUp, GraduationCap, BarChart3, Trophy, BookOpen, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings, TrendingUp, GraduationCap, BarChart3, Trophy, CheckCircle2 } from 'lucide-react';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import RegistrationsTab from '@/components/admin/RegistrationsTab';
@@ -15,6 +15,7 @@ import StudentsTab from '@/components/admin/StudentsTab';
 import ParentCommunicationTab from '@/components/admin/ParentCommunicationTab';
 import AnalyticsTab from '@/components/admin/AnalyticsTab';
 import AttendanceTab from '@/components/admin/AttendanceTab';
+import type { Competition, Project } from '@/types';
 
 interface ConsultationData {
     id: string;
@@ -96,8 +97,8 @@ interface StudentData {
         attendedClasses: number;
         rate: number;
     };
-    projects: any[];
-    competitions: any[];
+    projects: Project[];
+    competitions: Competition[];
     learningNotes: string;
     portfolio: {
         images: string[];

@@ -50,10 +50,10 @@ export async function GET(request: NextRequest) {
 
         // 결제 데이터
         const paymentsCollection = db.collection(COLLECTIONS.PAYMENTS);
-        const payments = await paymentsCollection.find({}).toArray();
+        const payments = await paymentsCollection.find({}).toArray() as Payment[];
         const revenue = payments
-            .filter((p: any) => p.status === 'paid')
-            .reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+            .filter((p: Payment) => p.status === 'paid')
+            .reduce((sum: number, p: Payment) => sum + (p.amount || 0), 0);
 
         // 신규 등록 (이번 달)
         const now = new Date();
@@ -63,9 +63,9 @@ export async function GET(request: NextRequest) {
         });
 
         // 출석률 평균
-        const students = await studentsCollection.find({}).toArray();
+        const students = await studentsCollection.find({}).toArray() as Student[];
         const attendanceRates = students
-            .map((s: any) => s.attendance?.rate || 0)
+            .map((s: Student) => s.attendance?.rate || 0)
             .filter((rate: number) => rate > 0);
         const avgAttendanceRate = attendanceRates.length > 0
             ? Math.round(attendanceRates.reduce((a: number, b: number) => a + b, 0) / attendanceRates.length)
@@ -73,11 +73,11 @@ export async function GET(request: NextRequest) {
 
         // 대회 수상 건수
         const competitionsCollection = db.collection(COLLECTIONS.COMPETITIONS);
-        const competitions = await competitionsCollection.find({}).toArray();
+        const competitions = await competitionsCollection.find({}).toArray() as CompetitionData[];
         let competitionWins = 0;
-        competitions.forEach((comp: any) => {
+        competitions.forEach((comp: CompetitionData) => {
             if (comp.teams) {
-                comp.teams.forEach((team: any) => {
+                comp.teams.forEach((team: CompetitionTeam) => {
                     if (team.result === 'award' || team.result === 'winner') {
                         competitionWins++;
                     }
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
             const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
             const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-            const monthPayments = payments.filter((p: any) => {
+            const monthPayments = payments.filter((p: Payment) => {
                 const paymentDate = new Date(p.createdAt || p.timestamp);
                 return paymentDate >= monthStart && paymentDate <= monthEnd;
             });
@@ -101,8 +101,8 @@ export async function GET(request: NextRequest) {
                 year: date.getFullYear(),
                 month: date.getMonth() + 1,
                 revenue: monthPayments
-                    .filter((p: any) => p.status === 'paid')
-                    .reduce((sum: number, p: any) => sum + (p.amount || 0), 0),
+                    .filter((p: Payment) => p.status === 'paid')
+                    .reduce((sum: number, p: Payment) => sum + (p.amount || 0), 0),
                 newEnrollments: await studentsCollection.countDocuments({
                     createdAt: { $gte: monthStart, $lte: monthEnd },
                 }),

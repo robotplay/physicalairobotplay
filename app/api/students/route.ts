@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         const collection = db.collection(COLLECTIONS.STUDENTS);
 
         // 쿼리 구성
-        const query: any = {};
+        const query: Record<string, unknown> = {};
         if (grade) {
             query.grade = grade;
         }
