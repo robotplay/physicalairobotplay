@@ -19,10 +19,12 @@ export function sanitizeHtml(html: string): string {
         // 허용할 속성
         ALLOWED_ATTR: [
             'href', 'src', 'alt', 'title', 'class', 'style',
-            'width', 'height', 'target', 'rel'
+            'width', 'height', 'target', 'rel', 'crossorigin', 'loading'
         ],
         // data: URL 허용 (이미지 업로드용)
         ALLOW_DATA_ATTR: true,
+        // 모든 URL 스킴 허용 (https, http, data)
+        ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
         // 링크의 target="_blank"에 rel="noopener noreferrer" 자동 추가
         ADD_ATTR: ['target'],
         ADD_TAGS: [],
