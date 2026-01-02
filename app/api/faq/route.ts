@@ -30,6 +30,9 @@ async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
     return { authorized: true, user: payload };
 }
 
+// 캐싱 설정: 1시간 (3600초)
+export const revalidate = 3600;
+
 // GET - FAQ 목록 조회 (공개 API, 인증 불필요)
 export async function GET(request: NextRequest) {
     try {
@@ -60,10 +63,20 @@ export async function GET(request: NextRequest) {
             _id: faq._id.toString(),
         }));
 
-        return successResponse({
+        const response = successResponse({
             faqs: formattedFaqs,
             count: formattedFaqs.length,
         });
+
+        // Cache-Control 헤더 추가
+        if (response instanceof Response) {
+            response.headers.set(
+                'Cache-Control',
+                'public, s-maxage=3600, stale-while-revalidate=86400'
+            );
+        }
+
+        return response;
     } catch (error) {
         return handleMongoError(error);
     }

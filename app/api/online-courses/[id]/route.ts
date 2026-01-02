@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+// 캐싱 설정: 1시간 (3600초)
+export const revalidate = 3600;
+
 // GET - 특정 온라인 강좌 조회
 export async function GET(
     request: NextRequest,
@@ -43,10 +46,18 @@ export async function GET(
             _id: course._id.toString(),
         };
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             success: true,
             data: formattedCourse,
         });
+
+        // Cache-Control 헤더 추가
+        response.headers.set(
+            'Cache-Control',
+            'public, s-maxage=3600, stale-while-revalidate=86400'
+        );
+
+        return response;
     } catch (error) {
         console.error('Failed to fetch online course:', error);
         return NextResponse.json(

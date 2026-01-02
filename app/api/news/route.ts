@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 
+// 캐싱 설정: 10분 (600초)
+export const revalidate = 600;
+
 // GET - 공지사항 목록 조회
 export async function GET(request: NextRequest) {
     try {
@@ -57,7 +60,7 @@ export async function GET(request: NextRequest) {
             updatedAt: item.updatedAt ? new Date(item.updatedAt).toISOString() : null,
         }));
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             success: true,
             data: formattedNews,
             count: formattedNews.length,
@@ -66,6 +69,14 @@ export async function GET(request: NextRequest) {
             totalPages,
             limit,
         });
+
+        // Cache-Control 헤더 추가
+        response.headers.set(
+            'Cache-Control',
+            'public, s-maxage=600, stale-while-revalidate=3600'
+        );
+
+        return response;
     } catch (error: any) {
         console.error('Failed to fetch news:', error);
         return NextResponse.json(
@@ -157,6 +168,7 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
 
 
 
