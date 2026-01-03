@@ -53,19 +53,31 @@ export async function POST(request: NextRequest) {
 
         logger.log('뉴스 수집 요청 받음', { sources, force });
 
-        // 뉴스 수집 실행
-        const result: CollectionLog = await collectNewsArticles(sources);
+        try {
+            // 뉴스 수집 실행
+            const result: CollectionLog = await collectNewsArticles(sources);
 
-        return NextResponse.json({
-            success: true,
-            data: {
+            logger.log('뉴스 수집 완료', {
                 collected: result.collected,
                 duplicates: result.duplicates,
                 failed: result.failed,
                 duration: result.duration,
-                errors: result.errors || [],
-            },
-        });
+            });
+
+            return NextResponse.json({
+                success: true,
+                data: {
+                    collected: result.collected,
+                    duplicates: result.duplicates,
+                    failed: result.failed,
+                    duration: result.duration,
+                    errors: result.errors || [],
+                },
+            });
+        } catch (collectError) {
+            logger.error('뉴스 수집 실행 중 오류', collectError);
+            throw collectError;
+        }
     } catch (error) {
         logger.error('뉴스 수집 API 오류', error);
         return NextResponse.json(

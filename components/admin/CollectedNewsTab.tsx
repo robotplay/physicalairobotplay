@@ -112,16 +112,35 @@ export default function CollectedNewsTab() {
             const result = await response.json();
 
             if (result.success) {
-                toast.success(
-                    `수집 완료: ${result.data.collected}개 수집, ${result.data.duplicates}개 중복, ${result.data.failed}개 실패`
-                );
+                const collected = result.data.collected || 0;
+                const duplicates = result.data.duplicates || 0;
+                const failed = result.data.failed || 0;
+                
+                if (collected > 0) {
+                    toast.success(
+                        `수집 완료: ${collected}개 수집, ${duplicates}개 중복, ${failed}개 실패`
+                    );
+                } else {
+                    toast(
+                        `수집 완료: 수집된 기사가 없습니다. (중복: ${duplicates}개, 실패: ${failed}개)`,
+                        { icon: '⚠️' }
+                    );
+                }
+                
+                // 에러가 있으면 표시
+                if (result.data.errors && result.data.errors.length > 0) {
+                    console.error('수집 중 에러:', result.data.errors);
+                }
+                
                 await Promise.all([loadArticles(true), loadStatus()]);
             } else {
+                console.error('수집 실패:', result.error);
                 toast.error(result.error || '뉴스 수집에 실패했습니다.');
             }
         } catch (error) {
             console.error('Failed to collect news:', error);
-            toast.error('뉴스 수집 중 오류가 발생했습니다.');
+            const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+            toast.error(`뉴스 수집 중 오류가 발생했습니다: ${errorMessage}`);
         } finally {
             setIsCollecting(false);
         }

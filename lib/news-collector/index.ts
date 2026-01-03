@@ -107,7 +107,11 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
         // 상위 3개만 선택
         const selectedArticles = candidateArticles.slice(0, MAX_ARTICLES_PER_FEED);
 
-        logger.log(`후보 기사 ${candidateArticles.length}개 중 상위 ${selectedArticles.length}개 선택`);
+        logger.log(`후보 기사 ${candidateArticles.length}개 중 상위 ${selectedArticles.length}개 선택 (임계값: ${RELEVANCE_THRESHOLD}점 이상, 본문: ${MIN_CONTENT_LENGTH}자 이상)`);
+        
+        if (candidateArticles.length === 0) {
+            logger.warn(`수집 가능한 기사가 없습니다: ${source.name} (관련성 점수 ${RELEVANCE_THRESHOLD} 이상, 본문 ${MIN_CONTENT_LENGTH}자 이상 필요)`);
+        }
 
         // 선택된 기사들 저장
         for (const candidate of selectedArticles) {
@@ -180,6 +184,10 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
         }
 
         logger.log(`RSS 피드 수집 완료: ${source.name} - 수집: ${result.collected}, 중복: ${result.duplicates}, 실패: ${result.failed}`);
+        
+        if (result.collected === 0 && candidateArticles.length === 0) {
+            logger.warn(`RSS 피드에서 수집 가능한 기사가 없습니다: ${source.name} (관련성 점수 ${RELEVANCE_THRESHOLD} 이상, 본문 ${MIN_CONTENT_LENGTH}자 이상 필요)`);
+        }
     } catch (error) {
         result.failed++;
         const errorMessage = error instanceof Error ? error.message : String(error);
