@@ -7,6 +7,7 @@ import { fetchRSSFeed, convertRSSItemToArticle } from './rss-parser';
 import { calculateRelevanceScore, determineCategory } from './relevance-scorer';
 import { checkDuplicate } from './duplicate-checker';
 import { getActiveRSSSources } from './feed-sources';
+import { processImageUrl } from './image-processor';
 import type { CollectedNewsArticle, CollectionLog, RSSFeedSource } from '@/types';
 
 const RELEVANCE_THRESHOLD = 50; // 관련성 점수 임계값
@@ -57,9 +58,22 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 // 카테고리 결정
                 const category = determineCategory(article, relevanceScore);
 
+                // 이미지 처리 (있는 경우)
+                let processedImageUrl = article.imageUrl;
+                if (article.imageUrl) {
+                    try {
+                        processedImageUrl = await processImageUrl(article.imageUrl);
+                        logger.log(`이미지 처리 완료: ${article.imageUrl} → ${processedImageUrl.substring(0, 50)}...`);
+                    } catch (imageError) {
+                        logger.warn(`이미지 처리 실패, 원본 URL 사용: ${article.imageUrl}`, imageError);
+                        // 이미지 처리 실패해도 기사는 저장 (원본 URL 사용)
+                    }
+                }
+
                 // 최종 기사 데이터
                 const finalArticle: CollectedNewsArticle = {
                     ...article,
+                    imageUrl: processedImageUrl,
                     relevanceScore,
                     category,
                 } as CollectedNewsArticle;
