@@ -59,34 +59,58 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 // RSS 항목을 기사 형식으로 변환
                 const article = convertRSSItemToArticle(item, source, source.keywords);
 
-                // 매이저 신문사 출처 체크 (우선 수집 대상)
+                // 매이저 신문사 출처 체크 (실제 기사 URL에서 도메인 확인)
+                const sourceUrl = article.sourceUrl || item.link || '';
                 const sourceName = (article.source || '').toLowerCase();
-                const isMajorNewspaper = [
-                    '조선일보', 'chosun',
-                    '중앙일보', 'joongang',
-                    '동아일보', 'donga',
-                    '한겨레', 'hani',
-                    '경향신문', 'khan',
-                    '매일경제', 'mk', 'maeil',
-                    '한국경제', 'hankyung',
-                    '서울신문', 'seoul',
-                    '문화일보', 'munhwa',
-                    '세계일보', 'segye',
-                    '연합뉴스', 'yna', 'yonhap',
-                    '뉴시스', 'newsis',
-                    '이데일리', 'edaily',
-                    '아시아경제', 'asiae',
-                    '디지털타임스', 'dt', 'digitaltimes',
-                    '전자신문', 'etnews',
-                    'zdnet',
-                    'it조선', 'itchosun',
-                    '로봇신문', 'robot',
-                    '로봇타임스', 'robottimes',
-                    'ai타임스', 'aitimes',
-                ].some(major => sourceName.includes(major.toLowerCase()));
+                
+                // 실제 기사 URL에서 도메인 추출하여 매이저 신문사 확인
+                let isMajorNewspaper = false;
+                try {
+                    const url = new URL(sourceUrl);
+                    const hostname = url.hostname.toLowerCase();
+                    
+                    // 매이저 신문사 도메인 체크
+                    const majorNewspaperDomains = [
+                        'chosun.com', 'joongang.co.kr', 'donga.com',
+                        'hani.co.kr', 'khan.co.kr', 'mk.co.kr', 'maeil.com',
+                        'hankyung.com', 'seoul.co.kr', 'munhwa.com',
+                        'segye.com', 'yna.co.kr', 'yonhapnews.co.kr',
+                        'newsis.com', 'edaily.co.kr', 'asiae.co.kr',
+                        'dt.co.kr', 'etnews.com', 'zdnet.co.kr',
+                        'itchosun.com', 'robotnews.co.kr', 'robottimes',
+                        'aitimes',
+                    ];
+                    
+                    isMajorNewspaper = majorNewspaperDomains.some(domain => 
+                        hostname.includes(domain)
+                    );
+                    
+                    if (isMajorNewspaper) {
+                        logger.log(`매이저 신문사 도메인 확인: ${hostname} - ${article.title}`);
+                    }
+                } catch {
+                    // URL 파싱 실패 시 source 이름으로 체크
+                    const majorNewspaperKeywords = [
+                        '조선일보', 'chosun', '중앙일보', 'joongang',
+                        '동아일보', 'donga', '한겨레', 'hani',
+                        '경향신문', 'khan', '매일경제', 'mk', 'maeil',
+                        '한국경제', 'hankyung', '서울신문', 'seoul',
+                        '문화일보', 'munhwa', '세계일보', 'segye',
+                        '연합뉴스', 'yna', 'yonhap', '뉴시스', 'newsis',
+                        '이데일리', 'edaily', '아시아경제', 'asiae',
+                        '디지털타임스', 'dt', 'digitaltimes',
+                        '전자신문', 'etnews', 'zdnet', 'it조선', 'itchosun',
+                        '로봇신문', 'robot', '로봇타임스', 'robottimes',
+                        'ai타임스', 'aitimes',
+                    ];
+                    
+                    isMajorNewspaper = majorNewspaperKeywords.some(major => 
+                        sourceName.includes(major.toLowerCase())
+                    );
+                }
 
                 if (!isMajorNewspaper) {
-                    logger.log(`매이저 신문사가 아님, 스킵: ${article.source} - ${article.title}`);
+                    logger.log(`매이저 신문사가 아님, 스킵: ${article.source} (${sourceUrl}) - ${article.title}`);
                     continue;
                 }
 
@@ -166,35 +190,49 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                     // RSS 항목을 기사 형식으로 변환
                     const article = convertRSSItemToArticle(item, source, source.keywords);
 
-                    // 매이저 신문사 출처 체크 (완화된 기준에서도 필수)
+                    // 매이저 신문사 출처 체크 (완화된 기준에서도 필수) - 실제 기사 URL에서 도메인 확인
+                    const sourceUrl = article.sourceUrl || item.link || '';
                     const sourceName = (article.source || '').toLowerCase();
-                    const majorNewspaperKeywords = [
-                        '조선일보', 'chosun',
-                        '중앙일보', 'joongang',
-                        '동아일보', 'donga',
-                        '한겨레', 'hani',
-                        '경향신문', 'khan',
-                        '매일경제', 'mk', 'maeil',
-                        '한국경제', 'hankyung',
-                        '서울신문', 'seoul',
-                        '문화일보', 'munhwa',
-                        '세계일보', 'segye',
-                        '연합뉴스', 'yna', 'yonhap',
-                        '뉴시스', 'newsis',
-                        '이데일리', 'edaily',
-                        '아시아경제', 'asiae',
-                        '디지털타임스', 'dt', 'digitaltimes',
-                        '전자신문', 'etnews',
-                        'zdnet',
-                        'it조선', 'itchosun',
-                        '로봇신문', 'robot',
-                        '로봇타임스', 'robottimes',
-                        'ai타임스', 'aitimes',
-                    ];
                     
-                    const isMajorNewspaper = majorNewspaperKeywords.some(major => 
-                        sourceName.includes(major.toLowerCase())
-                    );
+                    let isMajorNewspaper = false;
+                    try {
+                        const url = new URL(sourceUrl);
+                        const hostname = url.hostname.toLowerCase();
+                        
+                        const majorNewspaperDomains = [
+                            'chosun.com', 'joongang.co.kr', 'donga.com',
+                            'hani.co.kr', 'khan.co.kr', 'mk.co.kr', 'maeil.com',
+                            'hankyung.com', 'seoul.co.kr', 'munhwa.com',
+                            'segye.com', 'yna.co.kr', 'yonhapnews.co.kr',
+                            'newsis.com', 'edaily.co.kr', 'asiae.co.kr',
+                            'dt.co.kr', 'etnews.com', 'zdnet.co.kr',
+                            'itchosun.com', 'robotnews.co.kr', 'robottimes',
+                            'aitimes',
+                        ];
+                        
+                        isMajorNewspaper = majorNewspaperDomains.some(domain => 
+                            hostname.includes(domain)
+                        );
+                    } catch {
+                        // URL 파싱 실패 시 source 이름으로 체크
+                        const majorNewspaperKeywords = [
+                            '조선일보', 'chosun', '중앙일보', 'joongang',
+                            '동아일보', 'donga', '한겨레', 'hani',
+                            '경향신문', 'khan', '매일경제', 'mk', 'maeil',
+                            '한국경제', 'hankyung', '서울신문', 'seoul',
+                            '문화일보', 'munhwa', '세계일보', 'segye',
+                            '연합뉴스', 'yna', 'yonhap', '뉴시스', 'newsis',
+                            '이데일리', 'edaily', '아시아경제', 'asiae',
+                            '디지털타임스', 'dt', 'digitaltimes',
+                            '전자신문', 'etnews', 'zdnet', 'it조선', 'itchosun',
+                            '로봇신문', 'robot', '로봇타임스', 'robottimes',
+                            'ai타임스', 'aitimes',
+                        ];
+                        
+                        isMajorNewspaper = majorNewspaperKeywords.some(major => 
+                            sourceName.includes(major.toLowerCase())
+                        );
+                    }
 
                     if (!isMajorNewspaper) {
                         continue;
