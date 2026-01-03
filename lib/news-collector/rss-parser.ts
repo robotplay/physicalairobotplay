@@ -44,20 +44,37 @@ export async function fetchRSSFeed(feedUrl: string): Promise<RSSItem[]> {
             return [];
         }
 
-        const items: RSSItem[] = feed.items.map((item) => ({
-            title: item.title || '',
-            link: item.link || '',
-            pubDate: item.pubDate,
-            content: item.content || item.contentSnippet || '',
-            contentSnippet: item.contentSnippet || '',
-            contentEncoded: (item as unknown as { contentEncoded?: string }).contentEncoded,
-            mediaContent: (item as unknown as { mediaContent?: string }).mediaContent,
-            mediaThumbnail: (item as unknown as { mediaThumbnail?: string }).mediaThumbnail,
-            enclosure: item.enclosure ? {
-                url: item.enclosure.url || '',
-                type: item.enclosure.type,
-            } : undefined,
-        }));
+        const items: RSSItem[] = feed.items.map((item) => {
+            // Google News의 경우 실제 기사 URL 추출
+            let articleLink = item.link || '';
+            if (articleLink.includes('news.google.com')) {
+                try {
+                    const url = new URL(articleLink);
+                    const actualUrl = url.searchParams.get('url');
+                    if (actualUrl) {
+                        articleLink = actualUrl;
+                        logger.log(`Google News 링크에서 실제 URL 추출: ${actualUrl}`);
+                    }
+                } catch {
+                    // URL 파싱 실패 시 원본 링크 사용
+                }
+            }
+            
+            return {
+                title: item.title || '',
+                link: articleLink,
+                pubDate: item.pubDate,
+                content: item.content || item.contentSnippet || '',
+                contentSnippet: item.contentSnippet || '',
+                contentEncoded: (item as unknown as { contentEncoded?: string }).contentEncoded,
+                mediaContent: (item as unknown as { mediaContent?: string }).mediaContent,
+                mediaThumbnail: (item as unknown as { mediaThumbnail?: string }).mediaThumbnail,
+                enclosure: item.enclosure ? {
+                    url: item.enclosure.url || '',
+                    type: item.enclosure.type,
+                } : undefined,
+            };
+        });
 
         logger.log(`RSS 피드에서 ${items.length}개 항목 수집 완료: ${feedUrl}`);
         return items;
@@ -245,11 +262,71 @@ export function convertRSSItemToArticle(
         ? contentText.substring(0, excerptLength) + '...' 
         : contentText;
 
+    // 출처명 추출 (Google News의 경우 실제 기사 URL에서 도메인 추출)
+    let extractedSource = source.name;
+    if (item.link) {
+        try {
+            const url = new URL(item.link);
+            const hostname = url.hostname.toLowerCase();
+            
+            // 도메인에서 신문사명 추출
+            if (hostname.includes('chosun.com')) {
+                extractedSource = '조선일보';
+            } else if (hostname.includes('joongang.co.kr')) {
+                extractedSource = '중앙일보';
+            } else if (hostname.includes('donga.com')) {
+                extractedSource = '동아일보';
+            } else if (hostname.includes('hani.co.kr')) {
+                extractedSource = '한겨레';
+            } else if (hostname.includes('khan.co.kr')) {
+                extractedSource = '경향신문';
+            } else if (hostname.includes('mk.co.kr') || hostname.includes('maeil.com')) {
+                extractedSource = '매일경제';
+            } else if (hostname.includes('hankyung.com')) {
+                extractedSource = '한국경제';
+            } else if (hostname.includes('seoul.co.kr')) {
+                extractedSource = '서울신문';
+            } else if (hostname.includes('munhwa.com')) {
+                extractedSource = '문화일보';
+            } else if (hostname.includes('segye.com')) {
+                extractedSource = '세계일보';
+            } else if (hostname.includes('yna.co.kr') || hostname.includes('yonhapnews.co.kr')) {
+                extractedSource = '연합뉴스';
+            } else if (hostname.includes('newsis.com')) {
+                extractedSource = '뉴시스';
+            } else if (hostname.includes('edaily.co.kr')) {
+                extractedSource = '이데일리';
+            } else if (hostname.includes('asiae.co.kr')) {
+                extractedSource = '아시아경제';
+            } else if (hostname.includes('dt.co.kr')) {
+                extractedSource = '디지털타임스';
+            } else if (hostname.includes('etnews.com')) {
+                extractedSource = '전자신문';
+            } else if (hostname.includes('zdnet.co.kr')) {
+                extractedSource = 'ZDNet';
+            } else if (hostname.includes('itchosun.com')) {
+                extractedSource = 'IT조선';
+            } else if (hostname.includes('robotnews.co.kr') || hostname.includes('robot')) {
+                extractedSource = '로봇신문';
+            } else if (hostname.includes('robottimes')) {
+                extractedSource = '로봇타임스';
+            } else if (hostname.includes('aitimes')) {
+                extractedSource = 'AI타임스';
+            } else {
+                // 도메인에서 추출할 수 없으면 원본 소스명 사용
+                extractedSource = source.name;
+            }
+        } catch {
+            // URL 파싱 실패 시 원본 소스명 사용
+            extractedSource = source.name;
+        }
+    }
+
     return {
         title: item.title || '제목 없음',
         content: rawContent, // 원본 HTML 내용 저장
         excerpt,
-        source: source.name,
+        source: extractedSource, // 추출된 신문사명 사용
         sourceUrl: item.link || '',
         imageUrl,
         publishedAt,

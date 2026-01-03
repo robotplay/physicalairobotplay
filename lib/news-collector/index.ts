@@ -38,6 +38,13 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
 
         // RSS 피드 가져오기
         const items = await fetchRSSFeed(source.url);
+        
+        logger.log(`RSS 피드에서 ${items.length}개 항목 수신: ${source.name}`);
+        
+        if (items.length === 0) {
+            logger.warn(`RSS 피드에 항목이 없습니다: ${source.name}`);
+            return result;
+        }
 
         // 모든 기사를 처리하고 점수를 계산한 후 정렬
         const candidateArticles: Array<{
@@ -51,6 +58,37 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
             try {
                 // RSS 항목을 기사 형식으로 변환
                 const article = convertRSSItemToArticle(item, source, source.keywords);
+
+                // 매이저 신문사 출처 체크 (우선 수집 대상)
+                const sourceName = (article.source || '').toLowerCase();
+                const isMajorNewspaper = [
+                    '조선일보', 'chosun',
+                    '중앙일보', 'joongang',
+                    '동아일보', 'donga',
+                    '한겨레', 'hani',
+                    '경향신문', 'khan',
+                    '매일경제', 'mk', 'maeil',
+                    '한국경제', 'hankyung',
+                    '서울신문', 'seoul',
+                    '문화일보', 'munhwa',
+                    '세계일보', 'segye',
+                    '연합뉴스', 'yna', 'yonhap',
+                    '뉴시스', 'newsis',
+                    '이데일리', 'edaily',
+                    '아시아경제', 'asiae',
+                    '디지털타임스', 'dt', 'digitaltimes',
+                    '전자신문', 'etnews',
+                    'zdnet',
+                    'it조선', 'itchosun',
+                    '로봇신문', 'robot',
+                    '로봇타임스', 'robottimes',
+                    'ai타임스', 'aitimes',
+                ].some(major => sourceName.includes(major.toLowerCase()));
+
+                if (!isMajorNewspaper) {
+                    logger.log(`매이저 신문사가 아님, 스킵: ${article.source} - ${article.title}`);
+                    continue;
+                }
 
                 // 본문 길이 체크 (HTML 태그 제거 후 순수 텍스트 길이)
                 const contentText = (article.content || '')
@@ -127,6 +165,40 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
 
                     // RSS 항목을 기사 형식으로 변환
                     const article = convertRSSItemToArticle(item, source, source.keywords);
+
+                    // 매이저 신문사 출처 체크 (완화된 기준에서도 필수)
+                    const sourceName = (article.source || '').toLowerCase();
+                    const majorNewspaperKeywords = [
+                        '조선일보', 'chosun',
+                        '중앙일보', 'joongang',
+                        '동아일보', 'donga',
+                        '한겨레', 'hani',
+                        '경향신문', 'khan',
+                        '매일경제', 'mk', 'maeil',
+                        '한국경제', 'hankyung',
+                        '서울신문', 'seoul',
+                        '문화일보', 'munhwa',
+                        '세계일보', 'segye',
+                        '연합뉴스', 'yna', 'yonhap',
+                        '뉴시스', 'newsis',
+                        '이데일리', 'edaily',
+                        '아시아경제', 'asiae',
+                        '디지털타임스', 'dt', 'digitaltimes',
+                        '전자신문', 'etnews',
+                        'zdnet',
+                        'it조선', 'itchosun',
+                        '로봇신문', 'robot',
+                        '로봇타임스', 'robottimes',
+                        'ai타임스', 'aitimes',
+                    ];
+                    
+                    const isMajorNewspaper = majorNewspaperKeywords.some(major => 
+                        sourceName.includes(major.toLowerCase())
+                    );
+
+                    if (!isMajorNewspaper) {
+                        continue;
+                    }
 
                     // 본문 길이 체크 (완화된 기준)
                     const contentText = (article.content || '')

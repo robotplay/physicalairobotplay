@@ -4,16 +4,39 @@
 import { logger } from '../logger';
 import type { CollectedNewsArticle } from '@/types';
 
-// 신뢰할 수 있는 출처 목록
+// 매이저 신문사 목록 (우선 수집 대상)
+const MAJOR_NEWSPAPERS = [
+    '조선일보', 'chosun', 'Chosun',
+    '중앙일보', 'joongang', 'JoongAng',
+    '동아일보', 'donga', 'Donga',
+    '한겨레', 'hani', 'Hani',
+    '경향신문', 'khan', 'Khan',
+    '매일경제', 'mk', 'Maeil',
+    '한국경제', 'hankyung', 'Hankyung',
+    '서울신문', 'seoul', 'Seoul',
+    '문화일보', 'munhwa', 'Munhwa',
+    '세계일보', 'segye', 'Segye',
+    '연합뉴스', 'yna', 'Yonhap',
+    '뉴시스', 'newsis', 'Newsis',
+    '이데일리', 'edaily', 'Edaily',
+    '아시아경제', 'asiae', 'Asiae',
+    '디지털타임스', 'dt', 'DigitalTimes',
+    '전자신문', 'etnews', 'ETNews',
+    'ZDNet', 'zdnet',
+    'IT조선', 'itchosun',
+    '로봇신문', 'robot', 'Robot',
+    '로봇타임스', 'robottimes',
+    'AI타임스', 'aitimes',
+    '교육부', 'Ministry of Education',
+    '과학기술정보통신부', 'MSIT',
+];
+
+// 신뢰할 수 있는 출처 목록 (기존 + 매이저 신문사)
 const TRUSTED_SOURCES = [
+    ...MAJOR_NEWSPAPERS,
     '천안아산신문',
     '충청일보',
     '충청투데이',
-    '로봇신문',
-    '로봇타임스',
-    'AI타임스',
-    '교육부',
-    '과학기술정보통신부',
 ];
 
 /**
@@ -55,10 +78,19 @@ export function calculateRelevanceScore(
         }
     });
 
-    // 4. 출처 신뢰도 (최대 20점)
-    const source = (article.source || '').trim();
-    if (TRUSTED_SOURCES.some((trusted) => source.includes(trusted))) {
-        score += 20;
+    // 4. 출처 신뢰도 (최대 30점) - 매이저 신문사에 높은 점수
+    const source = (article.source || '').toLowerCase();
+    const sourceUpper = (article.source || '').trim();
+    
+    // 매이저 신문사 체크
+    const isMajorNewspaper = MAJOR_NEWSPAPERS.some((major) => 
+        source.includes(major.toLowerCase()) || sourceUpper.includes(major)
+    );
+    
+    if (isMajorNewspaper) {
+        score += 30; // 매이저 신문사는 높은 점수
+    } else if (TRUSTED_SOURCES.some((trusted) => source.includes(trusted.toLowerCase()))) {
+        score += 20; // 기타 신뢰할 수 있는 출처
     }
 
     // 5. 최근 기사 가산점 (최대 10점)
