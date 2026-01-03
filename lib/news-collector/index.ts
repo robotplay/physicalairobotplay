@@ -152,9 +152,15 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 // DB 저장 (기존에 이미 중복 체크를 했으므로 insert)
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { _id, ...articleData } = article;
+                
+                // 날짜 처리 (TypeScript 타입 에러 방지)
+                const publishedAt = article.publishedAt 
+                    ? (article.publishedAt instanceof Date ? article.publishedAt : new Date(article.publishedAt))
+                    : new Date();
+
                 await newsCollection.insertOne({
                     ...articleData,
-                    publishedAt: article.publishedAt instanceof Date ? article.publishedAt : new Date(article.publishedAt),
+                    publishedAt,
                     collectedAt: new Date(),
                     createdAt: new Date(),
                     updatedAt: new Date(),
