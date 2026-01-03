@@ -35,13 +35,18 @@ export default function CollectedNewsTab() {
             const params = new URLSearchParams({
                 page: currentPage.toString(),
                 limit: '20',
+                admin: 'true', // 관리자 모드: 모든 기사 조회 (삭제된 것 포함)
             });
 
             if (selectedCategory !== 'all') {
                 params.append('category', selectedCategory);
             }
 
-            const response = await fetch(`/api/collected-news?${params.toString()}`);
+            // 캐시 무시하여 최신 데이터 가져오기
+            const response = await fetch(`/api/collected-news?${params.toString()}`, {
+                cache: 'no-store',
+                credentials: 'include',
+            });
             const result = await response.json();
 
             if (result.success) {
@@ -138,22 +143,41 @@ export default function CollectedNewsTab() {
         }
 
         try {
+            // Optimistic Update: UI에서 즉시 제거
+            const articleToDelete = articles.find(a => a._id === articleId);
+            const updatedArticles = articles.filter(a => a._id !== articleId);
+            setArticles(updatedArticles);
+            setTotal(prev => Math.max(0, prev - 1));
+
             const response = await fetch(`/api/collected-news/${articleId}`, {
                 method: 'DELETE',
                 credentials: 'include',
+                cache: 'no-store',
             });
 
             const result = await response.json();
 
             if (result.success) {
                 toast.success('기사를 삭제했습니다.');
+                // 삭제 성공 후 목록 새로고침 (캐시 무시)
                 await loadArticles();
             } else {
+                // 실패 시 롤백
+                if (articleToDelete) {
+                    setArticles(articles);
+                    setTotal(prev => prev + 1);
+                }
                 toast.error(result.error || '기사 삭제에 실패했습니다.');
+                // 실패해도 목록 새로고침하여 최신 상태 유지
+                await loadArticles();
             }
         } catch (error) {
             console.error('Failed to delete article:', error);
+            // 에러 발생 시에도 롤백
+            setArticles(articles);
             toast.error('기사 삭제 중 오류가 발생했습니다.');
+            // 에러 발생 시에도 목록 새로고침
+            await loadArticles();
         }
     };
 

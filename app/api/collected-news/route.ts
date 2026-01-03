@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
         const sort = searchParams.get('sort') || 'newest';
         const from = searchParams.get('from');
         const to = searchParams.get('to');
+        const isAdmin = searchParams.get('admin') === 'true'; // 관리자 모드
 
         const skip = (page - 1) * limit;
 
@@ -40,9 +41,12 @@ export async function GET(request: NextRequest) {
         const collection = db.collection(COLLECTIONS.COLLECTED_NEWS);
 
         // 쿼리 조건 구성
-        const query: Record<string, unknown> = {
-            isActive: true, // 활성화된 기사만
-        };
+        const query: Record<string, unknown> = {};
+        
+        // 관리자 모드가 아니면 활성화된 기사만 조회
+        if (!isAdmin) {
+            query.isActive = true;
+        }
 
         // 카테고리 필터
         if (category && ['education', 'technology', 'competition', 'general'].includes(category)) {
@@ -117,7 +121,7 @@ export async function GET(request: NextRequest) {
 
         const totalPages = Math.ceil(total / limit);
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             success: true,
             data: {
                 articles: formattedArticles,
@@ -129,6 +133,13 @@ export async function GET(request: NextRequest) {
                 },
             },
         });
+
+        // 관리자 모드일 때는 캐시 무시
+        if (isAdmin) {
+            response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        }
+
+        return response;
     } catch (error) {
         logger.error('수집된 기사 조회 오류', error);
         return NextResponse.json(

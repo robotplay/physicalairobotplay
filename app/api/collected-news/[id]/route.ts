@@ -290,10 +290,15 @@ export async function DELETE(
             );
         }
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             success: true,
             message: '기사가 삭제되었습니다.',
         });
+
+        // 삭제 후 캐시 무효화
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+
+        return response;
     } catch (error) {
         logger.error('기사 삭제 오류', error);
         return NextResponse.json(
