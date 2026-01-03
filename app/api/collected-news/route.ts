@@ -134,9 +134,11 @@ export async function GET(request: NextRequest) {
             },
         });
 
-        // 관리자 모드일 때는 캐시 무시
+        // 관리자 모드일 때는 캐시 완전히 무시
         if (isAdmin) {
-            response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
         }
 
         return response;

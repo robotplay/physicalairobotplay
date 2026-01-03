@@ -30,7 +30,7 @@ export default function CollectedNewsTab() {
         { value: 'general', label: '일반' },
     ];
 
-    const loadArticles = async () => {
+    const loadArticles = async (forceRefresh = false) => {
         try {
             const params = new URLSearchParams({
                 page: currentPage.toString(),
@@ -42,17 +42,32 @@ export default function CollectedNewsTab() {
                 params.append('category', selectedCategory);
             }
 
+            // 강제 새로고침 시 타임스탬프 추가하여 캐시 완전히 무시
+            if (forceRefresh) {
+                params.append('_t', Date.now().toString());
+            }
+
             // 캐시 무시하여 최신 데이터 가져오기
             const response = await fetch(`/api/collected-news?${params.toString()}`, {
                 cache: 'no-store',
                 credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                },
             });
             const result = await response.json();
 
             if (result.success) {
-                setArticles(result.data.articles || []);
+                const loadedArticles = result.data.articles || [];
+                setArticles(loadedArticles);
                 setTotalPages(result.data.pagination.totalPages || 1);
                 setTotal(result.data.pagination.total || 0);
+                
+                // 현재 페이지에 기사가 없고 이전 페이지가 있으면 이전 페이지로 이동
+                if (loadedArticles.length === 0 && currentPage > 1) {
+                    setCurrentPage(prev => Math.max(1, prev - 1));
+                }
             }
         } catch (error) {
             console.error('Failed to load articles:', error);
@@ -100,7 +115,7 @@ export default function CollectedNewsTab() {
                 toast.success(
                     `수집 완료: ${result.data.collected}개 수집, ${result.data.duplicates}개 중복, ${result.data.failed}개 실패`
                 );
-                await Promise.all([loadArticles(), loadStatus()]);
+                await Promise.all([loadArticles(true), loadStatus()]);
             } else {
                 toast.error(result.error || '뉴스 수집에 실패했습니다.');
             }
@@ -127,7 +142,7 @@ export default function CollectedNewsTab() {
 
             if (result.success) {
                 toast.success(isActive ? '기사를 비활성화했습니다.' : '기사를 활성화했습니다.');
-                await loadArticles();
+                await loadArticles(true);
             } else {
                 toast.error(result.error || '기사 상태 변경에 실패했습니다.');
             }
@@ -142,9 +157,12 @@ export default function CollectedNewsTab() {
             return;
         }
 
+        // 삭제 전 상태 저장 (롤백용)
+        const previousArticles = [...articles];
+        const previousTotal = total;
+
         try {
             // Optimistic Update: UI에서 즉시 제거
-            const articleToDelete = articles.find(a => a._id === articleId);
             const updatedArticles = articles.filter(a => a._id !== articleId);
             setArticles(updatedArticles);
             setTotal(prev => Math.max(0, prev - 1));
@@ -153,31 +171,34 @@ export default function CollectedNewsTab() {
                 method: 'DELETE',
                 credentials: 'include',
                 cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                },
             });
 
             const result = await response.json();
 
             if (result.success) {
                 toast.success('기사를 삭제했습니다.');
-                // 삭제 성공 후 목록 새로고침 (캐시 무시)
-                await loadArticles();
+                // 삭제 성공 후 강제 새로고침 (타임스탬프 추가)
+                await loadArticles(true);
             } else {
                 // 실패 시 롤백
-                if (articleToDelete) {
-                    setArticles(articles);
-                    setTotal(prev => prev + 1);
-                }
+                setArticles(previousArticles);
+                setTotal(previousTotal);
                 toast.error(result.error || '기사 삭제에 실패했습니다.');
                 // 실패해도 목록 새로고침하여 최신 상태 유지
-                await loadArticles();
+                await loadArticles(true);
             }
         } catch (error) {
             console.error('Failed to delete article:', error);
-            // 에러 발생 시에도 롤백
-            setArticles(articles);
+            // 에러 발생 시 롤백
+            setArticles(previousArticles);
+            setTotal(previousTotal);
             toast.error('기사 삭제 중 오류가 발생했습니다.');
             // 에러 발생 시에도 목록 새로고침
-            await loadArticles();
+            await loadArticles(true);
         }
     };
 
