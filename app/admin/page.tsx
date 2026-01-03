@@ -15,6 +15,7 @@ import StudentsTab from '@/components/admin/StudentsTab';
 import ParentCommunicationTab from '@/components/admin/ParentCommunicationTab';
 import AnalyticsTab from '@/components/admin/AnalyticsTab';
 import AttendanceTab from '@/components/admin/AttendanceTab';
+import CollectedNewsTab from '@/components/admin/CollectedNewsTab';
 import type { Competition, Project } from '@/types';
 
 interface ConsultationData {
@@ -109,7 +110,7 @@ interface StudentData {
     updatedAt: string;
 }
 
-type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'students' | 'attendance' | 'parent-communication' | 'competitions' | 'analytics' | 'marketing' | 'settings';
+type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'students' | 'attendance' | 'parent-communication' | 'competitions' | 'analytics' | 'marketing' | 'collected-news' | 'settings';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -616,6 +617,24 @@ export default function AdminPage() {
                             </button>
                             <button
                                 onClick={() => {
+                                    setActiveTab('collected-news');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'collected-news'
+                                        ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <Newspaper className="w-4 h-4" />
+                                    수집된 기사
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
                                     setActiveTab('settings');
                                     setSelectedConsultation(null);
                                     setSelectedPayment(null);
@@ -965,6 +984,10 @@ export default function AdminPage() {
 
                 {activeTab === 'marketing' && (
                     <MarketingTab />
+                )}
+
+                {activeTab === 'collected-news' && (
+                    <CollectedNewsTab />
                 )}
 
                 {activeTab === 'settings' && (

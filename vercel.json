@@ -26,8 +26,17 @@
   "functions": {
     "app/api/news/upload/route.ts": {
       "maxDuration": 30
+    },
+    "app/api/news/collect/cron/route.ts": {
+      "maxDuration": 300
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/news/collect/cron",
+      "schedule": "0 */6 * * *"
+    }
+  ]
 }
 
 
