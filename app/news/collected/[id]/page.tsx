@@ -51,8 +51,17 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
                 const result = await response.json();
 
                 if (result.success) {
-                    setArticle(result.data.article);
+                    const articleData = result.data.article;
+                    console.log('기사 데이터:', {
+                        title: articleData.title,
+                        imageUrl: articleData.imageUrl,
+                        imageUrlType: typeof articleData.imageUrl,
+                        imageUrlLength: articleData.imageUrl?.length,
+                    });
+                    setArticle(articleData);
                     setRelatedArticles(result.data.relatedArticles || []);
+                } else {
+                    console.error('기사 로딩 실패:', result.error);
                 }
             } catch (error) {
                 console.error('Failed to load article:', error);
@@ -74,34 +83,65 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
     };
 
     const renderImage = (title: string, imageUrl?: string) => {
-        if (!imageUrl) {
+        if (!imageUrl || imageUrl.trim() === '') {
             return null;
         }
 
-        // Base64 또는 CDN URL 처리
-        if (imageUrl.startsWith('data:') || imageUrl.startsWith('https://')) {
+        // Base64 이미지 처리
+        if (imageUrl.startsWith('data:image/')) {
             return (
-                <img
-                    src={imageUrl}
-                    alt={title}
-                    className="w-full h-auto rounded-lg mb-6"
-                    onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                    }}
-                />
+                <div className="w-full mb-6">
+                    <img
+                        src={imageUrl}
+                        alt={title}
+                        className="w-full h-auto rounded-lg object-contain"
+                        onError={(e) => {
+                            console.error('Base64 이미지 로딩 실패:', imageUrl.substring(0, 50));
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                        }}
+                    />
+                </div>
             );
         }
 
-        // 로컬 이미지
+        // CDN URL 처리 (Vercel Blob Storage 등)
+        if (imageUrl.startsWith('https://')) {
+            return (
+                <div className="w-full mb-6">
+                    <img
+                        src={imageUrl}
+                        alt={title}
+                        className="w-full h-auto rounded-lg object-contain"
+                        crossOrigin="anonymous"
+                        loading="lazy"
+                        onError={(e) => {
+                            console.error('CDN 이미지 로딩 실패:', imageUrl);
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                        }}
+                        onLoad={() => {
+                            console.log('이미지 로딩 성공:', imageUrl);
+                        }}
+                    />
+                </div>
+            );
+        }
+
+        // 로컬 이미지 (Next.js Image 컴포넌트 사용)
         return (
-            <Image
-                src={imageUrl}
-                alt={title}
-                width={1200}
-                height={600}
-                className="w-full h-auto rounded-lg mb-6"
-            />
+            <div className="w-full mb-6">
+                <Image
+                    src={imageUrl}
+                    alt={title}
+                    width={1200}
+                    height={600}
+                    className="w-full h-auto rounded-lg object-contain"
+                    onError={(e) => {
+                        console.error('로컬 이미지 로딩 실패:', imageUrl);
+                    }}
+                />
+            </div>
         );
     };
 
