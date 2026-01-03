@@ -11,6 +11,7 @@ import { processImageUrl } from './image-processor';
 import type { CollectedNewsArticle, CollectionLog, RSSFeedSource } from '@/types';
 
 const RELEVANCE_THRESHOLD = 20; // 관련성 점수 임계값 (낮춰서 더 많은 기사 수집)
+const MIN_CONTENT_LENGTH = 500; // 최소 본문 길이 (글자 수) - 충분히 긴 기사만 수집
 
 /**
  * 단일 RSS 피드에서 기사를 수집합니다.
@@ -38,6 +39,26 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
             try {
                 // RSS 항목을 기사 형식으로 변환
                 const article = convertRSSItemToArticle(item, source, source.keywords);
+
+                // 본문 길이 체크 (HTML 태그 제거 후 순수 텍스트 길이)
+                const contentText = (article.content || '')
+                    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+                    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                    .replace(/<[^>]*>/g, '')
+                    .replace(/&nbsp;/g, ' ')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&#160;/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                
+                if (contentText.length < MIN_CONTENT_LENGTH) {
+                    logger.log(`본문이 너무 짧음 (${contentText.length}자 < ${MIN_CONTENT_LENGTH}자): ${article.title}`);
+                    continue;
+                }
 
                 // 중복 체크
                 const isDuplicate = await checkDuplicate(article);

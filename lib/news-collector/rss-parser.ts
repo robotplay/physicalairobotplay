@@ -192,17 +192,34 @@ export function convertRSSItemToArticle(
     const publishedAt = item.pubDate ? new Date(item.pubDate) : new Date();
     const imageUrl = extractImageUrl(item);
     
-    // content에서 HTML 태그 제거하여 excerpt 생성
-    const contentText = (item.content || item.contentEncoded || item.contentSnippet || '')
-        .replace(/<[^>]*>/g, '')
+    // 본문 내용 우선순위: contentEncoded > content > contentSnippet
+    // contentEncoded는 보통 전체 기사 내용을 포함
+    const rawContent = item.contentEncoded || item.content || item.contentSnippet || '';
+    
+    // HTML 태그 제거하여 순수 텍스트 추출
+    const contentText = rawContent
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // 스크립트 제거
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // 스타일 제거
+        .replace(/<[^>]*>/g, '') // HTML 태그 제거
+        .replace(/&nbsp;/g, ' ') // &nbsp;를 공백으로
+        .replace(/&amp;/g, '&') // HTML 엔티티 디코딩
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&#160;/g, ' ')
+        .replace(/\s+/g, ' ') // 연속된 공백을 하나로
         .trim();
-    const excerpt = contentText.length > 200 
-        ? contentText.substring(0, 200) + '...' 
+    
+    // excerpt 생성 (더 길게 - 300-500자)
+    const excerptLength = Math.min(500, Math.max(300, contentText.length));
+    const excerpt = contentText.length > excerptLength 
+        ? contentText.substring(0, excerptLength) + '...' 
         : contentText;
 
     return {
         title: item.title || '제목 없음',
-        content: item.content || item.contentEncoded || item.contentSnippet || '',
+        content: rawContent, // 원본 HTML 내용 저장
         excerpt,
         source: source.name,
         sourceUrl: item.link || '',
