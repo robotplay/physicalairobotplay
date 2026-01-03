@@ -71,4 +71,7 @@ export const COLLECTIONS = {
     IMPROVEMENT_IDEAS: 'improvement_ideas',
     ATTENDANCE: 'attendance',
     CONSULTATION_SCHEDULES: 'consultation_schedules',
+    COLLECTED_NEWS: 'collected_news',
+    COLLECTION_LOGS: 'collection_logs',
+    RSS_FEED_SOURCES: 'rss_feed_sources',
 } as const;

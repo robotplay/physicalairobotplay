@@ -136,3 +136,47 @@ export interface NewsItem {
     isPublished?: boolean;
 }
 
+// 수집된 뉴스 기사 타입
+export interface CollectedNewsArticle {
+    _id?: string;
+    title: string;
+    content: string;
+    excerpt: string;
+    source: string;
+    sourceUrl: string;
+    imageUrl?: string;
+    publishedAt: Date | string;
+    collectedAt: Date | string;
+    keywords: string[];
+    category: 'education' | 'technology' | 'competition' | 'general';
+    relevanceScore: number;
+    isActive: boolean;
+    viewCount: number;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
+// RSS 피드 소스 타입
+export interface RSSFeedSource {
+    id: string;
+    name: string;
+    url: string;
+    keywords: string[];
+    isActive: boolean;
+    lastCollected?: Date | string;
+}
+
+// 수집 로그 타입
+export interface CollectionLog {
+    _id?: string;
+    startedAt: Date | string;
+    completedAt?: Date | string;
+    status: 'running' | 'completed' | 'failed';
+    sources: string[];
+    collected: number;
+    duplicates: number;
+    failed: number;
+    errors?: string[];
+    duration?: number; // milliseconds
+}
+
