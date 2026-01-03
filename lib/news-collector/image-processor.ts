@@ -30,7 +30,10 @@ async function downloadImage(imageUrl: string): Promise<Buffer> {
             const response = await fetch(imageUrl, {
                 signal: controller.signal,
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (compatible; NewsCollector/1.0)',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                    'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Referer': 'https://www.google.com/',
                 },
             });
 
@@ -187,7 +190,7 @@ export async function processImageUrl(imageUrl: string): Promise<string> {
         }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.warn(`이미지 처리 실패, 원본 URL 사용: ${imageUrl}`, error);
+        logger.warn(`이미지 처리 실패, 원본 URL 사용: ${imageUrl} (${errorMessage})`);
         return imageUrl; // 실패 시 원본 URL 반환
     }
 }

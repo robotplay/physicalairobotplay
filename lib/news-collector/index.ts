@@ -16,6 +16,12 @@ const MIN_CONTENT_LENGTH = 100; // 최소 본문 길이 (수집량을 늘리기 
 const MAX_ARTICLES_PER_FEED = 5; // 한 피드당 최대 수집 개수
 const TARGET_COUNT_PER_FEED = 3; // 한 피드당 최소 목표 수집 개수
 
+interface ArticleCandidate {
+    article: Partial<CollectedNewsArticle>;
+    score: number;
+    contentText: string;
+}
+
 /**
  * 매이저 신문사 여부를 확인합니다.
  */
@@ -67,13 +73,13 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
             return result;
         }
 
-        const majorCandidates: any[] = [];
-        const otherCandidates: any[] = [];
+        const majorCandidates: ArticleCandidate[] = [];
+        const otherCandidates: ArticleCandidate[] = [];
 
         // 1. 모든 항목에 대해 점수 계산 및 분류
         for (const item of items) {
             try {
-                const article = convertRSSItemToArticle(item, source, source.keywords);
+                const article = await convertRSSItemToArticle(item, source, source.keywords);
                 
                 // 본문 텍스트 추출 (길이 체크용)
                 const contentText = (article.content || '')
@@ -144,6 +150,7 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 }
 
                 // DB 저장 (기존에 이미 중복 체크를 했으므로 insert)
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { _id, ...articleData } = article;
                 await newsCollection.insertOne({
                     ...articleData,
@@ -207,6 +214,7 @@ export async function collectNewsArticles(sources?: RSSFeedSource[]): Promise<Co
         // 수집 로그 저장
         const db = await getDatabase();
         const logsCollection = db.collection(COLLECTIONS.COLLECTION_LOGS);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { _id, ...logData } = log;
         await logsCollection.insertOne(logData);
 
