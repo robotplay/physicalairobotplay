@@ -10,9 +10,10 @@ import { getActiveRSSSources } from './feed-sources';
 import { processImageUrl } from './image-processor';
 import type { CollectedNewsArticle, CollectionLog, RSSFeedSource } from '@/types';
 
-const RELEVANCE_THRESHOLD = 50; // 관련성 점수 임계값 (엄격하게 검사)
-const MIN_CONTENT_LENGTH = 500; // 최소 본문 길이 (글자 수) - 충분히 긴 기사만 수집
-const MAX_ARTICLES_PER_FEED = 3; // 피드당 최대 수집 개수 (점수 높은 순)
+// 초기 설정으로 복원 (더 관대한 기준)
+const RELEVANCE_THRESHOLD = 20; // 관련성 점수 임계값 (초기 설정)
+const MIN_CONTENT_LENGTH = 100; // 최소 본문 길이 (초기 설정 - 더 관대)
+const MAX_ARTICLES_PER_FEED = 10; // 피드당 최대 수집 개수 (초기 설정 - 더 많이 수집)
 
 /**
  * 단일 RSS 피드에서 기사를 수집합니다.
