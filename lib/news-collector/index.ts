@@ -10,10 +10,12 @@ import { getActiveRSSSources } from './feed-sources';
 import { processImageUrl } from './image-processor';
 import type { CollectedNewsArticle, CollectionLog, RSSFeedSource } from '@/types';
 
-// 초기 설정으로 복원 (더 관대한 기준)
-const RELEVANCE_THRESHOLD = 20; // 관련성 점수 임계값 (초기 설정)
-const MIN_CONTENT_LENGTH = 100; // 최소 본문 길이 (초기 설정 - 더 관대)
-const MAX_ARTICLES_PER_FEED = 10; // 피드당 최대 수집 개수 (초기 설정 - 더 많이 수집)
+// 수집 기준 설정
+const RELEVANCE_THRESHOLD = 30; // 관련성 점수 임계값
+const MIN_CONTENT_LENGTH = 300; // 최소 본문 길이 (글자 수)
+const MAX_ARTICLES_PER_FEED = 3; // 피드당 최대 수집 개수 (무조건 3개 추출 목표)
+const FALLBACK_RELEVANCE_THRESHOLD = 20; // 후보 부족 시 완화된 임계값
+const FALLBACK_MIN_CONTENT_LENGTH = 200; // 후보 부족 시 완화된 본문 길이
 
 /**
  * 단일 RSS 피드에서 기사를 수집합니다.
@@ -44,6 +46,7 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
             contentText: string;
         }> = [];
 
+        // 1차 필터링: 엄격한 기준으로 후보 수집
         for (const item of items) {
             try {
                 // RSS 항목을 기사 형식으로 변환
@@ -64,7 +67,7 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                     .replace(/\s+/g, ' ')
                     .trim();
                 
-                // 본문 길이 체크 (500자 이상 필수)
+                // 본문 길이 체크 (300자 이상)
                 if (contentText.length < MIN_CONTENT_LENGTH) {
                     logger.log(`본문이 너무 짧음 (${contentText.length}자 < ${MIN_CONTENT_LENGTH}자): ${article.title}`);
                     continue;
@@ -80,7 +83,7 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 // 관련성 점수 계산
                 const relevanceScore = calculateRelevanceScore(article, source.keywords);
 
-                // 임계값 미만이면 스킵 (엄격하게 검사)
+                // 임계값 미만이면 스킵
                 if (relevanceScore < RELEVANCE_THRESHOLD) {
                     logger.log(`관련성 점수 부족 (${relevanceScore} < ${RELEVANCE_THRESHOLD}): ${article.title}`);
                     continue;
@@ -102,16 +105,94 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
             }
         }
 
+        // 후보가 부족하면 완화된 기준으로 재수집
+        if (candidateArticles.length < MAX_ARTICLES_PER_FEED) {
+            logger.log(`후보 기사 부족 (${candidateArticles.length}개), 완화된 기준으로 재수집 시도`);
+            
+            const fallbackCandidates: Array<{
+                article: Partial<CollectedNewsArticle>;
+                relevanceScore: number;
+                contentText: string;
+            }> = [];
+
+            for (const item of items) {
+                try {
+                    // 이미 후보에 포함된 기사는 스킵
+                    const existingCandidate = candidateArticles.find(
+                        c => c.article.sourceUrl === item.link
+                    );
+                    if (existingCandidate) {
+                        continue;
+                    }
+
+                    // RSS 항목을 기사 형식으로 변환
+                    const article = convertRSSItemToArticle(item, source, source.keywords);
+
+                    // 본문 길이 체크 (완화된 기준)
+                    const contentText = (article.content || '')
+                        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+                        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                        .replace(/<[^>]*>/g, '')
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#39;/g, "'")
+                        .replace(/&#160;/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                    
+                    // 완화된 본문 길이 체크
+                    if (contentText.length < FALLBACK_MIN_CONTENT_LENGTH) {
+                        continue;
+                    }
+
+                    // 중복 체크
+                    const isDuplicate = await checkDuplicate(article);
+                    if (isDuplicate) {
+                        continue;
+                    }
+
+                    // 관련성 점수 계산
+                    const relevanceScore = calculateRelevanceScore(article, source.keywords);
+
+                    // 완화된 임계값 체크
+                    if (relevanceScore < FALLBACK_RELEVANCE_THRESHOLD) {
+                        continue;
+                    }
+
+                    // 완화된 후보에 추가
+                    fallbackCandidates.push({
+                        article,
+                        relevanceScore,
+                        contentText,
+                    });
+
+                    logger.log(`완화된 기준 후보 추가: ${article.title} (점수: ${relevanceScore}, 본문: ${contentText.length}자)`);
+                } catch (error) {
+                    // 에러는 무시하고 계속 진행
+                    logger.error(`완화된 기준 기사 처리 실패: ${item.title}`, error);
+                }
+            }
+
+            // 완화된 후보를 기존 후보에 추가
+            candidateArticles.push(...fallbackCandidates);
+            logger.log(`완화된 기준으로 추가 후보 ${fallbackCandidates.length}개 확보, 총 ${candidateArticles.length}개`);
+        }
+
         // 관련성 점수 높은 순으로 정렬
         candidateArticles.sort((a, b) => b.relevanceScore - a.relevanceScore);
 
-        // 상위 3개만 선택
+        // 상위 3개만 선택 (무조건 3개 추출 목표)
         const selectedArticles = candidateArticles.slice(0, MAX_ARTICLES_PER_FEED);
 
         logger.log(`후보 기사 ${candidateArticles.length}개 중 상위 ${selectedArticles.length}개 선택 (임계값: ${RELEVANCE_THRESHOLD}점 이상, 본문: ${MIN_CONTENT_LENGTH}자 이상)`);
         
-        if (candidateArticles.length === 0) {
+        if (selectedArticles.length === 0) {
             logger.warn(`수집 가능한 기사가 없습니다: ${source.name} (관련성 점수 ${RELEVANCE_THRESHOLD} 이상, 본문 ${MIN_CONTENT_LENGTH}자 이상 필요)`);
+        } else if (selectedArticles.length < MAX_ARTICLES_PER_FEED) {
+            logger.warn(`목표 수집 개수(${MAX_ARTICLES_PER_FEED}개) 미달: ${selectedArticles.length}개만 수집됨`);
         }
 
         // 선택된 기사들 저장

@@ -85,8 +85,16 @@ export function calculateRelevanceScore(
 
     // 7. 본문 길이 가산점 (최대 10점) - 긴 기사 우선
     const contentText = (article.content || '')
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
         .replace(/<[^>]*>/g, '')
         .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&#160;/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
     
@@ -95,7 +103,9 @@ export function calculateRelevanceScore(
     } else if (contentText.length >= 1000) {
         score += 7; // 1000자 이상
     } else if (contentText.length >= 500) {
-        score += 3; // 500자 이상
+        score += 5; // 500자 이상
+    } else if (contentText.length >= 300) {
+        score += 3; // 300자 이상
     }
 
     // 최대 100점으로 제한
