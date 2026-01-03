@@ -10,8 +10,9 @@ import { getActiveRSSSources } from './feed-sources';
 import { processImageUrl } from './image-processor';
 import type { CollectedNewsArticle, CollectionLog, RSSFeedSource } from '@/types';
 
-const RELEVANCE_THRESHOLD = 20; // 관련성 점수 임계값 (낮춰서 더 많은 기사 수집)
+const RELEVANCE_THRESHOLD = 50; // 관련성 점수 임계값 (엄격하게 검사)
 const MIN_CONTENT_LENGTH = 500; // 최소 본문 길이 (글자 수) - 충분히 긴 기사만 수집
+const MAX_ARTICLES_PER_FEED = 3; // 피드당 최대 수집 개수 (점수 높은 순)
 
 /**
  * 단일 RSS 피드에서 기사를 수집합니다.
@@ -35,6 +36,13 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
         // RSS 피드 가져오기
         const items = await fetchRSSFeed(source.url);
 
+        // 모든 기사를 처리하고 점수를 계산한 후 정렬
+        const candidateArticles: Array<{
+            article: Partial<CollectedNewsArticle>;
+            relevanceScore: number;
+            contentText: string;
+        }> = [];
+
         for (const item of items) {
             try {
                 // RSS 항목을 기사 형식으로 변환
@@ -55,6 +63,7 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                     .replace(/\s+/g, ' ')
                     .trim();
                 
+                // 본문 길이 체크 (500자 이상 필수)
                 if (contentText.length < MIN_CONTENT_LENGTH) {
                     logger.log(`본문이 너무 짧음 (${contentText.length}자 < ${MIN_CONTENT_LENGTH}자): ${article.title}`);
                     continue;
@@ -70,16 +79,45 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 // 관련성 점수 계산
                 const relevanceScore = calculateRelevanceScore(article, source.keywords);
 
-                // 임계값 미만이면 스킵
+                // 임계값 미만이면 스킵 (엄격하게 검사)
                 if (relevanceScore < RELEVANCE_THRESHOLD) {
-                    logger.log(`관련성 점수 부족 (${relevanceScore}): ${article.title}`);
+                    logger.log(`관련성 점수 부족 (${relevanceScore} < ${RELEVANCE_THRESHOLD}): ${article.title}`);
                     continue;
                 }
 
-                // 카테고리 결정
-                const category = determineCategory(article, relevanceScore);
+                // 후보 기사에 추가
+                candidateArticles.push({
+                    article,
+                    relevanceScore,
+                    contentText,
+                });
 
-                // 이미지 처리 (있는 경우)
+                logger.log(`후보 기사 추가: ${article.title} (점수: ${relevanceScore}, 본문: ${contentText.length}자)`);
+            } catch (error) {
+                result.failed++;
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                result.errors.push(`기사 처리 실패: ${item.title} - ${errorMessage}`);
+                logger.error(`기사 처리 실패: ${item.title}`, error);
+            }
+        }
+
+        // 관련성 점수 높은 순으로 정렬
+        candidateArticles.sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+        // 상위 3개만 선택
+        const selectedArticles = candidateArticles.slice(0, MAX_ARTICLES_PER_FEED);
+
+        logger.log(`후보 기사 ${candidateArticles.length}개 중 상위 ${selectedArticles.length}개 선택`);
+
+        // 선택된 기사들 저장
+        for (const candidate of selectedArticles) {
+            try {
+                const article = candidate.article;
+
+                // 카테고리 결정
+                const category = determineCategory(article, candidate.relevanceScore);
+
+                // 이미지 처리 (있는 경우) - 정확하게 추출
                 let processedImageUrl: string | undefined = article.imageUrl;
                 if (article.imageUrl && article.imageUrl.trim() !== '') {
                     const originalImageUrl = article.imageUrl.trim();
@@ -107,7 +145,7 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 const finalArticle: CollectedNewsArticle = {
                     ...article,
                     imageUrl: processedImageUrl,
-                    relevanceScore,
+                    relevanceScore: candidate.relevanceScore,
                     category,
                 } as CollectedNewsArticle;
 
@@ -132,12 +170,12 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 });
 
                 result.collected++;
-                logger.log(`기사 수집 완료: ${finalArticle.title} (점수: ${relevanceScore})`);
+                logger.log(`기사 수집 완료: ${finalArticle.title} (점수: ${candidate.relevanceScore}, 본문: ${candidate.contentText.length}자)`);
             } catch (error) {
                 result.failed++;
                 const errorMessage = error instanceof Error ? error.message : String(error);
-                result.errors.push(`기사 처리 실패: ${item.title} - ${errorMessage}`);
-                logger.error(`기사 처리 실패: ${item.title}`, error);
+                result.errors.push(`기사 저장 실패: ${candidate.article.title} - ${errorMessage}`);
+                logger.error(`기사 저장 실패: ${candidate.article.title}`, error);
             }
         }
 
