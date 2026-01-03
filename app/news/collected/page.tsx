@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { Calendar, Search, Filter, ArrowRight, Newspaper } from 'lucide-react';
 import Link from 'next/link';
-import { sanitizeHtml } from '@/lib/sanitize';
+// import { sanitizeHtml } from '@/lib/sanitize'; // 사용하지 않음
 import type { CollectedNewsArticle } from '@/types';
 
 const Footer = dynamic(() => import('@/components/Footer'), {
@@ -67,7 +67,19 @@ export default function CollectedNewsPage() {
                 const result = await response.json();
 
                 if (result.success) {
-                    setArticles(result.data.articles || []);
+                    // imageUrl이 빈 문자열인 경우 undefined로 처리
+                    const processedArticles = (result.data.articles || []).map((article: CollectedNewsArticle) => ({
+                        ...article,
+                        imageUrl: article.imageUrl && article.imageUrl.trim() !== '' ? article.imageUrl : undefined,
+                    }));
+                    
+                    console.log('목록 기사 로딩 완료:', {
+                        count: processedArticles.length,
+                        withImages: processedArticles.filter((a: CollectedNewsArticle) => a.imageUrl).length,
+                        sampleImageUrl: processedArticles.find((a: CollectedNewsArticle) => a.imageUrl)?.imageUrl?.substring(0, 100),
+                    });
+                    
+                    setArticles(processedArticles);
                     setTotalPages(result.data.pagination.totalPages || 1);
                     setTotal(result.data.pagination.total || 0);
                 }
@@ -96,7 +108,11 @@ export default function CollectedNewsPage() {
     };
 
     const renderImage = (title: string, imageUrl?: string) => {
-        if (!imageUrl || imageUrl.trim() === '') {
+        console.log('목록 이미지 렌더링:', { title, imageUrl, hasImageUrl: !!imageUrl, imageUrlType: typeof imageUrl });
+        
+        // imageUrl이 없거나 빈 문자열인 경우
+        if (!imageUrl || (typeof imageUrl === 'string' && imageUrl.trim() === '')) {
+            console.log('목록 이미지 URL이 없음 - placeholder 표시');
             return (
                 <div className="w-full h-48 bg-gray-700 rounded-t-lg flex items-center justify-center">
                     <Newspaper className="w-12 h-12 text-gray-500" />
@@ -104,43 +120,19 @@ export default function CollectedNewsPage() {
             );
         }
 
-        // Base64 이미지 처리
-        if (imageUrl.startsWith('data:image/')) {
-            return (
-                <img
-                    src={imageUrl}
-                    alt={title}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                    onError={(e) => {
-                        console.error('Base64 이미지 로딩 실패:', imageUrl.substring(0, 50));
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                            parent.innerHTML = `
-                                <div class="w-full h-48 bg-gray-700 rounded-t-lg flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                            `;
-                        }
-                    }}
-                />
-            );
-        }
+        const trimmedUrl = imageUrl.trim();
+        console.log('목록 이미지 URL 처리:', { trimmedUrl, startsWithData: trimmedUrl.startsWith('data:'), startsWithHttps: trimmedUrl.startsWith('https://'), startsWithHttp: trimmedUrl.startsWith('http://') });
 
-        // CDN URL 처리 (Vercel Blob Storage 등)
-        if (imageUrl.startsWith('https://')) {
+        // Base64 이미지 처리
+        if (trimmedUrl.startsWith('data:image/') || trimmedUrl.startsWith('data:')) {
+            console.log('목록 Base64 이미지로 처리');
             return (
                 <img
-                    src={imageUrl}
+                    src={trimmedUrl}
                     alt={title}
                     className="w-full h-48 object-cover rounded-t-lg"
-                    crossOrigin="anonymous"
-                    loading="lazy"
                     onError={(e) => {
-                        console.error('CDN 이미지 로딩 실패:', imageUrl);
+                        console.error('목록 Base64 이미지 로딩 실패:', trimmedUrl.substring(0, 50));
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
                         const parent = target.parentElement;
@@ -155,22 +147,58 @@ export default function CollectedNewsPage() {
                         }
                     }}
                     onLoad={() => {
-                        console.log('이미지 로딩 성공:', imageUrl);
+                        console.log('목록 Base64 이미지 로딩 성공');
+                    }}
+                />
+            );
+        }
+
+        // CDN URL 처리 (Vercel Blob Storage 등) - https:// 또는 http://
+        if (trimmedUrl.startsWith('https://') || trimmedUrl.startsWith('http://')) {
+            console.log('목록 CDN/HTTP 이미지로 처리:', trimmedUrl);
+            return (
+                <img
+                    src={trimmedUrl}
+                    alt={title}
+                    className="w-full h-48 object-cover rounded-t-lg"
+                    crossOrigin="anonymous"
+                    loading="lazy"
+                    onError={(e) => {
+                        console.error('목록 CDN 이미지 로딩 실패:', trimmedUrl);
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                            parent.innerHTML = `
+                                <div class="w-full h-48 bg-gray-700 rounded-t-lg flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            `;
+                        }
+                    }}
+                    onLoad={() => {
+                        console.log('목록 CDN 이미지 로딩 성공:', trimmedUrl);
                     }}
                 />
             );
         }
 
         // 로컬 이미지
+        console.log('목록 로컬 이미지로 처리:', trimmedUrl);
         return (
             <Image
-                src={imageUrl}
+                src={trimmedUrl}
                 alt={title}
                 width={400}
                 height={192}
                 className="w-full h-48 object-cover rounded-t-lg"
-                onError={(e) => {
-                    console.error('로컬 이미지 로딩 실패:', imageUrl);
+                onError={() => {
+                    console.error('목록 로컬 이미지 로딩 실패:', trimmedUrl);
+                }}
+                onLoad={() => {
+                    console.log('목록 로컬 이미지 로딩 성공');
                 }}
             />
         );

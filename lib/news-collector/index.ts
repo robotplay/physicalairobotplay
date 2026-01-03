@@ -10,7 +10,7 @@ import { getActiveRSSSources } from './feed-sources';
 import { processImageUrl } from './image-processor';
 import type { CollectedNewsArticle, CollectionLog, RSSFeedSource } from '@/types';
 
-const RELEVANCE_THRESHOLD = 50; // 관련성 점수 임계값
+const RELEVANCE_THRESHOLD = 20; // 관련성 점수 임계값 (낮춰서 더 많은 기사 수집)
 
 /**
  * 단일 RSS 피드에서 기사를 수집합니다.
@@ -59,15 +59,27 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 const category = determineCategory(article, relevanceScore);
 
                 // 이미지 처리 (있는 경우)
-                let processedImageUrl = article.imageUrl;
-                if (article.imageUrl) {
+                let processedImageUrl: string | undefined = article.imageUrl;
+                if (article.imageUrl && article.imageUrl.trim() !== '') {
+                    const originalImageUrl = article.imageUrl.trim();
+                    logger.log(`이미지 처리 시작: ${originalImageUrl.substring(0, 100)}`);
                     try {
-                        processedImageUrl = await processImageUrl(article.imageUrl);
-                        logger.log(`이미지 처리 완료: ${article.imageUrl} → ${processedImageUrl.substring(0, 50)}...`);
+                        // 이미지 처리 시도 (최대 5초 타임아웃)
+                        const processPromise = processImageUrl(originalImageUrl);
+                        const timeoutPromise = new Promise<string>((_, reject) => 
+                            setTimeout(() => reject(new Error('이미지 처리 타임아웃')), 5000)
+                        );
+                        
+                        processedImageUrl = await Promise.race([processPromise, timeoutPromise]);
+                        logger.log(`이미지 처리 완료: ${originalImageUrl.substring(0, 50)}... → ${processedImageUrl.substring(0, 50)}...`);
                     } catch (imageError) {
-                        logger.warn(`이미지 처리 실패, 원본 URL 사용: ${article.imageUrl}`, imageError);
+                        logger.warn(`이미지 처리 실패, 원본 URL 사용: ${originalImageUrl}`, imageError);
                         // 이미지 처리 실패해도 기사는 저장 (원본 URL 사용)
+                        processedImageUrl = originalImageUrl; // 원본 URL 유지
                     }
+                } else {
+                    logger.log(`이미지 URL이 없음: ${article.title}`);
+                    processedImageUrl = undefined;
                 }
 
                 // 최종 기사 데이터
@@ -83,6 +95,7 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 const collection = db.collection(COLLECTIONS.COLLECTED_NEWS);
                 
                 // _id 제거 (MongoDB가 자동 생성)
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { _id, ...articleData } = finalArticle;
                 
                 await collection.insertOne({
@@ -156,6 +169,7 @@ export async function collectNewsArticles(sources?: RSSFeedSource[]): Promise<Co
         // 수집 로그 저장
         const db = await getDatabase();
         const logsCollection = db.collection(COLLECTIONS.COLLECTION_LOGS);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { _id, ...logData } = log;
         await logsCollection.insertOne({
             ...logData,

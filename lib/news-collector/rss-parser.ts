@@ -71,30 +71,113 @@ export async function fetchRSSFeed(feedUrl: string): Promise<RSSItem[]> {
  * RSS 항목에서 이미지 URL을 추출합니다.
  */
 export function extractImageUrl(item: RSSItem): string | undefined {
+    logger.log(`이미지 추출 시작: ${item.title}`);
+    
     // 1. mediaThumbnail 우선
     if (item.mediaThumbnail) {
-        return item.mediaThumbnail;
+        const url = item.mediaThumbnail.trim();
+        if (url && url.length > 0) {
+            logger.log(`mediaThumbnail 발견: ${url}`);
+            return url;
+        }
     }
 
     // 2. mediaContent
     if (item.mediaContent) {
-        return item.mediaContent;
-    }
-
-    // 3. enclosure (이미지 타입인 경우)
-    if (item.enclosure && item.enclosure.type?.startsWith('image/')) {
-        return item.enclosure.url;
-    }
-
-    // 4. content에서 이미지 태그 추출
-    if (item.content || item.contentEncoded) {
-        const content = item.content || item.contentEncoded || '';
-        const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-        if (imgMatch && imgMatch[1]) {
-            return imgMatch[1];
+        const url = item.mediaContent.trim();
+        if (url && url.length > 0) {
+            logger.log(`mediaContent 발견: ${url}`);
+            return url;
         }
     }
 
+    // 3. enclosure (이미지 타입인 경우)
+    if (item.enclosure) {
+        const url = item.enclosure.url?.trim();
+        if (url && url.length > 0) {
+            // 타입이 명시되지 않았어도 URL이 이미지 확장자면 사용
+            const isImageType = item.enclosure.type?.startsWith('image/') || 
+                               /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i.test(url);
+            if (isImageType) {
+                logger.log(`enclosure 이미지 발견: ${url}`);
+                return url;
+            }
+        }
+    }
+
+    // 4. content에서 이미지 태그 추출 (더 정확한 정규식)
+    if (item.content || item.contentEncoded) {
+        const content = item.content || item.contentEncoded || '';
+        
+        // 여러 이미지 태그 패턴 시도
+        const imgPatterns = [
+            /<img[^>]+src=["']([^"']+)["']/i,
+            /<img[^>]+src=([^\s>]+)/i,
+            /src=["']([^"']+\.(jpg|jpeg|png|gif|webp|svg))["']/i,
+            /<img[^>]*src\s*=\s*["']?([^"'\s>]+\.(jpg|jpeg|png|gif|webp|svg))["']?/i,
+        ];
+        
+        for (const pattern of imgPatterns) {
+            const imgMatch = content.match(pattern);
+            if (imgMatch && imgMatch[1]) {
+                let imageUrl = imgMatch[1].trim();
+                
+                // HTML 엔티티 디코딩
+                imageUrl = imageUrl
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'");
+                
+                // 상대 URL을 절대 URL로 변환
+                if (imageUrl.startsWith('//')) {
+                    imageUrl = 'https:' + imageUrl;
+                } else if (imageUrl.startsWith('/')) {
+                    // 상대 경로인 경우 원본 링크의 도메인 사용
+                    try {
+                        const url = new URL(item.link);
+                        imageUrl = url.origin + imageUrl;
+                    } catch {
+                        // URL 파싱 실패 시 그대로 사용
+                    }
+                } else if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('data:')) {
+                    // 상대 경로인 경우
+                    try {
+                        const baseUrl = new URL(item.link);
+                        imageUrl = new URL(imageUrl, baseUrl.origin).href;
+                    } catch {
+                        // URL 파싱 실패 시 그대로 사용
+                    }
+                }
+                
+                // 유효한 URL인지 확인
+                if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('data:'))) {
+                    logger.log(`content에서 이미지 추출: ${imageUrl}`);
+                    return imageUrl;
+                }
+            }
+        }
+    }
+
+    // 5. Google News 특수 처리 - 링크에서 실제 기사 URL 추출 시도
+    if (item.link && item.link.includes('news.google.com')) {
+        try {
+            // Google News 링크는 보통 실제 기사 URL을 포함함
+            const url = new URL(item.link);
+            const articleUrl = url.searchParams.get('url');
+            if (articleUrl) {
+                logger.log(`Google News에서 실제 기사 URL 추출: ${articleUrl}`);
+                // 실제 기사 URL은 나중에 스크래핑할 수 있지만, 지금은 링크만 반환
+                // 이미지는 실제 기사 페이지에서 추출해야 함
+            }
+        } catch {
+            // URL 파싱 실패
+        }
+        logger.log(`Google News 링크 감지: ${item.link}`);
+    }
+
+    logger.log(`이미지 URL을 찾을 수 없음: ${item.title}`);
     return undefined;
 }
 

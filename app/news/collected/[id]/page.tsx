@@ -57,7 +57,18 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
                         imageUrl: articleData.imageUrl,
                         imageUrlType: typeof articleData.imageUrl,
                         imageUrlLength: articleData.imageUrl?.length,
+                        imageUrlPreview: articleData.imageUrl?.substring(0, 100),
+                        hasImageUrl: !!articleData.imageUrl,
                     });
+                    
+                    // imageUrl이 빈 문자열이거나 null인 경우 undefined로 처리
+                    if (!articleData.imageUrl || articleData.imageUrl.trim() === '' || articleData.imageUrl === null) {
+                        articleData.imageUrl = undefined;
+                    } else {
+                        // imageUrl이 있으면 trim 처리
+                        articleData.imageUrl = articleData.imageUrl.trim();
+                    }
+                    
                     setArticle(articleData);
                     setRelatedArticles(result.data.relatedArticles || []);
                 } else {
@@ -83,22 +94,39 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
     };
 
     const renderImage = (title: string, imageUrl?: string) => {
-        if (!imageUrl || imageUrl.trim() === '') {
-            return null;
+        console.log('renderImage 호출:', { title, imageUrl, hasImageUrl: !!imageUrl, imageUrlType: typeof imageUrl });
+        
+        // imageUrl이 없거나 빈 문자열인 경우
+        if (!imageUrl || (typeof imageUrl === 'string' && imageUrl.trim() === '')) {
+            console.log('이미지 URL이 없음 - placeholder 표시');
+            return (
+                <div className="w-full mb-6 h-64 bg-gray-700 rounded-lg flex items-center justify-center">
+                    <svg className="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            );
         }
 
+        const trimmedUrl = imageUrl.trim();
+        console.log('이미지 URL 처리:', { trimmedUrl, startsWithData: trimmedUrl.startsWith('data:'), startsWithHttps: trimmedUrl.startsWith('https://') });
+
         // Base64 이미지 처리
-        if (imageUrl.startsWith('data:image/')) {
+        if (trimmedUrl.startsWith('data:image/') || trimmedUrl.startsWith('data:')) {
+            console.log('Base64 이미지로 처리');
             return (
                 <div className="w-full mb-6">
                     <img
-                        src={imageUrl}
+                        src={trimmedUrl}
                         alt={title}
-                        className="w-full h-auto rounded-lg object-contain"
+                        className="w-full h-auto rounded-lg object-contain max-h-[600px]"
                         onError={(e) => {
-                            console.error('Base64 이미지 로딩 실패:', imageUrl.substring(0, 50));
+                            console.error('Base64 이미지 로딩 실패:', trimmedUrl.substring(0, 50));
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
+                        }}
+                        onLoad={() => {
+                            console.log('Base64 이미지 로딩 성공');
                         }}
                     />
                 </div>
@@ -106,22 +134,34 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
         }
 
         // CDN URL 처리 (Vercel Blob Storage 등)
-        if (imageUrl.startsWith('https://')) {
+        if (trimmedUrl.startsWith('https://') || trimmedUrl.startsWith('http://')) {
+            console.log('CDN/HTTP 이미지로 처리:', trimmedUrl);
             return (
                 <div className="w-full mb-6">
                     <img
-                        src={imageUrl}
+                        src={trimmedUrl}
                         alt={title}
-                        className="w-full h-auto rounded-lg object-contain"
+                        className="w-full h-auto rounded-lg object-contain max-h-[600px]"
                         crossOrigin="anonymous"
                         loading="lazy"
                         onError={(e) => {
-                            console.error('CDN 이미지 로딩 실패:', imageUrl);
+                            console.error('CDN 이미지 로딩 실패:', trimmedUrl);
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
+                            // 에러 발생 시 placeholder 표시
+                            const parent = target.parentElement;
+                            if (parent) {
+                                parent.innerHTML = `
+                                    <div class="w-full h-64 bg-gray-700 rounded-lg flex items-center justify-center">
+                                        <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                `;
+                            }
                         }}
                         onLoad={() => {
-                            console.log('이미지 로딩 성공:', imageUrl);
+                            console.log('CDN 이미지 로딩 성공:', trimmedUrl);
                         }}
                     />
                 </div>
@@ -129,16 +169,20 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
         }
 
         // 로컬 이미지 (Next.js Image 컴포넌트 사용)
+        console.log('로컬 이미지로 처리:', trimmedUrl);
         return (
             <div className="w-full mb-6">
                 <Image
-                    src={imageUrl}
+                    src={trimmedUrl}
                     alt={title}
                     width={1200}
                     height={600}
-                    className="w-full h-auto rounded-lg object-contain"
-                    onError={(e) => {
-                        console.error('로컬 이미지 로딩 실패:', imageUrl);
+                    className="w-full h-auto rounded-lg object-contain max-h-[600px]"
+                    onError={() => {
+                        console.error('로컬 이미지 로딩 실패:', trimmedUrl);
+                    }}
+                    onLoad={() => {
+                        console.log('로컬 이미지 로딩 성공');
                     }}
                 />
             </div>

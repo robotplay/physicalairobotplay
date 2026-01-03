@@ -100,6 +100,7 @@ export async function GET(request: NextRequest) {
         const formattedArticles: CollectedNewsArticle[] = articles.map((article) => ({
             ...article,
             _id: article._id.toString(),
+            imageUrl: (article.imageUrl && article.imageUrl.trim() !== '') ? article.imageUrl : undefined, // imageUrl 명시적으로 포함 (빈 문자열 처리)
             publishedAt: article.publishedAt instanceof Date 
                 ? article.publishedAt.toISOString() 
                 : article.publishedAt,

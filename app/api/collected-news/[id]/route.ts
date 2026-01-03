@@ -103,6 +103,7 @@ export async function GET(
         const formattedArticle: CollectedNewsArticle = {
             ...article,
             _id: article._id.toString(),
+            imageUrl: (article.imageUrl && article.imageUrl.trim() !== '') ? article.imageUrl : undefined, // imageUrl 명시적으로 포함 (빈 문자열 처리)
             publishedAt: article.publishedAt instanceof Date 
                 ? article.publishedAt.toISOString() 
                 : article.publishedAt,
@@ -116,6 +117,9 @@ export async function GET(
                 ? article.updatedAt.toISOString() 
                 : article.updatedAt,
         } as CollectedNewsArticle;
+
+        // 디버깅: 이미지 URL 확인
+        logger.log(`기사 이미지 URL: ${formattedArticle.imageUrl || '없음'}`);
 
         const formattedRelatedArticles: CollectedNewsArticle[] = relatedArticles.map((item) => ({
             ...item,
