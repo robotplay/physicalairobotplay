@@ -146,18 +146,23 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
             {/* Header */}
             <div className="bg-gradient-to-r from-deep-electric-blue/20 to-active-orange/20 border-b border-gray-800">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-8">
-                    <Link
-                        href="/news/collected"
-                        className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                        <span>목록으로 돌아가기</span>
-                    </Link>
+                    {/* 헤더는 비워두거나 제목만 표시 */}
                 </div>
             </div>
 
             {/* Article Content */}
             <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-12">
+                {/* 목록으로 돌아가기 버튼 - 기사 위에 배치 */}
+                <div className="mb-6">
+                    <Link
+                        href="/news/collected"
+                        className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        <span>목록으로 돌아가기</span>
+                    </Link>
+                </div>
+
                 <article className="bg-gray-800 rounded-2xl p-8 md:p-12">
                     {/* Category and Source */}
                     <div className="flex items-center gap-3 mb-6">
