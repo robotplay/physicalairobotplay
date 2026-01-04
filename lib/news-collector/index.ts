@@ -139,15 +139,11 @@ async function collectFromFeed(source: RSSFeedSource): Promise<{
                 // 카테고리 결정
                 article.category = determineCategory(article, selected.score);
 
-                // 이미지 처리
-                if (article.imageUrl && article.imageUrl.trim() !== '') {
-                    try {
-                        const processedUrl = await processImageUrl(article.imageUrl);
-                        article.imageUrl = processedUrl;
-                    } catch (imageErr) {
-                        logger.warn(`이미지 처리 실패, 원본 유지: ${article.title}`, imageErr);
-                    }
-                }
+                // 이미지는 원본 URL 그대로 사용 (저작권 보호)
+                // 이미지 다운로드/재호스팅 하지 않음
+                // article.imageUrl은 원본 URL 유지
+                
+                logger.log(`저작권 보호: 이미지 원본 URL 사용 - ${article.title}`);
 
                 // DB 저장 (기존에 이미 중복 체크를 했으므로 insert)
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars

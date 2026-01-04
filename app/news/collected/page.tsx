@@ -392,6 +392,19 @@ export default function CollectedNewsPage() {
                         )}
                     </>
                 )}
+
+                {/* 저작권 고지 */}
+                <div className="mt-12 text-center border-t border-gray-800 pt-8">
+                    <p className="text-gray-400 text-sm mb-3">
+                        본 사이트의 모든 뉴스는 원 언론사의 공개 RSS 피드를 통해 수집되며, 요약본만 제공됩니다.
+                    </p>
+                    <Link
+                        href="/news/disclaimer"
+                        className="text-deep-electric-blue hover:underline text-sm"
+                    >
+                        저작권 및 면책 조항 자세히 보기 →
+                    </Link>
+                </div>
             </div>
 
             <Footer />

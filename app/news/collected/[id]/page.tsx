@@ -272,19 +272,36 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
                     {/* Image */}
                     {renderImage(article.title, article.imageUrl)}
 
-                    {/* Content */}
-                    <div
-                        className="prose prose-invert prose-lg max-w-none mb-8
-                            [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:my-4 [&_img]:object-contain
-                            [&_p]:text-gray-300 [&_p]:leading-relaxed
-                            [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white
-                            [&_a]:text-deep-electric-blue [&_a]:hover:underline
-                            [&_code]:bg-gray-700 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded
-                            [&_pre]:bg-gray-700 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto"
-                        dangerouslySetInnerHTML={{
-                            __html: sanitizeHtml(article.content),
-                        }}
-                    />
+                    {/* Excerpt (요약) - 저작권 보호를 위해 전문 대신 요약만 표시 */}
+                    <div className="prose prose-invert prose-lg max-w-none mb-6">
+                        <p className="text-gray-300 leading-relaxed text-lg">
+                            {article.excerpt}
+                        </p>
+                    </div>
+
+                    {/* 저작권 고지 및 원문 보기 버튼 */}
+                    <div className="bg-gray-700/50 rounded-xl p-6 mb-8">
+                        <div className="flex items-start gap-4">
+                            <div className="flex-shrink-0">
+                                <ExternalLink className="w-6 h-6 text-deep-electric-blue" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-white font-semibold mb-2">원문 기사 보기</h3>
+                                <p className="text-gray-400 text-sm mb-4">
+                                    본 내용은 요약본입니다. 저작권 보호를 위해 전체 기사는 원문 사이트에서 확인해 주세요.
+                                </p>
+                                <a
+                                    href={article.sourceUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-deep-electric-blue text-white rounded-lg hover:bg-deep-electric-blue/80 transition-colors font-medium"
+                                >
+                                    <span>{article.source}에서 전체 기사 읽기</span>
+                                    <ExternalLink className="w-4 h-4" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Keywords */}
                     {article.keywords && article.keywords.length > 0 && (
@@ -300,13 +317,32 @@ export default function CollectedNewsDetailPage({ params }: { params: Promise<{ 
                         </div>
                     )}
 
-                    {/* Source Link */}
+                    {/* 저작권 표시 */}
                     <div className="border-t border-gray-700 pt-6">
+                        <div className="text-sm text-gray-400 mb-4">
+                            <p className="mb-2">
+                                <strong className="text-gray-300">출처:</strong> {article.source}
+                            </p>
+                            <p className="mb-2">
+                                <strong className="text-gray-300">원문:</strong>{' '}
+                                <a 
+                                    href={article.sourceUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-deep-electric-blue hover:underline break-all"
+                                >
+                                    {article.sourceUrl}
+                                </a>
+                            </p>
+                            <p className="text-xs text-gray-500 mt-3">
+                                본 콘텐츠의 저작권은 제공처에 있으며, 이를 무단 이용하는 경우 저작권법 등에 따라 법적 책임을 질 수 있습니다.
+                            </p>
+                        </div>
                         <a
                             href={article.sourceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-deep-electric-blue text-white rounded-lg hover:bg-deep-electric-blue/80 transition-colors"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
                         >
                             <ExternalLink className="w-5 h-5" />
                             원본 기사 보기
