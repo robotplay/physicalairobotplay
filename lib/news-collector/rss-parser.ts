@@ -32,6 +32,49 @@ export interface RSSItem {
 }
 
 /**
+ * URL이 구글 관련 서비스의 이미지인지 확인합니다.
+ */
+function isGoogleServiceImage(url: string): boolean {
+    const googleDomains = [
+        'googleusercontent.com',
+        'gstatic.com',
+        'google.com',
+        'news.google.com'
+    ];
+    return googleDomains.some(domain => url.includes(domain));
+}
+
+/**
+ * Google News 리다이렉션 링크를 추적하여 실제 URL을 반환합니다.
+ */
+async function resolveActualUrl(url: string): Promise<string> {
+    if (!url.includes('news.google.com')) return url;
+
+    try {
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
+            redirect: 'follow', // 리다이렉션 추적
+            timeout: 5000,
+        });
+        
+        // 최종 URL 반환
+        const finalUrl = response.url;
+        if (finalUrl && finalUrl !== url) {
+            logger.log(`Google News URL 리다이렉션 해결: ${finalUrl}`);
+            return finalUrl;
+        }
+        return url;
+    } catch (error) {
+        logger.warn(`Google News URL 리다이렉션 해결 실패: ${url}`, error);
+        return url;
+    }
+}
+
+/**
  * 기사 본문 페이지에서 이미지를 추출합니다. (Open Graph 등)
  */
 async function fetchArticleImageFromPage(url: string): Promise<string | undefined> {
@@ -42,7 +85,9 @@ async function fetchArticleImageFromPage(url: string): Promise<string | undefine
         const response = await fetch(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             },
+            timeout: 8000,
         });
 
         if (!response.ok) return undefined;
@@ -50,28 +95,35 @@ async function fetchArticleImageFromPage(url: string): Promise<string | undefine
         const html = await response.text();
         const $ = cheerio.load(html);
 
+        // 이미지 후보들을 담을 배열
+        const candidates: string[] = [];
+
         // 1. Open Graph 이미지 (가장 정확함)
         const ogImage = $('meta[property="og:image"]').attr('content') || 
                         $('meta[name="og:image"]').attr('content') ||
                         $('meta[property="twitter:image"]').attr('content');
-        if (ogImage) {
-            logger.log(`페이지 분석에서 og:image 발견: ${ogImage}`);
-            return ogImage;
+        
+        if (ogImage && !isGoogleServiceImage(ogImage)) {
+            candidates.push(ogImage);
         }
 
-        // 2. 본문의 첫 번째 이미지
-        let mainImage: string | undefined = undefined;
-        $('article img, .article img, #article_body img, .post-content img').each((_, el) => {
-            const src = $(el).attr('src');
-            if (src && src.startsWith('http')) {
-                mainImage = src;
-                return false; // break
+        // 2. 본문의 주요 이미지 태그 분석
+        $('article img, .article img, #article_body img, .post-content img, .story-content img').each((_, el) => {
+            const src = $(el).attr('src') || $(el).attr('data-src') || $(el).attr('data-original');
+            if (src && src.startsWith('http') && !isGoogleServiceImage(src)) {
+                // 특정 확장자 필터링 (아이콘 등 제외)
+                if (/\.(jpg|jpeg|png|webp|gif)/i.test(src)) {
+                    candidates.push(src);
+                }
             }
         });
 
-        if (mainImage) {
-            logger.log(`페이지 분석에서 본문 이미지 발견: ${mainImage}`);
-            return mainImage;
+        // 3. 적절한 이미지 선택
+        if (candidates.length > 0) {
+            // 우선순위: OG 이미지가 있으면 첫 번째, 없으면 본문 첫 번째
+            const selected = candidates[0];
+            logger.log(`페이지 분석에서 이미지 발견: ${selected}`);
+            return selected;
         }
 
         return undefined;
@@ -95,20 +147,13 @@ export async function fetchRSSFeed(feedUrl: string): Promise<RSSItem[]> {
             return [];
         }
 
-        const items: RSSItem[] = feed.items.map((item) => {
-            // Google News의 경우 실제 기사 URL 추출
+        // Google News RSS의 경우 리다이렉션 해결을 위해 비동기 처리
+        const items: RSSItem[] = await Promise.all(feed.items.map(async (item) => {
             let articleLink = item.link || '';
+            
+            // Google News 링크 리다이렉션 해결
             if (articleLink.includes('news.google.com')) {
-                try {
-                    const url = new URL(articleLink);
-                    const actualUrl = url.searchParams.get('url');
-                    if (actualUrl) {
-                        articleLink = actualUrl;
-                        logger.log(`Google News 링크에서 실제 URL 추출: ${actualUrl}`);
-                    }
-                } catch {
-                    // URL 파싱 실패 시 원본 링크 사용
-                }
+                articleLink = await resolveActualUrl(articleLink);
             }
             
             return {
@@ -125,7 +170,7 @@ export async function fetchRSSFeed(feedUrl: string): Promise<RSSItem[]> {
                     type: item.enclosure.type,
                 } : undefined,
             };
-        });
+        }));
 
         logger.log(`RSS 피드에서 ${items.length}개 항목 수집 완료: ${feedUrl}`);
         return items;
@@ -139,22 +184,26 @@ export async function fetchRSSFeed(feedUrl: string): Promise<RSSItem[]> {
  * RSS 항목에서 이미지 URL을 추출합니다.
  */
 export function extractImageUrl(item: RSSItem): string | undefined {
+    // 구글 로고 이미지 등 필터링 강화
+    const checkAndReturn = (url?: string) => {
+        if (url && url.trim().length > 0 && !isGoogleServiceImage(url)) {
+            return url.trim();
+        }
+        return undefined;
+    };
+
     // 1. mediaThumbnail 우선
-    if (item.mediaThumbnail) {
-        const url = item.mediaThumbnail.trim();
-        if (url && url.length > 0) return url;
-    }
+    let url = checkAndReturn(item.mediaThumbnail);
+    if (url) return url;
 
     // 2. mediaContent
-    if (item.mediaContent) {
-        const url = item.mediaContent.trim();
-        if (url && url.length > 0) return url;
-    }
+    url = checkAndReturn(item.mediaContent);
+    if (url) return url;
 
-    // 3. enclosure (이미지 타입인 경우)
+    // 3. enclosure
     if (item.enclosure) {
-        const url = item.enclosure.url?.trim();
-        if (url && url.length > 0) {
+        url = checkAndReturn(item.enclosure.url);
+        if (url) {
             const isImageType = item.enclosure.type?.startsWith('image/') || 
                                /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i.test(url);
             if (isImageType) return url;
@@ -168,7 +217,7 @@ export function extractImageUrl(item: RSSItem): string | undefined {
         if (imgMatch && imgMatch[1]) {
             let imageUrl = imgMatch[1].trim();
             if (imageUrl.startsWith('//')) imageUrl = 'https:' + imageUrl;
-            return imageUrl;
+            if (!isGoogleServiceImage(imageUrl)) return imageUrl;
         }
     }
 
@@ -185,18 +234,19 @@ export async function convertRSSItemToArticle(
 ): Promise<Partial<CollectedNewsArticle>> {
     const publishedAt = item.pubDate ? new Date(item.pubDate) : new Date();
     
-    // 1. RSS에서 이미지 추출 시도
+    // 1. RSS에서 이미지 추출 시도 (구글 로고 등 필터링 포함)
     let imageUrl = extractImageUrl(item);
     
-    // 2. RSS에 이미지가 없으면 실제 페이지 분석
-    if (!imageUrl && item.link) {
+    // 2. RSS에 이미지가 없거나 구글 관련 이미지면 실제 페이지 분석
+    if ((!imageUrl || isGoogleServiceImage(imageUrl)) && item.link) {
+        logger.log(`페이지 분석을 통해 이미지 확보 시도: ${item.title}`);
         imageUrl = await fetchArticleImageFromPage(item.link);
     }
     
     // 본문 내용 우선순위: contentEncoded > content > contentSnippet
     const rawContent = item.contentEncoded || item.content || item.contentSnippet || '';
     
-    // HTML 태그 제거하여 순수 텍스트 추출
+    // HTML 태그 제거 및 텍스트 정제
     const contentText = rawContent
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
