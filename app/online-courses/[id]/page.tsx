@@ -2,327 +2,426 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
+import { 
+    Play, 
+    Lock, 
+    CheckCircle, 
+    Clock, 
+    BookOpen, 
+    Award, 
+    Star,
+    ChevronDown,
+    ChevronUp,
+    Download
+} from 'lucide-react';
 import Image from 'next/image';
-import { Calendar, ArrowLeft, Video, Clock, Users, Award, CreditCard, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
+import VideoPlayer from '@/components/VideoPlayer';
+import toast from 'react-hot-toast';
 
-const Footer = dynamic(() => import('@/components/Footer'), {
-    loading: () => <div className="py-20" />,
-    ssr: true,
-});
+interface CourseResource {
+    resourceId: string;
+    title: string;
+    type: 'pdf' | 'video' | 'link' | 'file';
+    url: string;
+}
 
-interface CourseItem {
+interface CourseLesson {
+    lessonId: string;
+    title: string;
+    description?: string;
+    videoType: 'youtube' | 'vimeo' | 'url';
+    videoUrl: string;
+    duration: number;
+    order: number;
+    isFree?: boolean;
+    resources?: CourseResource[];
+}
+
+interface CourseChapter {
+    chapterId: string;
+    title: string;
+    description?: string;
+    order: number;
+    lessons: CourseLesson[];
+}
+
+interface Course {
     _id: string;
-    id: string;
     title: string;
     description: string;
     content: string;
-    duration: string;
-    students: string;
-    level: string;
     thumbnail: string;
-    category: string;
-    color: string;
-    meetingUrl: string;
-    platformType: 'zoom' | 'whale';
-    schedule: { day: string; time: string }[];
+    level: string;
+    duration: string;
     price: number;
-    createdAt: string;
+    students: string;
+    capacity: number;
+    chapters: CourseChapter[];
+    totalLessons: number;
+    totalDuration: number;
+    whatYouWillLearn?: string[];
+    requirements?: string[];
+    isPublished: boolean;
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-    'Basic Course': 'from-active-orange to-orange-600',
-    'Advanced Course': 'from-deep-electric-blue to-blue-600',
-    'AirRobot Course': 'from-sky-400 to-blue-600',
-};
-
-export default function OnlineCourseDetailPage() {
+export default function CourseDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const [course, setCourse] = useState<CourseItem | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [course, setCourse] = useState<Course | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedLesson, setSelectedLesson] = useState<CourseLesson | null>(null);
+    const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set());
+    const [isEnrolled] = useState(false);
 
     useEffect(() => {
-        const loadCourse = async () => {
-            try {
-                const resolvedParams = params instanceof Promise ? await params : params;
-                const id = resolvedParams.id as string;
-
-                if (!id) {
-                    setError('강좌 ID가 없습니다.');
-                    setIsLoading(false);
-                    return;
-                }
-
-                const response = await fetch(`/api/online-courses/${id}`);
-                const result = await response.json();
-
-                if (result.success) {
-                    setCourse(result.data);
-                } else {
-                    setError(result.error || '강좌를 불러올 수 없습니다.');
-                }
-            } catch (error) {
-                console.error('Failed to load course:', error);
-                setError('강좌를 불러오는 중 오류가 발생했습니다.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         loadCourse();
-    }, [params]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [params.id]);
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+    const loadCourse = async () => {
+        try {
+            const response = await fetch(`/api/online-courses/${params.id}`);
+            const result = await response.json();
+
+            if (result.success) {
+                setCourse(result.data);
+                // 첫 번째 무료 레슨 자동 선택
+                const firstFreeLesson = result.data.chapters
+                    ?.flatMap((ch: CourseChapter) => ch.lessons)
+                    ?.find((lesson: CourseLesson) => lesson.isFree);
+                if (firstFreeLesson) {
+                    setSelectedLesson(firstFreeLesson);
+                }
+                // 첫 번째 챕터 자동 확장
+                if (result.data.chapters?.[0]) {
+                    setExpandedChapters(new Set([result.data.chapters[0].chapterId]));
+                }
+            } else {
+                toast.error('강좌를 불러올 수 없습니다');
+            }
+        } catch (error) {
+            console.error('Failed to load course:', error);
+            toast.error('강좌를 불러오는데 실패했습니다');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const toggleChapter = (chapterId: string) => {
+        setExpandedChapters(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(chapterId)) {
+                newSet.delete(chapterId);
+            } else {
+                newSet.add(chapterId);
+            }
+            return newSet;
         });
     };
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('ko-KR').format(price);
+    const selectLesson = (lesson: CourseLesson) => {
+        if (!lesson.isFree && !isEnrolled) {
+            toast.error('이 레슨은 수강 등록 후 이용 가능합니다');
+            return;
+        }
+        setSelectedLesson(lesson);
     };
 
     const handleEnroll = () => {
-        if (!course) return;
-
-        // 결제 페이지로 이동하면서 강좌 정보 전달
-        const enrollmentData = {
-            courseId: course._id,
-            courseTitle: course.title,
-            coursePrice: course.price,
-            courseCategory: course.category,
-            courseThumbnail: course.thumbnail,
-        };
-
-        // localStorage에 저장
-        localStorage.setItem('enrollmentData', JSON.stringify(enrollmentData));
-
         // 결제 페이지로 이동
-        router.push('/payment');
+        router.push(`/payment?course=${course?._id}&type=online-course`);
     };
 
-    if (isLoading) {
+    if (loading) {
         return (
-            <main className="min-h-screen bg-[#1A1A1A] text-white">
-                <div className="pt-20 sm:pt-24 pb-12 sm:pb-16">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
-                        <div className="text-center py-20">
-                            <div className="w-16 h-16 border-4 border-deep-electric-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-gray-400">로딩 중...</p>
-                        </div>
-                    </div>
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600">강좌를 불러오는 중...</p>
                 </div>
-            </main>
+            </div>
         );
     }
 
-    if (error || !course) {
+    if (!course) {
         return (
-            <main className="min-h-screen bg-[#1A1A1A] text-white">
-                <div className="pt-20 sm:pt-24 pb-12 sm:pb-16">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
-                        <div className="text-center py-20">
-                            <Video className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                            <h2 className="text-2xl font-bold text-white mb-4">강좌를 찾을 수 없습니다</h2>
-                            <p className="text-gray-400 mb-8">{error || '요청하신 강좌가 존재하지 않습니다.'}</p>
-                            <Link
-                                href="/#courses"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-deep-electric-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-                            >
-                                <ArrowLeft className="w-4 h-4" />
-                                강좌 목록으로 돌아가기
-                            </Link>
-                        </div>
-                    </div>
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-xl text-gray-600 mb-4">강좌를 찾을 수 없습니다</p>
+                    <button
+                        onClick={() => router.push('/my-classroom')}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                        온라인 강좌 목록으로
+                    </button>
                 </div>
-            </main>
+            </div>
         );
     }
 
     return (
-        <main className="min-h-screen bg-[#1A1A1A] text-white">
-            <div className="pt-20 sm:pt-24 pb-12 sm:pb-16">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
-                    {/* Back Button */}
-                    <div className="mb-8">
-                        <Link
-                            href="/#courses"
-                            className="inline-flex items-center gap-2 text-gray-400 hover:text-deep-electric-blue transition-colors"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                            <span>강좌 목록으로 돌아가기</span>
-                        </Link>
-                    </div>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            {/* Video Player Section */}
+            <div className="bg-black">
+                <div className="max-w-7xl mx-auto">
+                    {selectedLesson ? (
+                        <VideoPlayer
+                            lesson={selectedLesson}
+                            onComplete={() => {
+                                toast.success('레슨을 완료했습니다!');
+                            }}
+                        />
+                    ) : (
+                        <div className="aspect-video flex items-center justify-center bg-gray-900">
+                            <div className="text-center text-white">
+                                <Play className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                                <p className="text-lg">왼쪽 목록에서 레슨을 선택하세요</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Main Content */}
-                        <div className="lg:col-span-2">
-                            <article className="bg-gray-800 rounded-2xl overflow-hidden shadow-xl">
-                                {/* Thumbnail */}
-                                {course.thumbnail && (
-                                    <div className="relative w-full aspect-video overflow-hidden bg-gray-900">
-                                        <Image
-                                            src={course.thumbnail}
-                                            alt={course.title}
-                                            fill
-                                            className="object-cover"
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px"
-                                            quality={90}
-                                            unoptimized={course.thumbnail.startsWith('/uploads/')}
-                                        />
-                                        <div className="absolute top-6 left-6">
-                                            <span className={`px-4 py-2 bg-gradient-to-r ${CATEGORY_COLORS[course.category] || 'bg-gray-500'} text-white text-sm font-bold rounded-full`}>
-                                                {course.category}
-                                            </span>
+            {/* Course Content */}
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="grid lg:grid-cols-3 gap-8">
+                    {/* Main Content */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {/* Course Info */}
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                            <div className="flex items-start gap-4 mb-4">
+                                <Image
+                                    src={course.thumbnail}
+                                    alt={course.title}
+                                    width={120}
+                                    height={80}
+                                    className="rounded-lg object-cover"
+                                />
+                                <div className="flex-1">
+                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                                        {course.title}
+                                    </h1>
+                                    <p className="text-gray-600 dark:text-gray-300 mb-3">
+                                        {course.description}
+                                    </p>
+                                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                                        <div className="flex items-center gap-1">
+                                            <Clock className="w-4 h-4" />
+                                            {course.totalDuration}분
                                         </div>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                                    </div>
-                                )}
-
-                                {/* Content */}
-                                <div className="p-6 sm:p-8 md:p-12">
-                                    {/* Header */}
-                                    <div className="mb-6 pb-6 border-b border-gray-700">
-                                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                                            {course.title}
-                                        </h1>
-                                        <p className="text-lg text-gray-300 mb-4">{course.description}</p>
-                                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-                                            <div className="flex items-center gap-2">
-                                                <Clock className="w-4 h-4" />
-                                                <span>{course.duration}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Users className="w-4 h-4" />
-                                                <span>{course.students} 수강</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Award className="w-4 h-4" />
-                                                <span>{course.level}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Calendar className="w-4 h-4" />
-                                                <span>등록일: {formatDate(course.createdAt)}</span>
-                                            </div>
+                                        <div className="flex items-center gap-1">
+                                            <BookOpen className="w-4 h-4" />
+                                            {course.totalLessons}개 레슨
                                         </div>
-                                    </div>
-
-                                    {/* Body */}
-                                    <div className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-white prose-a:text-deep-electric-blue prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-img:my-8 prose-img:mx-auto prose-img:max-w-full prose-ul:text-gray-300 prose-ol:text-gray-300 prose-li:text-gray-300 prose-blockquote:text-gray-400 prose-blockquote:border-gray-600">
-                                        <div
-                                            className="text-base sm:text-lg leading-relaxed [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-lg [&_iframe]:my-8 [&_iframe]:max-w-full"
-                                            dangerouslySetInnerHTML={{ __html: course.content }}
-                                        />
+                                        <div className="flex items-center gap-1">
+                                            <Award className="w-4 h-4" />
+                                            {course.level}
+                                        </div>
                                     </div>
                                 </div>
-                            </article>
+                            </div>
+
+                            {/* Enrollment CTA */}
+                            {!isEnrolled && (
+                                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm opacity-90 mb-1">수강료</p>
+                                            <p className="text-3xl font-bold">
+                                                ₩{course.price.toLocaleString()}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={handleEnroll}
+                                            className="px-8 py-3 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-100 transition-colors"
+                                        >
+                                            수강 신청하기
+                                        </button>
+                                    </div>
+                                    <p className="text-sm opacity-90 mt-3">
+                                        💡 무료 미리보기로 먼저 체험해보세요!
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Sidebar - Enrollment Card */}
-                        <div className="lg:col-span-1">
-                            <div className="sticky top-24 bg-gray-800 rounded-2xl p-6 shadow-xl border-2 border-gray-700">
-                                <div className="mb-6">
-                                    <div className="text-4xl font-bold text-white mb-2">
-                                        {course.price === 0 ? '무료' : `₩${formatPrice(course.price)}`}
-                                    </div>
-                                    {course.price > 0 && (
-                                        <p className="text-sm text-gray-400">부가세 포함</p>
-                                    )}
-                                </div>
-
-                                {/* Course Info */}
-                                <div className="space-y-4 mb-6 pb-6 border-b border-gray-700">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-400">기간</span>
-                                        <span className="text-white font-semibold">{course.duration}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-400">레벨</span>
-                                        <span className="text-white font-semibold">{course.level}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-gray-400">수강생</span>
-                                        <span className="text-white font-semibold">{course.students}</span>
-                                    </div>
-                                    {course.platformType && (
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-gray-400">플랫폼</span>
-                                            <span className="text-white font-semibold flex items-center gap-1">
-                                                <Video className="w-4 h-4" />
-                                                {course.platformType === 'zoom' ? 'Zoom' : '네이버 웨일온'}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Schedule */}
-                                {course.schedule && course.schedule.length > 0 && (
-                                    <div className="mb-6 pb-6 border-b border-gray-700">
-                                        <h3 className="text-lg font-bold text-white mb-3">수업 스케줄</h3>
+                        {/* Selected Lesson Info */}
+                        {selectedLesson && (
+                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                                    {selectedLesson.title}
+                                </h2>
+                                {selectedLesson.description && (
+                                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                                        {selectedLesson.description}
+                                    </p>
+                                )}
+                                
+                                {/* Lesson Resources */}
+                                {selectedLesson.resources && selectedLesson.resources.length > 0 && (
+                                    <div className="mt-4">
+                                        <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                            <Download className="w-5 h-5" />
+                                            첨부 자료
+                                        </h3>
                                         <div className="space-y-2">
-                                            {course.schedule.map((item, idx) => (
-                                                <div key={idx} className="flex items-center gap-2 text-sm">
-                                                    <Calendar className="w-4 h-4 text-deep-electric-blue" />
-                                                    <span className="text-gray-300">
-                                                        {item.day}요일 {item.time}
+                                            {selectedLesson.resources.map((resource) => (
+                                                <a
+                                                    key={resource.resourceId}
+                                                    href={resource.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                                                >
+                                                    <Download className="w-4 h-4 text-blue-600" />
+                                                    <span className="text-gray-900 dark:text-white">
+                                                        {resource.title}
                                                     </span>
-                                                </div>
+                                                    <span className="text-xs text-gray-500 ml-auto">
+                                                        {resource.type.toUpperCase()}
+                                                    </span>
+                                                </a>
                                             ))}
                                         </div>
                                     </div>
                                 )}
+                            </div>
+                        )}
 
-                                {/* Features */}
-                                <div className="space-y-3 mb-6">
-                                    <div className="flex items-center gap-2 text-sm text-gray-300">
-                                        <CheckCircle className="w-5 h-5 text-green-500" />
-                                        <span>실시간 화상 수업</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-gray-300">
-                                        <CheckCircle className="w-5 h-5 text-green-500" />
-                                        <span>강의 자료 제공</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-gray-300">
-                                        <CheckCircle className="w-5 h-5 text-green-500" />
-                                        <span>실습 프로젝트 포함</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-gray-300">
-                                        <CheckCircle className="w-5 h-5 text-green-500" />
-                                        <span>수료증 발급</span>
-                                    </div>
-                                </div>
+                        {/* What You'll Learn */}
+                        {course.whatYouWillLearn && course.whatYouWillLearn.length > 0 && (
+                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                    <Star className="w-6 h-6 text-yellow-500" />
+                                    학습 목표
+                                </h2>
+                                <ul className="space-y-2">
+                                    {course.whatYouWillLearn.map((item, index) => (
+                                        <li key={index} className="flex items-start gap-3">
+                                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                            <span className="text-gray-700 dark:text-gray-300">{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
 
-                                {/* Enroll Button */}
-                                <button
-                                    onClick={handleEnroll}
-                                    className="w-full px-6 py-4 bg-gradient-to-r from-deep-electric-blue to-active-orange hover:from-blue-700 hover:to-orange-600 text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shadow-lg"
-                                >
-                                    <CreditCard className="w-5 h-5" />
-                                    지금 신청하기
-                                </button>
+                        {/* Requirements */}
+                        {course.requirements && course.requirements.length > 0 && (
+                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                                    수강 요건
+                                </h2>
+                                <ul className="space-y-2">
+                                    {course.requirements.map((item, index) => (
+                                        <li key={index} className="flex items-start gap-3">
+                                            <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                                            <span className="text-gray-700 dark:text-gray-300">{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
 
-                                <p className="text-xs text-gray-400 text-center mt-4">
-                                    결제 후 즉시 수강 가능합니다
+                        {/* Course Content */}
+                        {course.content && (
+                            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                                    강좌 소개
+                                </h2>
+                                <div
+                                    className="prose dark:prose-invert max-w-none"
+                                    dangerouslySetInnerHTML={{ __html: course.content }}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Sidebar - Chapter List */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg sticky top-4">
+                            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                                <h2 className="font-bold text-gray-900 dark:text-white">
+                                    강좌 목차
+                                </h2>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    {course.totalLessons}개 레슨 • {course.totalDuration}분
                                 </p>
+                            </div>
+
+                            <div className="max-h-[600px] overflow-y-auto">
+                                {course.chapters.map((chapter) => (
+                                    <div key={chapter.chapterId} className="border-b border-gray-200 dark:border-gray-700">
+                                        <button
+                                            onClick={() => toggleChapter(chapter.chapterId)}
+                                            className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                        >
+                                            <div className="flex-1 text-left">
+                                                <h3 className="font-semibold text-gray-900 dark:text-white">
+                                                    {chapter.title}
+                                                </h3>
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {chapter.lessons.length}개 레슨
+                                                </p>
+                                            </div>
+                                            {expandedChapters.has(chapter.chapterId) ? (
+                                                <ChevronUp className="w-5 h-5 text-gray-400" />
+                                            ) : (
+                                                <ChevronDown className="w-5 h-5 text-gray-400" />
+                                            )}
+                                        </button>
+
+                                        {expandedChapters.has(chapter.chapterId) && (
+                                            <div className="bg-gray-50 dark:bg-gray-900">
+                                                {chapter.lessons.map((lesson) => {
+                                                    const isLocked = !lesson.isFree && !isEnrolled;
+                                                    const isSelected = selectedLesson?.lessonId === lesson.lessonId;
+
+                                                    return (
+                                                        <button
+                                                            key={lesson.lessonId}
+                                                            onClick={() => selectLesson(lesson)}
+                                                            disabled={isLocked}
+                                                            className={`w-full p-4 flex items-start gap-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+                                                                isSelected ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600' : ''
+                                                            } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        >
+                                                            <div className="flex-shrink-0 mt-1">
+                                                                {isLocked ? (
+                                                                    <Lock className="w-4 h-4 text-gray-400" />
+                                                                ) : (
+                                                                    <Play className="w-4 h-4 text-blue-600" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 text-left">
+                                                                <p className={`text-sm font-medium ${
+                                                                    isSelected ? 'text-blue-600' : 'text-gray-900 dark:text-white'
+                                                                }`}>
+                                                                    {lesson.title}
+                                                                </p>
+                                                                <div className="flex items-center gap-3 mt-1">
+                                                                    <span className="text-xs text-gray-500">
+                                                                        {lesson.duration}분
+                                                                    </span>
+                                                                    {lesson.isFree && (
+                                                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
+                                                                            무료
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <Footer />
-        </main>
+        </div>
     );
 }
-
-
-
-
-
-
-

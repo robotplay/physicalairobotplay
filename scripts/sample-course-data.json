@@ -1,0 +1,177 @@
+{
+  "title": "로봇 코딩 입문 - 기초부터 시작하기",
+  "description": "코딩을 처음 접하는 학생을 위한 로봇 프로그래밍 기초 과정입니다.",
+  "content": "<h2>강좌 소개</h2><p>이 강좌에서는 로봇 코딩의 기초를 배웁니다. 블록 코딩부터 시작하여 실제 로봇을 제어하는 방법까지 단계별로 학습합니다.</p><h3>학습 목표</h3><ul><li>프로그래밍의 기본 개념 이해</li><li>블록 코딩 도구 사용법 습득</li><li>간단한 로봇 제어 프로그램 작성</li></ul><h3>수강 대상</h3><ul><li>프로그래밍을 처음 시작하는 초등학생</li><li>로봇에 관심 있는 중학생</li><li>자녀와 함께 코딩을 배우고 싶은 학부모</li></ul>",
+  "duration": "4주",
+  "students": "0명",
+  "capacity": 20,
+  "level": "입문",
+  "category": "Basic Course",
+  "color": "from-active-orange to-orange-600",
+  "thumbnail": "/img/01.jpeg",
+  "price": 150000,
+  "isPublished": true,
+  "chapters": [
+    {
+      "chapterId": "ch_001",
+      "title": "1. 프로그래밍 시작하기",
+      "description": "프로그래밍의 기본 개념을 배웁니다",
+      "order": 1,
+      "lessons": [
+        {
+          "lessonId": "les_001",
+          "title": "프로그래밍이란 무엇인가?",
+          "description": "프로그래밍의 정의와 왜 배워야 하는지 알아봅니다.",
+          "videoType": "youtube",
+          "videoUrl": "dQw4w9WgXcQ",
+          "duration": 10,
+          "order": 1,
+          "isFree": true,
+          "resources": []
+        },
+        {
+          "lessonId": "les_002",
+          "title": "블록 코딩 환경 설정",
+          "description": "스크래치 환경을 설정하고 기본 인터페이스를 알아봅니다.",
+          "videoType": "youtube",
+          "videoUrl": "ZH26PuX3re0",
+          "duration": 15,
+          "order": 2,
+          "isFree": true,
+          "resources": []
+        },
+        {
+          "lessonId": "les_003",
+          "title": "첫 번째 프로그램 만들기",
+          "description": "간단한 애니메이션 프로그램을 만들어봅니다.",
+          "videoType": "youtube",
+          "videoUrl": "cs1e0fRkqnI",
+          "duration": 20,
+          "order": 3,
+          "isFree": false,
+          "resources": [
+            {
+              "resourceId": "res_001",
+              "title": "스크래치 기초 가이드 PDF",
+              "type": "pdf",
+              "url": "/docs/scratch-guide.pdf"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "chapterId": "ch_002",
+      "title": "2. 순차와 반복",
+      "description": "프로그래밍의 기본 구조를 학습합니다",
+      "order": 2,
+      "lessons": [
+        {
+          "lessonId": "les_004",
+          "title": "순차 실행 이해하기",
+          "description": "명령어가 순서대로 실행되는 원리를 배웁니다.",
+          "videoType": "youtube",
+          "videoUrl": "aircAruvnKk",
+          "duration": 12,
+          "order": 1,
+          "isFree": false,
+          "resources": []
+        },
+        {
+          "lessonId": "les_005",
+          "title": "반복문 사용하기",
+          "description": "반복 블록을 사용하여 효율적인 코드를 작성합니다.",
+          "videoType": "youtube",
+          "videoUrl": "HGOBQPFzWKo",
+          "duration": 18,
+          "order": 2,
+          "isFree": false,
+          "resources": []
+        },
+        {
+          "lessonId": "les_006",
+          "title": "패턴 그리기 프로젝트",
+          "description": "반복문을 활용해 다양한 패턴을 그려봅니다.",
+          "videoType": "youtube",
+          "videoUrl": "pTB0EiLXUC8",
+          "duration": 25,
+          "order": 3,
+          "isFree": false,
+          "resources": []
+        }
+      ]
+    },
+    {
+      "chapterId": "ch_003",
+      "title": "3. 로봇 제어 기초",
+      "description": "실제 로봇을 코드로 제어해봅니다",
+      "order": 3,
+      "lessons": [
+        {
+          "lessonId": "les_007",
+          "title": "로봇 연결하기",
+          "description": "컴퓨터와 로봇을 연결하는 방법을 배웁니다.",
+          "videoType": "youtube",
+          "videoUrl": "7lmCu8wz8ro",
+          "duration": 10,
+          "order": 1,
+          "isFree": false,
+          "resources": []
+        },
+        {
+          "lessonId": "les_008",
+          "title": "로봇 움직이기",
+          "description": "기본 이동 명령어로 로봇을 움직여봅니다.",
+          "videoType": "youtube",
+          "videoUrl": "8HEgeAbYphA",
+          "duration": 15,
+          "order": 2,
+          "isFree": false,
+          "resources": []
+        },
+        {
+          "lessonId": "les_009",
+          "title": "센서 활용하기",
+          "description": "센서를 이용해 로봇이 환경에 반응하도록 합니다.",
+          "videoType": "youtube",
+          "videoUrl": "dQw4w9WgXcQ",
+          "duration": 20,
+          "order": 3,
+          "isFree": false,
+          "resources": []
+        },
+        {
+          "lessonId": "les_010",
+          "title": "미로 탈출 로봇 만들기",
+          "description": "센서와 반복문을 활용해 미로를 탈출하는 로봇을 프로그래밍합니다.",
+          "videoType": "youtube",
+          "videoUrl": "cs1e0fRkqnI",
+          "duration": 30,
+          "order": 4,
+          "isFree": false,
+          "resources": [
+            {
+              "resourceId": "res_002",
+              "title": "미로 탈출 알고리즘 설명",
+              "type": "pdf",
+              "url": "/docs/maze-algorithm.pdf"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "totalLessons": 10,
+  "totalDuration": 175,
+  "whatYouWillLearn": [
+    "프로그래밍의 기본 개념과 원리",
+    "블록 코딩 도구 사용법",
+    "순차, 반복, 조건문 활용",
+    "로봇 제어 프로그래밍"
+  ],
+  "requirements": [
+    "컴퓨터 또는 노트북",
+    "인터넷 연결",
+    "로봇 키트 (수업 시 제공)"
+  ]
+}

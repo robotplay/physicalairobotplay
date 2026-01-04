@@ -58,7 +58,11 @@ export async function POST(request: NextRequest) {
         const usersCollection = db.collection(COLLECTIONS.USERS);
 
         const body = await request.json();
-        const { id, title, description, content, duration, level, category, color, thumbnail, meetingUrl, platformType, schedule, price, students, capacity, teacherId } = body;
+        const {
+            id, title, description, content, duration, level, category, color, thumbnail,
+            meetingUrl, platformType, schedule, price, students, capacity, teacherId,
+            chapters, totalLessons, totalDuration, isPublished, whatYouWillLearn, requirements
+        } = body;
 
         if (!title || !category) {
             return NextResponse.json(
@@ -93,6 +97,13 @@ export async function POST(request: NextRequest) {
             price: price || 0, // 가격
             teacherId: teacherId || undefined, // 강사 ID
             teacherName: teacherName || undefined, // 강사 이름
+            // 비디오 강좌 필드
+            chapters: chapters || [], // 챕터/레슨 구조
+            totalLessons: totalLessons || 0, // 총 레슨 수
+            totalDuration: totalDuration || 0, // 총 영상 시간 (분)
+            isPublished: isPublished !== false, // 공개 여부 (기본: 공개)
+            whatYouWillLearn: whatYouWillLearn || [], // 학습 목표
+            requirements: requirements || [], // 수강 요건
             updatedAt: new Date(),
         };
 

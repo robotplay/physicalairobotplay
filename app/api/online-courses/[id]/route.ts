@@ -2,30 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-// 캐싱 설정: 1시간 (3600초)
-export const revalidate = 3600;
-
-// GET - 특정 온라인 강좌 조회
+// GET - 개별 온라인 강좌 조회
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> | { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const resolvedParams = params instanceof Promise ? await params : params;
-        const { id } = resolvedParams;
+        const { id } = await params;
 
-        if (!id || !ObjectId.isValid(id)) {
+        if (!ObjectId.isValid(id)) {
             return NextResponse.json(
-                { success: false, error: '유효하지 않은 강좌 ID입니다.' },
+                { success: false, error: '유효하지 않은 ID입니다.' },
                 { status: 400 }
             );
-        }
-
-        if (!process.env.MONGODB_URI) {
-            return NextResponse.json({
-                success: false,
-                error: 'MongoDB가 설정되지 않았습니다.',
-            }, { status: 500 });
         }
 
         const db = await getDatabase();
@@ -40,10 +29,11 @@ export async function GET(
             );
         }
 
+        // _id를 문자열로 변환
         const formattedCourse = {
             ...course,
-            id: course._id.toString(),
             _id: course._id.toString(),
+            id: course._id.toString(),
         };
 
         const response = NextResponse.json({
@@ -51,24 +41,18 @@ export async function GET(
             data: formattedCourse,
         });
 
-        // Cache-Control 헤더 추가
+        // 캐시 설정
         response.headers.set(
             'Cache-Control',
-            'public, s-maxage=3600, stale-while-revalidate=86400'
+            'public, s-maxage=1800, stale-while-revalidate=3600'
         );
 
         return response;
     } catch (error) {
-        console.error('Failed to fetch online course:', error);
+        console.error('Failed to fetch course:', error);
         return NextResponse.json(
             { success: false, error: '강좌를 불러오는데 실패했습니다.' },
             { status: 500 }
         );
     }
 }
-
-
-
-
-
-

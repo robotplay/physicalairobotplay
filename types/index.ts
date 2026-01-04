@@ -345,3 +345,98 @@ export interface ConversionEvent {
     timestamp: Date | string;
 }
 
+// 온라인 강좌 레슨 타입
+export interface CourseLesson {
+    lessonId: string;
+    title: string;
+    description?: string;
+    videoType: 'youtube' | 'vimeo' | 'url'; // 비디오 플랫폼
+    videoUrl: string; // YouTube ID, Vimeo ID, 또는 직접 URL
+    duration: number; // 분 단위
+    order: number; // 레슨 순서
+    isFree?: boolean; // 무료 미리보기 여부
+    resources?: CourseResource[]; // 첨부 자료
+}
+
+// 강좌 첨부 자료 타입
+export interface CourseResource {
+    resourceId: string;
+    title: string;
+    type: 'pdf' | 'link' | 'file';
+    url: string;
+}
+
+// 강좌 챕터 타입
+export interface CourseChapter {
+    chapterId: string;
+    title: string;
+    description?: string;
+    order: number;
+    lessons: CourseLesson[];
+}
+
+// 온라인 강좌 확장 타입
+export interface OnlineCourse {
+    _id?: string;
+    id?: string;
+    title: string;
+    description: string;
+    content: string; // 소개 HTML
+    thumbnail: string;
+    category: string;
+    level: string;
+    duration: string; // 예: "8주", "12시간"
+    students: string;
+    price: number;
+    chapters: CourseChapter[]; // 챕터/레슨 구조
+    totalLessons: number;
+    totalDuration: number; // 총 분 단위
+    instructor?: {
+        name: string;
+        avatar?: string;
+        bio?: string;
+    };
+    whatYouWillLearn?: string[]; // 학습 목표
+    requirements?: string[]; // 수강 요건
+    isPublished: boolean;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
+// 학습 진도 타입
+export interface LessonProgress {
+    lessonId: string;
+    completed: boolean;
+    watchedSeconds: number; // 시청한 시간 (초)
+    lastPosition: number; // 마지막 재생 위치 (초)
+    completedAt?: Date | string;
+}
+
+export interface ChapterProgress {
+    chapterId: string;
+    completedLessons: number;
+    totalLessons: number;
+    lessons: LessonProgress[];
+}
+
+// 사용자 강좌 진도 타입
+export interface CourseProgress {
+    _id?: string;
+    oderId?: string; // 주문 ID (결제 연동)
+    courseId: string;
+    courseName?: string;
+    userId: string; // 학생 ID 또는 이메일
+    userEmail?: string;
+    userName?: string;
+    chapters: ChapterProgress[];
+    overallProgress: number; // 0-100 퍼센트
+    completedLessons: number;
+    totalLessons: number;
+    lastAccessedAt?: Date | string;
+    lastLessonId?: string; // 마지막 학습한 레슨
+    completedAt?: Date | string; // 완료일
+    certificateIssued?: boolean;
+    startedAt: Date | string;
+    updatedAt: Date | string;
+}
+

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users, DollarSign, Calendar } from 'lucide-react';
+import { Video, Edit, Trash2, Plus, X, Link as LinkIcon, Clock, Users, DollarSign, Calendar, BookOpen, Play } from 'lucide-react';
 import Image from 'next/image';
 import RichTextEditor from './RichTextEditor';
+import CourseLessonsEditor from './CourseLessonsEditor';
+import { CourseChapter } from '@/types';
 import toast from 'react-hot-toast';
 
 export interface CourseData {
@@ -25,6 +27,10 @@ export interface CourseData {
     price: number; // 가격
     teacherId?: string; // 강사 ID
     teacherName?: string; // 강사 이름
+    chapters?: CourseChapter[]; // 비디오 강좌 챕터/레슨
+    totalLessons?: number; // 총 레슨 수
+    totalDuration?: number; // 총 영상 시간 (분)
+    isPublished?: boolean; // 공개 여부
     createdAt: string;
 }
 
@@ -66,7 +72,10 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         platformType: 'zoom' as 'zoom' | 'whale',
         schedule: [] as { day: string, time: string }[],
         price: 0, // 가격
+        chapters: [] as CourseChapter[], // 비디오 강좌 챕터
+        isPublished: true, // 공개 여부
     });
+    const [showLessonsEditor, setShowLessonsEditor] = useState(false);
 
     const handleCreate = () => {
         setIsCreating(true);
@@ -85,10 +94,13 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             platformType: 'zoom',
             schedule: [],
             price: 0,
+            chapters: [],
+            isPublished: true,
         });
         setSelectedCourse(null);
         setEditingId(null);
         setUploadPreview(null);
+        setShowLessonsEditor(false);
         // 파일 입력 리셋
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -112,10 +124,13 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
             platformType: item.platformType || 'zoom',
             schedule: item.schedule || [],
             price: item.price || 0,
+            chapters: item.chapters || [],
+            isPublished: item.isPublished !== false,
         });
         setSelectedCourse(null);
         setIsCreating(false);
         setUploadPreview(null);
+        setShowLessonsEditor(false);
         // 파일 입력 리셋
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -126,10 +141,21 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         setIsCreating(false);
         setEditingId(null);
         setUploadPreview(null);
+        setShowLessonsEditor(false);
         // 파일 입력 리셋
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
+    };
+
+    // 총 레슨 수와 시간 계산
+    const calculateTotals = (chapters: CourseChapter[]) => {
+        const totalLessons = chapters.reduce((sum, c) => sum + c.lessons.length, 0);
+        const totalDuration = chapters.reduce(
+            (sum, c) => sum + c.lessons.reduce((s, l) => s + l.duration, 0),
+            0
+        );
+        return { totalLessons, totalDuration };
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,10 +292,18 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
         const loadingToast = toast.loading(editingId ? '온라인 강좌 수정 중...' : '온라인 강좌 추가 중...');
 
         try {
+            // 총 레슨 수와 시간 계산
+            const { totalLessons, totalDuration } = calculateTotals(formData.chapters);
+
             const response = await fetch('/api/online-courses', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formData, id: editingId }),
+                body: JSON.stringify({
+                    ...formData,
+                    id: editingId,
+                    totalLessons,
+                    totalDuration,
+                }),
             });
             const result = await response.json();
             if (result.success) {
@@ -490,6 +524,64 @@ export default function OnlineCoursesTab({ courses, onRefresh }: OnlineCoursesTa
                                     }
                                 }}
                             />
+                        </div>
+
+                        {/* 비디오 강좌 레슨 관리 섹션 */}
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <BookOpen className="w-5 h-5 text-deep-electric-blue" />
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                                        비디오 강좌 콘텐츠
+                                    </h3>
+                                    {formData.chapters.length > 0 && (
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                                            ({formData.chapters.length}개 챕터, {calculateTotals(formData.chapters).totalLessons}개 레슨)
+                                        </span>
+                                    )}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowLessonsEditor(!showLessonsEditor)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    {showLessonsEditor ? (
+                                        <>
+                                            <X className="w-4 h-4" /> 닫기
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Play className="w-4 h-4" /> 레슨 관리
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                YouTube, Vimeo 또는 직접 호스팅한 비디오로 온라인 강좌를 구성할 수 있습니다.
+                            </p>
+
+                            {showLessonsEditor && (
+                                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                                    <CourseLessonsEditor
+                                        chapters={formData.chapters}
+                                        onChange={(chapters) => setFormData({ ...formData, chapters })}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 공개 설정 */}
+                        <div className="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <input
+                                type="checkbox"
+                                id="isPublished"
+                                checked={formData.isPublished}
+                                onChange={e => setFormData({ ...formData, isPublished: e.target.checked })}
+                                className="w-5 h-5 text-deep-electric-blue border-gray-300 rounded focus:ring-deep-electric-blue"
+                            />
+                            <label htmlFor="isPublished" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                강좌 공개 (체크 해제 시 비공개)
+                            </label>
                         </div>
 
                         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">

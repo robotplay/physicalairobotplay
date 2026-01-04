@@ -78,4 +78,5 @@ export const COLLECTIONS = {
     LEAD_MAGNETS: 'lead_magnets',
     LEADS: 'leads',
     CONVERSION_EVENTS: 'conversion_events',
+    COURSE_PROGRESS: 'course_progress',
 } as const;
