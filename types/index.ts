@@ -4,7 +4,7 @@
  */
 
 // 학생 관련 타입
-export interface Competition {
+export interface StudentCompetition {
     competitionId: string;
     competitionName: string;
     year: number;
@@ -54,21 +54,35 @@ export interface Payment {
 export interface CompetitionTeam {
     teamId: string;
     teamName: string;
-    members: string[];
-    result: 'participated' | 'award' | 'winner';
+    members: string[]; // studentId 배열
+    teacherId?: string;
+    status: 'registered' | 'preparing' | 'completed';
+    result?: 'participated' | 'award' | 'winner';
     award?: string;
+    photos?: string[];
+    review?: string;
 }
 
 export interface CompetitionData {
     _id?: string;
     competitionId: string;
-    competitionName: string;
-    year: number;
-    month: number;
-    teams?: CompetitionTeam[];
+    name: string;
+    type: 'local' | 'national' | 'international';
+    startDate: string | Date;
+    endDate: string | Date;
+    registrationDeadline: string | Date;
+    description: string;
+    requirements?: string;
+    location?: string;
+    teams: CompetitionTeam[];
+    maxTeams?: number;
+    status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }
+
+// 하위 호환성을 위한 별칭
+export type Competition = CompetitionData;
 
 // 학생 데이터 타입
 export interface Student {
@@ -84,7 +98,7 @@ export interface Student {
     enrolledCourses: string[];
     attendance: StudentAttendance;
     projects: Project[];
-    competitions: Competition[];
+    competitions: StudentCompetition[];
     learningNotes?: string;
     portfolio: StudentPortfolio;
     createdAt: string | Date;

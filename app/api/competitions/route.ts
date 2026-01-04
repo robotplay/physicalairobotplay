@@ -1,121 +1,125 @@
-import { NextRequest } from 'next/server';
-import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
-import { verifyToken, hasPermission } from '@/lib/auth';
+/**
+ * 대회 관리 API
+ */
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import {
-    successResponse,
-    unauthorizedResponse,
-    badRequestResponse,
-    handleMongoError,
-} from '@/lib/api-response';
+import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
+import { verifyToken } from '@/lib/auth';
+import type { CompetitionData } from '@/types';
 
-// 권한 체크 헬퍼 함수
-async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
+// 인증 헬퍼 함수
+async function checkAuth(request: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth-token')?.value;
 
     if (!token) {
-        return { authorized: false, error: '인증되지 않았습니다.' };
+        return { authenticated: false, error: '인증되지 않았습니다.' };
     }
 
     const payload = await verifyToken(token);
     if (!payload) {
-        return { authorized: false, error: '유효하지 않은 토큰입니다.' };
+        return { authenticated: false, error: '유효하지 않은 토큰입니다.' };
     }
 
-    if (!hasPermission(payload.role, requiredRole)) {
-        return { authorized: false, error: '권한이 없습니다.' };
-    }
-
-    return { authorized: true, user: payload };
+    return { authenticated: true, user: payload };
 }
 
-// GET - 대회 목록 조회
+// GET: 대회 목록 조회
 export async function GET(request: NextRequest) {
     try {
-        const { searchParams } = new URL(request.url);
-        const year = searchParams.get('year');
-        const type = searchParams.get('type');
-
-        const db = await getDatabase();
-        const collection = db.collection(COLLECTIONS.COMPETITIONS);
-
-        const query: any = {};
-        if (year) {
-            query.year = parseInt(year);
-        }
-        if (type) {
-            query.type = type;
-        }
-
-        const competitions = await collection
-            .find(query)
-            .sort({ startDate: -1 })
-            .toArray();
-
-        const formattedCompetitions = competitions.map((comp) => ({
-            ...comp,
-            _id: comp._id.toString(),
-        }));
-
-        return successResponse({
-            competitions: formattedCompetitions,
-            count: formattedCompetitions.length,
-        });
-    } catch (error) {
-        return handleMongoError(error);
-    }
-}
-
-// POST - 대회 생성
-export async function POST(request: NextRequest) {
-    try {
-        const auth = await checkAuth('admin');
-        if (!auth.authorized) {
-            return unauthorizedResponse(auth.error);
-        }
-
-        const body = await request.json();
-        const { name, type, startDate, endDate, registrationDeadline, description, requirements } = body;
-
-        if (!name || !type || !startDate) {
-            return badRequestResponse(
-                '필수 항목을 입력해주세요.',
-                '대회명, 유형, 시작일은 필수입니다.'
+        const authResult = await checkAuth(request);
+        if (!authResult.authenticated || (authResult.user?.role !== 'admin' && authResult.user?.role !== 'teacher')) {
+            return NextResponse.json(
+                { success: false, error: '권한이 없습니다' },
+                { status: 403 }
             );
         }
 
         const db = await getDatabase();
-        const collection = db.collection(COLLECTIONS.COMPETITIONS);
+        const competitions = await db
+            .collection(COLLECTIONS.COMPETITIONS)
+            .find({})
+            .sort({ startDate: -1 })
+            .toArray();
 
-        const competitionId = `competition-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        return NextResponse.json({
+            success: true,
+            data: { competitions },
+        });
+    } catch (error) {
+        console.error('대회 목록 조회 실패:', error);
+        return NextResponse.json(
+            { success: false, error: '대회 목록 조회 실패' },
+            { status: 500 }
+        );
+    }
+}
 
-        const competitionData = {
+// POST: 새 대회 등록
+export async function POST(request: NextRequest) {
+    try {
+        const authResult = await checkAuth(request);
+        if (!authResult.authenticated || authResult.user?.role !== 'admin') {
+            return NextResponse.json(
+                { success: false, error: '권한이 없습니다' },
+                { status: 403 }
+            );
+        }
+
+        const body = await request.json();
+        const {
+            name,
+            type,
+            startDate,
+            endDate,
+            registrationDeadline,
+            description,
+            requirements,
+            location,
+            maxTeams,
+        } = body;
+
+        // 유효성 검사
+        if (!name || !type || !startDate || !endDate) {
+            return NextResponse.json(
+                { success: false, error: '필수 정보를 입력해주세요' },
+                { status: 400 }
+            );
+        }
+
+        const db = await getDatabase();
+        
+        // 고유 ID 생성
+        const competitionId = `comp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+        const newCompetition: Omit<CompetitionData, '_id'> = {
             competitionId,
             name,
             type,
             startDate: new Date(startDate),
-            endDate: endDate ? new Date(endDate) : undefined,
-            registrationDeadline: registrationDeadline ? new Date(registrationDeadline) : undefined,
-            description: description || '',
+            endDate: new Date(endDate),
+            registrationDeadline: new Date(registrationDeadline),
+            description,
             requirements: requirements || '',
+            location: location || '',
             teams: [],
+            maxTeams: maxTeams || 0,
+            status: 'upcoming',
             createdAt: new Date(),
             updatedAt: new Date(),
         };
 
-        const result = await collection.insertOne(competitionData);
+        const result = await db.collection(COLLECTIONS.COMPETITIONS).insertOne(newCompetition);
 
-        return successResponse(
-            {
-                ...competitionData,
-                _id: result.insertedId.toString(),
-            },
-            '대회가 생성되었습니다.',
-            201
-        );
+        return NextResponse.json({
+            success: true,
+            data: { _id: result.insertedId, ...newCompetition },
+        });
     } catch (error) {
-        return handleMongoError(error);
+        console.error('대회 등록 실패:', error);
+        return NextResponse.json(
+            { success: false, error: '대회 등록 실패' },
+            { status: 500 }
+        );
     }
 }
-

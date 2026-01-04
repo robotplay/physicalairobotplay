@@ -16,7 +16,8 @@ import ParentCommunicationTab from '@/components/admin/ParentCommunicationTab';
 import AnalyticsTab from '@/components/admin/AnalyticsTab';
 import AttendanceTab from '@/components/admin/AttendanceTab';
 import CollectedNewsTab from '@/components/admin/CollectedNewsTab';
-import type { Competition, Project } from '@/types';
+import CompetitionsTab from '@/components/admin/CompetitionsTab';
+import type { StudentCompetition, Project } from '@/types';
 
 interface ConsultationData {
     id: string;
@@ -99,7 +100,7 @@ interface StudentData {
         rate: number;
     };
     projects: Project[];
-    competitions: Competition[];
+    competitions: StudentCompetition[];
     learningNotes: string;
     portfolio: {
         images: string[];
@@ -988,6 +989,10 @@ export default function AdminPage() {
 
                 {activeTab === 'collected-news' && (
                     <CollectedNewsTab />
+                )}
+
+                {activeTab === 'competitions' && (
+                    <CompetitionsTab />
                 )}
 
                 {activeTab === 'settings' && (
