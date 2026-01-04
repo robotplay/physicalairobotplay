@@ -154,10 +154,10 @@ export function determineCategory(
     const title = (article.title || '').toLowerCase();
     const content = (article.content || '').toLowerCase();
 
-    // 카테고리별 키워드
-    const educationKeywords = ['교육', '학원', '수업', '학생', '학교', '교육부'];
-    const technologyKeywords = ['기술', 'AI', '인공지능', '로봇', '드론', '코딩', '프로그래밍'];
-    const competitionKeywords = ['대회', '경진', '수상', '우수', '상', '대상'];
+    // 카테고리별 키워드 (한글 + 영어)
+    const educationKeywords = ['교육', '학원', '수업', '학생', '학교', '교육부', 'education', 'school', 'student', 'learning', 'teaching', 'classroom'];
+    const technologyKeywords = ['기술', 'AI', '인공지능', '로봇', '드론', '코딩', '프로그래밍', 'technology', 'robot', 'robotics', 'drone', 'automation', 'artificial intelligence', 'machine learning'];
+    const competitionKeywords = ['대회', '경진', '수상', '우수', '상', '대상', 'competition', 'contest', 'award', 'prize', 'winner', 'championship'];
 
     // 키워드 매칭으로 카테고리 결정
     if (competitionKeywords.some((kw) => title.includes(kw) || content.includes(kw))) {

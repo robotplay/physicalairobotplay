@@ -5,9 +5,11 @@ import type { RSSFeedSource } from '@/types';
 
 /**
  * 기본 RSS 피드 소스 목록
- * 이미지가 포함된 실제 언론사 RSS만 사용
+ * 국내외 주요 언론사의 이미지 포함 RSS 피드
  */
 export const DEFAULT_RSS_SOURCES: RSSFeedSource[] = [
+    // === 국내 매체 ===
+    
     // 연합뉴스 IT (이미지 포함 확률 높음)
     {
         id: 'yonhap-it',
@@ -48,6 +50,76 @@ export const DEFAULT_RSS_SOURCES: RSSFeedSource[] = [
         keywords: ['로봇', 'AI', '인공지능', '기술', '교육'],
         isActive: true,
     },
+
+    // === 해외 매체 (로봇/AI 전문) ===
+    
+    // IEEE Spectrum - Robotics (세계 최고 로봇/엔지니어링 매체)
+    {
+        id: 'ieee-robotics',
+        name: 'IEEE Spectrum',
+        url: 'https://spectrum.ieee.org/feeds/feed.rss',
+        keywords: ['robot', 'robotics', 'AI', 'automation', 'drone', 'physical AI'],
+        isActive: true,
+    },
+    // TechCrunch - AI (세계 최대 기술 매체)
+    {
+        id: 'techcrunch-ai',
+        name: 'TechCrunch',
+        url: 'https://techcrunch.com/category/artificial-intelligence/feed/',
+        keywords: ['AI', 'robot', 'robotics', 'machine learning', 'automation'],
+        isActive: true,
+    },
+    // VentureBeat - AI (AI 전문)
+    {
+        id: 'venturebeat-ai',
+        name: 'VentureBeat',
+        url: 'https://venturebeat.com/category/ai/feed/',
+        keywords: ['AI', 'robot', 'robotics', 'machine learning', 'automation', 'physical AI'],
+        isActive: true,
+    },
+    // MIT Technology Review (MIT 기술 리뷰)
+    {
+        id: 'mit-tech-review',
+        name: 'MIT Technology Review',
+        url: 'https://www.technologyreview.com/feed/',
+        keywords: ['robot', 'AI', 'robotics', 'automation', 'technology', 'innovation'],
+        isActive: true,
+    },
+    // The Verge - Science (기술/과학)
+    {
+        id: 'verge-science',
+        name: 'The Verge',
+        url: 'https://www.theverge.com/rss/index.xml',
+        keywords: ['robot', 'AI', 'robotics', 'technology', 'science', 'automation'],
+        isActive: true,
+    },
+    // Wired - AI (세계적 기술 매거진)
+    {
+        id: 'wired-ai',
+        name: 'Wired',
+        url: 'https://www.wired.com/feed/tag/ai/latest/rss',
+        keywords: ['AI', 'robot', 'robotics', 'artificial intelligence', 'automation'],
+        isActive: true,
+    },
+    // Engadget (기술 리뷰)
+    {
+        id: 'engadget',
+        name: 'Engadget',
+        url: 'https://www.engadget.com/rss.xml',
+        keywords: ['robot', 'AI', 'robotics', 'technology', 'gadget', 'drone'],
+        isActive: true,
+    },
+    // Ars Technica (기술 뉴스)
+    {
+        id: 'arstechnica',
+        name: 'Ars Technica',
+        url: 'https://feeds.arstechnica.com/arstechnica/index',
+        keywords: ['robot', 'AI', 'robotics', 'technology', 'science'],
+        isActive: true,
+    },
+
+    // === 백업 (비활성) ===
+    
     // Google News는 비활성화 (이미지 없음)
     {
         id: 'google-news-backup',

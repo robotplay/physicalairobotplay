@@ -346,6 +346,7 @@ export async function convertRSSItemToArticle(
             const hostname = url.hostname.toLowerCase();
             
             const sourceMap: Record<string, string> = {
+                // 국내 매체
                 'chosun.com': '조선일보',
                 'joongang.co.kr': '중앙일보',
                 'donga.com': '동아일보',
@@ -365,6 +366,15 @@ export async function convertRSSItemToArticle(
                 'it.chosun.com': 'IT조선',
                 'robotnews.co.kr': '로봇신문',
                 'irobotnews.com': '로봇신문',
+                // 해외 매체
+                'spectrum.ieee.org': 'IEEE Spectrum',
+                'techcrunch.com': 'TechCrunch',
+                'venturebeat.com': 'VentureBeat',
+                'technologyreview.com': 'MIT Technology Review',
+                'theverge.com': 'The Verge',
+                'wired.com': 'Wired',
+                'engadget.com': 'Engadget',
+                'arstechnica.com': 'Ars Technica',
             };
 
             for (const [domain, name] of Object.entries(sourceMap)) {
