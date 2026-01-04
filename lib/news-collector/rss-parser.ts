@@ -52,14 +52,19 @@ async function resolveActualUrl(url: string): Promise<string> {
 
     try {
         const fetch = (await import('node-fetch')).default;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
         const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             },
             redirect: 'follow', // 리다이렉션 추적
-            timeout: 5000,
+            signal: controller.signal as any,
         });
+        
+        clearTimeout(timeout);
         
         // 최종 URL 반환
         const finalUrl = response.url;
@@ -82,13 +87,18 @@ async function fetchArticleImageFromPage(url: string): Promise<string | undefine
 
     try {
         const fetch = (await import('node-fetch')).default;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+
         const response = await fetch(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             },
-            timeout: 8000,
+            signal: controller.signal as any,
         });
+
+        clearTimeout(timeout);
 
         if (!response.ok) return undefined;
 
