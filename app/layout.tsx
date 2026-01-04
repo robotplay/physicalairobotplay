@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import { OrganizationSchema, WebSiteSchema } from "@/components/JsonLd";
 import ToastProvider from "@/components/ToastProvider";
 import FloatingConsultationButton from "@/components/FloatingConsultationButton";
+import PopupManager from "@/components/PopupManager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -132,6 +133,7 @@ export default function RootLayout({
         <Header />
         {children}
         <FloatingConsultationButton />
+        <PopupManager />
         <ToastProvider />
         <Analytics />
         <SpeedInsights />

@@ -74,4 +74,8 @@ export const COLLECTIONS = {
     COLLECTED_NEWS: 'collected_news',
     COLLECTION_LOGS: 'collection_logs',
     RSS_FEED_SOURCES: 'rss_feed_sources',
+    POPUPS: 'popups',
+    LEAD_MAGNETS: 'lead_magnets',
+    LEADS: 'leads',
+    CONVERSION_EVENTS: 'conversion_events',
 } as const;

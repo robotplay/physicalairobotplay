@@ -276,3 +276,72 @@ export interface MonthlyNewsletter {
     updatedAt?: Date | string;
 }
 
+// 팝업 관련 타입
+export interface Popup {
+    _id?: string;
+    popupId: string;
+    title: string;
+    content: string;
+    type: 'modal' | 'banner' | 'slide-in';
+    trigger: 'immediate' | 'delay' | 'exit-intent' | 'scroll';
+    triggerValue?: number; // delay(초) 또는 scroll(%)
+    targetPages: string[]; // ['/', '/consultation'] 등
+    ctaText?: string;
+    ctaUrl?: string;
+    imageUrl?: string;
+    position?: 'center' | 'top' | 'bottom' | 'top-right' | 'bottom-right';
+    showFrequency: 'always' | 'once-per-session' | 'once-per-day' | 'once-per-week';
+    isActive: boolean;
+    priority: number; // 우선순위 (높을수록 먼저 표시)
+    startDate?: Date | string;
+    endDate?: Date | string;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
+// 리드 마그넷 관련 타입
+export interface LeadMagnet {
+    _id?: string;
+    leadMagnetId: string;
+    title: string;
+    description: string;
+    type: 'pdf' | 'video' | 'webinar' | 'checklist' | 'guide';
+    fileUrl?: string;
+    thumbnailUrl?: string;
+    category: 'education' | 'competition' | 'curriculum' | 'parenting';
+    downloadCount: number;
+    isActive: boolean;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
+// 리드 (잠재 고객) 관련 타입
+export interface Lead {
+    _id?: string;
+    leadId: string;
+    name: string;
+    email: string;
+    phone?: string;
+    source: 'landing-page' | 'popup' | 'lead-magnet' | 'consultation' | 'other';
+    sourceDetail?: string; // 어떤 랜딩 페이지, 어떤 리드 마그넷 등
+    status: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost';
+    interests: string[]; // ['free-trial', 'competition', 'basic-course']
+    notes?: string;
+    metadata?: Record<string, any>; // 추가 정보
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
+// 전환 이벤트 추적 타입
+export interface ConversionEvent {
+    _id?: string;
+    eventId: string;
+    eventType: 'page-view' | 'button-click' | 'form-submit' | 'download' | 'signup';
+    eventName: string;
+    userId?: string;
+    sessionId: string;
+    source: string; // 'landing-free-trial', 'popup-promotion' 등
+    metadata?: Record<string, any>;
+    timestamp: Date | string;
+}
+
