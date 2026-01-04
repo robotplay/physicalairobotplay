@@ -194,3 +194,85 @@ export interface CollectionLog {
     duration?: number; // milliseconds
 }
 
+// 커리큘럼 관련 타입
+export interface CurriculumWeek {
+    week: number;
+    title: string;
+    description: string;
+    materials: string[]; // 자료 링크
+    videos: string[]; // 영상 링크
+    assignments: string[];
+}
+
+export interface Curriculum {
+    _id?: string;
+    curriculumId: string;
+    courseId: string; // online_courses와 연결
+    month: number; // 1-12
+    year: number;
+    weeks: CurriculumWeek[];
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
+// 갤러리 관련 타입
+export interface ClassGallery {
+    _id?: string;
+    galleryId: string;
+    courseId: string;
+    classDate: Date | string;
+    title: string;
+    description: string;
+    images: string[]; // 이미지 URL 배열
+    videos: string[]; // 영상 URL 배열
+    tags: string[]; // 태그
+    visibility: 'public' | 'parents-only' | 'private';
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
+// FAQ 관련 타입
+export interface FAQ {
+    _id?: string;
+    faqId: string;
+    category: 'general' | 'enrollment' | 'curriculum' | 'competition' | 'payment';
+    question: string;
+    answer: string;
+    order: number; // 정렬 순서
+    isActive: boolean;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
+// 피드백 관련 타입
+export interface StudentFeedback {
+    _id?: string;
+    feedbackId: string;
+    studentId: string;
+    teacherId: string;
+    courseId: string;
+    date: Date | string;
+    content: string; // 피드백 내용
+    strengths: string[]; // 강점
+    improvements: string[]; // 개선점
+    nextSteps: string; // 다음 단계
+    createdAt?: Date | string;
+}
+
+// 뉴스레터 관련 타입
+export interface MonthlyNewsletter {
+    _id?: string;
+    newsletterId: string;
+    month: number;
+    year: number;
+    title: string;
+    content: string; // HTML 콘텐츠
+    highlights: string[]; // 주요 하이라이트
+    studentSpotlights: string[]; // 학생 스포트라이트 (studentId 배열)
+    competitionResults: string[]; // 대회 결과
+    photos: string[];
+    sentAt?: Date | string; // 발송일
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+

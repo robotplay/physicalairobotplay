@@ -1,121 +1,130 @@
-import { NextRequest } from 'next/server';
-import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
-import { verifyToken, hasPermission } from '@/lib/auth';
+/**
+ * 커리큘럼 관리 API
+ */
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import {
-    successResponse,
-    unauthorizedResponse,
-    badRequestResponse,
-    handleMongoError,
-} from '@/lib/api-response';
+import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
+import { verifyToken } from '@/lib/auth';
+import type { Curriculum } from '@/types';
 
-// 권한 체크 헬퍼 함수
-async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
+// 인증 헬퍼 함수
+async function checkAuth(request: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth-token')?.value;
 
     if (!token) {
-        return { authorized: false, error: '인증되지 않았습니다.' };
+        return { authenticated: false, error: '인증되지 않았습니다.' };
     }
 
     const payload = await verifyToken(token);
     if (!payload) {
-        return { authorized: false, error: '유효하지 않은 토큰입니다.' };
+        return { authenticated: false, error: '유효하지 않은 토큰입니다.' };
     }
 
-    if (!hasPermission(payload.role, requiredRole)) {
-        return { authorized: false, error: '권한이 없습니다.' };
-    }
-
-    return { authorized: true, user: payload };
+    return { authenticated: true, user: payload };
 }
 
-// GET - 커리큘럼 목록 조회
+// GET: 커리큘럼 목록 조회
 export async function GET(request: NextRequest) {
     try {
+        const authResult = await checkAuth(request);
+        if (!authResult.authenticated) {
+            return NextResponse.json(
+                { success: false, error: '권한이 없습니다' },
+                { status: 403 }
+            );
+        }
+
         const { searchParams } = new URL(request.url);
         const courseId = searchParams.get('courseId');
-        const month = searchParams.get('month');
         const year = searchParams.get('year');
+        const month = searchParams.get('month');
 
         const db = await getDatabase();
-        const collection = db.collection(COLLECTIONS.CURRICULUM);
+        const filter: any = {};
 
-        const query: any = {};
-        if (courseId) {
-            query.courseId = courseId;
-        }
-        if (month) {
-            query.month = parseInt(month);
-        }
-        if (year) {
-            query.year = parseInt(year);
-        }
+        if (courseId) filter.courseId = courseId;
+        if (year) filter.year = parseInt(year);
+        if (month) filter.month = parseInt(month);
 
-        const curricula = await collection
-            .find(query)
+        const curriculums = await db
+            .collection(COLLECTIONS.CURRICULUM)
+            .find(filter)
             .sort({ year: -1, month: -1 })
             .toArray();
 
-        const formattedCurricula = curricula.map((curriculum) => ({
-            ...curriculum,
-            _id: curriculum._id.toString(),
-        }));
-
-        return successResponse({
-            curricula: formattedCurricula,
-            count: formattedCurricula.length,
+        return NextResponse.json({
+            success: true,
+            data: { curriculums },
         });
     } catch (error) {
-        return handleMongoError(error);
+        console.error('커리큘럼 목록 조회 실패:', error);
+        return NextResponse.json(
+            { success: false, error: '커리큘럼 목록 조회 실패' },
+            { status: 500 }
+        );
     }
 }
 
-// POST - 커리큘럼 생성
+// POST: 새 커리큘럼 등록
 export async function POST(request: NextRequest) {
     try {
-        const auth = await checkAuth('admin');
-        if (!auth.authorized) {
-            return unauthorizedResponse(auth.error);
+        const authResult = await checkAuth(request);
+        if (!authResult.authenticated || authResult.user?.role !== 'admin') {
+            return NextResponse.json(
+                { success: false, error: '권한이 없습니다' },
+                { status: 403 }
+            );
         }
 
         const body = await request.json();
         const { courseId, month, year, weeks } = body;
 
-        if (!courseId || !month || !year) {
-            return badRequestResponse(
-                '필수 항목을 입력해주세요.',
-                '과목, 월, 연도는 필수입니다.'
+        // 유효성 검사
+        if (!courseId || !month || !year || !weeks) {
+            return NextResponse.json(
+                { success: false, error: '필수 정보를 입력해주세요' },
+                { status: 400 }
             );
         }
 
         const db = await getDatabase();
-        const collection = db.collection(COLLECTIONS.CURRICULUM);
 
-        const curriculumId = `curriculum-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        // 중복 확인
+        const existing = await db
+            .collection(COLLECTIONS.CURRICULUM)
+            .findOne({ courseId, year, month });
 
-        const curriculumData = {
+        if (existing) {
+            return NextResponse.json(
+                { success: false, error: '해당 과목의 커리큘럼이 이미 존재합니다' },
+                { status: 400 }
+            );
+        }
+
+        const curriculumId = `curr_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+        const newCurriculum: Omit<Curriculum, '_id'> = {
             curriculumId,
             courseId,
-            month: parseInt(month),
-            year: parseInt(year),
-            weeks: weeks || [],
+            month,
+            year,
+            weeks,
             createdAt: new Date(),
             updatedAt: new Date(),
         };
 
-        const result = await collection.insertOne(curriculumData);
+        const result = await db.collection(COLLECTIONS.CURRICULUM).insertOne(newCurriculum);
 
-        return successResponse(
-            {
-                ...curriculumData,
-                _id: result.insertedId.toString(),
-            },
-            '커리큘럼이 생성되었습니다.',
-            201
-        );
+        return NextResponse.json({
+            success: true,
+            data: { _id: result.insertedId, ...newCurriculum },
+        });
     } catch (error) {
-        return handleMongoError(error);
+        console.error('커리큘럼 등록 실패:', error);
+        return NextResponse.json(
+            { success: false, error: '커리큘럼 등록 실패' },
+            { status: 500 }
+        );
     }
 }
-

@@ -1,12 +1,12 @@
 /**
- * 개별 갤러리 관리 API
+ * 개별 커리큘럼 관리 API
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
 import { verifyToken } from '@/lib/auth';
 import { ObjectId } from 'mongodb';
-import type { ClassGallery } from '@/types';
+import type { Curriculum } from '@/types';
 
 // 인증 헬퍼 함수
 async function checkAuth(request: NextRequest) {
@@ -25,57 +25,54 @@ async function checkAuth(request: NextRequest) {
     return { authenticated: true, user: payload };
 }
 
-// GET: 특정 갤러리 조회
+// GET: 특정 커리큘럼 조회
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const authResult = await checkAuth(request);
+        if (!authResult.authenticated) {
+            return NextResponse.json(
+                { success: false, error: '인증이 필요합니다' },
+                { status: 401 }
+            );
+        }
+
         const { id } = await params;
         const db = await getDatabase();
-        const gallery = await db
-            .collection(COLLECTIONS.CLASS_GALLERY)
+        const curriculum = await db
+            .collection(COLLECTIONS.CURRICULUM)
             .findOne({ _id: new ObjectId(id) });
 
-        if (!gallery) {
+        if (!curriculum) {
             return NextResponse.json(
-                { success: false, error: '갤러리를 찾을 수 없습니다' },
+                { success: false, error: '커리큘럼을 찾을 수 없습니다' },
                 { status: 404 }
             );
         }
 
-        // Public이 아니면 인증 필요
-        if (gallery.visibility !== 'public') {
-            const authResult = await checkAuth(request);
-            if (!authResult.authenticated) {
-                return NextResponse.json(
-                    { success: false, error: '인증이 필요합니다' },
-                    { status: 401 }
-                );
-            }
-        }
-
         return NextResponse.json({
             success: true,
-            data: gallery,
+            data: curriculum,
         });
     } catch (error) {
-        console.error('갤러리 조회 실패:', error);
+        console.error('커리큘럼 조회 실패:', error);
         return NextResponse.json(
-            { success: false, error: '갤러리 조회 실패' },
+            { success: false, error: '커리큘럼 조회 실패' },
             { status: 500 }
         );
     }
 }
 
-// PUT: 갤러리 수정
+// PUT: 커리큘럼 수정
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const authResult = await checkAuth(request);
-        if (!authResult.authenticated || (authResult.user?.role !== 'admin' && authResult.user?.role !== 'teacher')) {
+        if (!authResult.authenticated || authResult.user?.role !== 'admin') {
             return NextResponse.json(
                 { success: false, error: '권한이 없습니다' },
                 { status: 403 }
@@ -84,23 +81,18 @@ export async function PUT(
 
         const { id } = await params;
         const body = await request.json();
-        const { title, description, images, videos, tags, visibility } = body;
+        const { weeks } = body;
 
         const db = await getDatabase();
 
-        const updateData: Partial<ClassGallery> = {
+        const updateData: Partial<Curriculum> = {
             updatedAt: new Date(),
         };
 
-        if (title !== undefined) updateData.title = title;
-        if (description !== undefined) updateData.description = description;
-        if (images !== undefined) updateData.images = images;
-        if (videos !== undefined) updateData.videos = videos;
-        if (tags !== undefined) updateData.tags = tags;
-        if (visibility !== undefined) updateData.visibility = visibility;
+        if (weeks !== undefined) updateData.weeks = weeks;
 
         const result = await db
-            .collection(COLLECTIONS.CLASS_GALLERY)
+            .collection(COLLECTIONS.CURRICULUM)
             .findOneAndUpdate(
                 { _id: new ObjectId(id) },
                 { $set: updateData },
@@ -109,7 +101,7 @@ export async function PUT(
 
         if (!result) {
             return NextResponse.json(
-                { success: false, error: '갤러리를 찾을 수 없습니다' },
+                { success: false, error: '커리큘럼을 찾을 수 없습니다' },
                 { status: 404 }
             );
         }
@@ -119,15 +111,15 @@ export async function PUT(
             data: result,
         });
     } catch (error) {
-        console.error('갤러리 수정 실패:', error);
+        console.error('커리큘럼 수정 실패:', error);
         return NextResponse.json(
-            { success: false, error: '갤러리 수정 실패' },
+            { success: false, error: '커리큘럼 수정 실패' },
             { status: 500 }
         );
     }
 }
 
-// DELETE: 갤러리 삭제
+// DELETE: 커리큘럼 삭제
 export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -145,25 +137,26 @@ export async function DELETE(
         const db = await getDatabase();
 
         const result = await db
-            .collection(COLLECTIONS.CLASS_GALLERY)
+            .collection(COLLECTIONS.CURRICULUM)
             .deleteOne({ _id: new ObjectId(id) });
 
         if (result.deletedCount === 0) {
             return NextResponse.json(
-                { success: false, error: '갤러리를 찾을 수 없습니다' },
+                { success: false, error: '커리큘럼을 찾을 수 없습니다' },
                 { status: 404 }
             );
         }
 
         return NextResponse.json({
             success: true,
-            message: '갤러리가 삭제되었습니다',
+            message: '커리큘럼이 삭제되었습니다',
         });
     } catch (error) {
-        console.error('갤러리 삭제 실패:', error);
+        console.error('커리큘럼 삭제 실패:', error);
         return NextResponse.json(
-            { success: false, error: '갤러리 삭제 실패' },
+            { success: false, error: '커리큘럼 삭제 실패' },
             { status: 500 }
         );
     }
 }
+

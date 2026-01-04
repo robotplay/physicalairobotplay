@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings, TrendingUp, GraduationCap, BarChart3, Trophy, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, User, MessageSquare, Calendar, X, Trash2, Eye, LogOut, CreditCard, FileText, Newspaper, Video, Users, Settings, TrendingUp, GraduationCap, BarChart3, Trophy, CheckCircle2, BookOpen, Image as ImageIcon, HelpCircle } from 'lucide-react';
 import ScrollAnimation from '@/components/ScrollAnimation';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import RegistrationsTab from '@/components/admin/RegistrationsTab';
@@ -17,6 +17,11 @@ import AnalyticsTab from '@/components/admin/AnalyticsTab';
 import AttendanceTab from '@/components/admin/AttendanceTab';
 import CollectedNewsTab from '@/components/admin/CollectedNewsTab';
 import CompetitionsTab from '@/components/admin/CompetitionsTab';
+import CurriculumTab from '@/components/admin/CurriculumTab';
+import GalleryTab from '@/components/admin/GalleryTab';
+import FAQTab from '@/components/admin/FAQTab';
+import FeedbackTab from '@/components/admin/FeedbackTab';
+import NewsletterTab from '@/components/admin/NewsletterTab';
 import type { StudentCompetition, Project } from '@/types';
 
 interface ConsultationData {
@@ -111,7 +116,7 @@ interface StudentData {
     updatedAt: string;
 }
 
-type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'students' | 'attendance' | 'parent-communication' | 'competitions' | 'analytics' | 'marketing' | 'collected-news' | 'settings';
+type TabType = 'consultations' | 'payments' | 'registrations' | 'news' | 'online-courses' | 'teachers' | 'students' | 'attendance' | 'parent-communication' | 'competitions' | 'curriculum' | 'gallery' | 'faq' | 'feedback' | 'newsletter' | 'analytics' | 'marketing' | 'collected-news' | 'settings';
 
 export default function AdminPage() {
     const router = useRouter();
@@ -582,6 +587,96 @@ export default function AdminPage() {
                             </button>
                             <button
                                 onClick={() => {
+                                    setActiveTab('curriculum');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'curriculum'
+                                        ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <BookOpen className="w-4 h-4" />
+                                    커리큘럼
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('gallery');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'gallery'
+                                        ? 'border-pink-600 text-pink-600 dark:text-pink-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <ImageIcon className="w-4 h-4" />
+                                    갤러리
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('faq');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'faq'
+                                        ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <HelpCircle className="w-4 h-4" />
+                                    FAQ
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('feedback');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'feedback'
+                                        ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <MessageSquare className="w-4 h-4" />
+                                    피드백
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('newsletter');
+                                    setSelectedConsultation(null);
+                                    setSelectedPayment(null);
+                                    setSelectedRegistration(null);
+                                }}
+                                className={`flex-shrink-0 px-4 py-2 font-semibold transition-colors border-b-2 ${
+                                    activeTab === 'newsletter'
+                                        ? 'border-purple-600 text-purple-600 dark:text-purple-400'
+                                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <Mail className="w-4 h-4" />
+                                    뉴스레터
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => {
                                     setActiveTab('analytics');
                                     setSelectedConsultation(null);
                                     setSelectedPayment(null);
@@ -993,6 +1088,26 @@ export default function AdminPage() {
 
                 {activeTab === 'competitions' && (
                     <CompetitionsTab />
+                )}
+
+                {activeTab === 'curriculum' && (
+                    <CurriculumTab />
+                )}
+
+                {activeTab === 'gallery' && (
+                    <GalleryTab />
+                )}
+
+                {activeTab === 'faq' && (
+                    <FAQTab />
+                )}
+
+                {activeTab === 'feedback' && (
+                    <FeedbackTab />
+                )}
+
+                {activeTab === 'newsletter' && (
+                    <NewsletterTab />
                 )}
 
                 {activeTab === 'settings' && (

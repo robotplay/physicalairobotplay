@@ -1,112 +1,98 @@
-import { NextRequest } from 'next/server';
-import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
-import { verifyToken, hasPermission } from '@/lib/auth';
+/**
+ * 갤러리 관리 API
+ */
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import {
-    successResponse,
-    unauthorizedResponse,
-    badRequestResponse,
-    handleMongoError,
-} from '@/lib/api-response';
+import { getDatabase, COLLECTIONS } from '@/lib/mongodb';
+import { verifyToken } from '@/lib/auth';
+import type { ClassGallery } from '@/types';
 
-// 권한 체크 헬퍼 함수
-async function checkAuth(requiredRole: 'admin' | 'teacher' = 'admin') {
+// 인증 헬퍼 함수
+async function checkAuth(request: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get('auth-token')?.value;
 
     if (!token) {
-        return { authorized: false, error: '인증되지 않았습니다.' };
+        return { authenticated: false, error: '인증되지 않았습니다.' };
     }
 
     const payload = await verifyToken(token);
     if (!payload) {
-        return { authorized: false, error: '유효하지 않은 토큰입니다.' };
+        return { authenticated: false, error: '유효하지 않은 토큰입니다.' };
     }
 
-    if (!hasPermission(payload.role, requiredRole)) {
-        return { authorized: false, error: '권한이 없습니다.' };
-    }
-
-    return { authorized: true, user: payload };
+    return { authenticated: true, user: payload };
 }
 
-// GET - 갤러리 목록 조회
+// GET: 갤러리 목록 조회
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
-        const courseId = searchParams.get('courseId'); // 과목별 필터
-        const visibility = searchParams.get('visibility'); // 공개 범위 필터
-        const page = parseInt(searchParams.get('page') || '1');
-        const limit = parseInt(searchParams.get('limit') || '20');
-        const skip = (page - 1) * limit;
+        const visibility = searchParams.get('visibility');
+        const courseId = searchParams.get('courseId');
 
         const db = await getDatabase();
-        const collection = db.collection(COLLECTIONS.CLASS_GALLERY);
+        const filter: any = {};
 
-        // 쿼리 구성
-        const query: any = {};
-        if (courseId) {
-            query.courseId = courseId;
+        // Public이면 인증 없이, 그 외는 인증 필요
+        if (visibility !== 'public') {
+            const authResult = await checkAuth(request);
+            if (!authResult.authenticated) {
+                return NextResponse.json(
+                    { success: false, error: '권한이 없습니다' },
+                    { status: 403 }
+                );
+            }
         }
-        if (visibility) {
-            query.visibility = visibility;
-        }
 
-        // 전체 개수 조회
-        const total = await collection.countDocuments(query);
+        if (visibility) filter.visibility = visibility;
+        if (courseId) filter.courseId = courseId;
 
-        // 갤러리 목록 조회 (최신순)
-        const galleries = await collection
-            .find(query)
-            .sort({ classDate: -1, createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
+        const galleries = await db
+            .collection(COLLECTIONS.CLASS_GALLERY)
+            .find(filter)
+            .sort({ classDate: -1 })
             .toArray();
 
-        const formattedGalleries = galleries.map((gallery) => ({
-            ...gallery,
-            _id: gallery._id.toString(),
-        }));
-
-        return successResponse({
-            galleries: formattedGalleries,
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
+        return NextResponse.json({
+            success: true,
+            data: { galleries },
         });
     } catch (error) {
-        return handleMongoError(error);
+        console.error('갤러리 목록 조회 실패:', error);
+        return NextResponse.json(
+            { success: false, error: '갤러리 목록 조회 실패' },
+            { status: 500 }
+        );
     }
 }
 
-// POST - 갤러리 항목 추가
+// POST: 새 갤러리 등록
 export async function POST(request: NextRequest) {
     try {
-        const auth = await checkAuth('admin');
-        if (!auth.authorized) {
-            return unauthorizedResponse(auth.error);
+        const authResult = await checkAuth(request);
+        if (!authResult.authenticated || (authResult.user?.role !== 'admin' && authResult.user?.role !== 'teacher')) {
+            return NextResponse.json(
+                { success: false, error: '권한이 없습니다' },
+                { status: 403 }
+            );
         }
 
         const body = await request.json();
         const { courseId, classDate, title, description, images, videos, tags, visibility } = body;
 
-        // 필수 필드 검증
+        // 유효성 검사
         if (!courseId || !classDate || !title) {
-            return badRequestResponse(
-                '필수 항목을 입력해주세요.',
-                '과목, 수업일, 제목은 필수입니다.'
+            return NextResponse.json(
+                { success: false, error: '필수 정보를 입력해주세요' },
+                { status: 400 }
             );
         }
 
         const db = await getDatabase();
-        const collection = db.collection(COLLECTIONS.CLASS_GALLERY);
+        const galleryId = `gallery_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-        // 갤러리 ID 생성
-        const galleryId = `gallery-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-        // 갤러리 데이터 생성
-        const galleryData = {
+        const newGallery: Omit<ClassGallery, '_id'> = {
             galleryId,
             courseId,
             classDate: new Date(classDate),
@@ -115,22 +101,22 @@ export async function POST(request: NextRequest) {
             images: images || [],
             videos: videos || [],
             tags: tags || [],
-            visibility: visibility || 'public', // public, parents-only, private
+            visibility: visibility || 'public',
             createdAt: new Date(),
+            updatedAt: new Date(),
         };
 
-        const result = await collection.insertOne(galleryData);
+        const result = await db.collection(COLLECTIONS.CLASS_GALLERY).insertOne(newGallery);
 
-        return successResponse(
-            {
-                ...galleryData,
-                _id: result.insertedId.toString(),
-            },
-            '갤러리 항목이 추가되었습니다.',
-            201
-        );
+        return NextResponse.json({
+            success: true,
+            data: { _id: result.insertedId, ...newGallery },
+        });
     } catch (error) {
-        return handleMongoError(error);
+        console.error('갤러리 등록 실패:', error);
+        return NextResponse.json(
+            { success: false, error: '갤러리 등록 실패' },
+            { status: 500 }
+        );
     }
 }
-
